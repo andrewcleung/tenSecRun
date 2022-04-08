@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <stdbool.h>
 /* This files provides address values that exist in the system */
 
 #define BOARD "DE1-SoC"
@@ -79,6 +80,9 @@
 #define RESOLUTION_X 320
 #define RESOLUTION_Y 240
 
+/* Object block size */
+#define BOX_LEN 8
+
 /* Functions declarations */
 /* interrupt controls */
 void disable_A9_interrupts(void); // done
@@ -93,7 +97,8 @@ void pushbutton_ISR(void);
 
 /* Data structures */
 /* On screen objects */
-enum {
+enum GameObject{
+    EMPTY = 0, // default value of the enum is empty
     PLAYER,
     PLATFORM_BLOCK,
     FIREBALL,
@@ -102,6 +107,34 @@ enum {
     END,
     THANOS
 };
+
+enum PlayerState {
+    STILL = 0,
+    LEFT,
+    RIGHT,
+    JUMP,
+    FALL,
+    DEAD,
+};
+
+typedef struct position {
+    int x;
+    int y;
+} Position;
+
+typedef struct player {
+    Position pos;
+    enum PlayerState state;
+    bool thanos;
+}Player;
+
+/* Global variables */
+/* Onscreen objects */
+enum GameObject objects[BLOCK_RESOLUTION_X][BLOCK_RESOLUTION_Y];
+Player myPlayer;
+
+const int BLOCK_RESOLUTION_X = RESOLUTION_X / BOX_LEN;
+const int BLOCK_RESOLUTION_Y = RESOLUTION_Y / BOX_LEN;
 
 /* ===========!!!!WARNING!!!================= */
 /* ===========!!!!DO NOT MODIFY BELOW!!!================= */
@@ -269,7 +302,6 @@ void pushbutton_ISR(void)
     *HEX3_HEX0_ptr = HEX_bits;
     return;
 }
-
 
 int main(void)
 {
