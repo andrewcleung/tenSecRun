@@ -72,6 +72,13 @@
 #define OM_IRQ 0b10010;
 #define OM_FIQ 0b10001;
 
+/* Animation definitions */
+#define ABS(x) (((x) > 0) ? (x) : -(x))
+
+/* Screen size. */
+#define RESOLUTION_X 320
+#define RESOLUTION_Y 240
+
 /* Functions declarations */
 /* interrupt controls */
 void disable_A9_interrupts(void); // done
@@ -84,7 +91,17 @@ void config_interrupt(int, int); // done
 /* Interrupt routines */
 void pushbutton_ISR(void);
 
-/* IRQ exception function handlers */
+/* Data structures */
+/* On screen objects */
+enum {
+    PLAYER,
+    PLATFORM_BLOCK,
+    FIREBALL,
+    SPIKE,
+    START,
+    END,
+    THANOS
+};
 
 /* ===========!!!!WARNING!!!================= */
 /* ===========!!!!DO NOT MODIFY BELOW!!!================= */
@@ -252,6 +269,7 @@ void pushbutton_ISR(void)
     *HEX3_HEX0_ptr = HEX_bits;
     return;
 }
+
 
 int main(void)
 {
