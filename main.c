@@ -81,6 +81,7 @@
 #define RESOLUTION_Y 240
 
 /* Object block size */
+/* DO NOT CHANGE THIS*/
 #define BOX_LEN 8
 
 /* Functions declarations */
@@ -129,12 +130,12 @@ typedef struct player {
 }Player;
 
 /* Global variables */
-/* Onscreen objects */
-enum GameObject objects[BLOCK_RESOLUTION_X][BLOCK_RESOLUTION_Y];
-Player myPlayer;
-
 const int BLOCK_RESOLUTION_X = RESOLUTION_X / BOX_LEN;
 const int BLOCK_RESOLUTION_Y = RESOLUTION_Y / BOX_LEN;
+/* Onscreen objects */
+enum GameObject currentObjects[BLOCK_RESOLUTION_X][BLOCK_RESOLUTION_Y];
+Player myPlayer;
+
 
 /* ===========!!!!WARNING!!!================= */
 /* ===========!!!!DO NOT MODIFY BELOW!!!================= */
