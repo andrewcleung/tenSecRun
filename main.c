@@ -96,21 +96,30 @@
 /* DO NOT CHANGE THIS*/
 #define BOX_LEN 8
 
+#define BLOCK_RESOLUTION_X 40
+#define BLOCK_RESOLUTION_Y 30
+
 /* Functions declarations */
 /* interrupt controls */
-void disable_A9_interrupts(void); // done
+void disable_A9_interrupts(void);
 void set_A9_IRQ_stack(void);
-void config_GIC(void); // done
+void config_GIC(void);
 void config_KEYs(void);
-void enable_A9_interrupts(void); // done
-void config_interrupt(int, int); // done
+void enable_A9_interrupts(void);
+void config_interrupt(int, int);
 
 /* Interrupt routines */
 void pushbutton_ISR(void);
 
+/* VGA setup routine */
+void setupVGA(void);   // Setup the front and back buffer of the VGA display
+void wait_for_vsync(); // Swap between front and back buffer
+void clear_screen();
+
 /* Data structures */
 /* On screen objects */
-enum GameObject{
+enum GameObject
+{
     EMPTY = 0, // default value of the enum is empty
     PLAYER,
     PLATFORM_BLOCK,
@@ -121,7 +130,8 @@ enum GameObject{
     THANOS
 };
 
-enum PlayerState {
+enum PlayerState
+{
     STILL = 0,
     LEFT,
     RIGHT,
@@ -130,24 +140,26 @@ enum PlayerState {
     DEAD,
 };
 
-typedef struct position {
+typedef struct position
+{
     int x;
     int y;
 } Position;
 
-typedef struct player {
+typedef struct player
+{
     Position pos;
     enum PlayerState state;
     bool thanos;
-}Player;
+} Player;
 
 /* Global variables */
-const int BLOCK_RESOLUTION_X = RESOLUTION_X / BOX_LEN;
-const int BLOCK_RESOLUTION_Y = RESOLUTION_Y / BOX_LEN;
 /* Onscreen objects */
 enum GameObject currentObjects[BLOCK_RESOLUTION_X][BLOCK_RESOLUTION_Y];
 Player myPlayer;
 
+/* VGA buffer */
+volatile int pixel_buffer_start;
 
 /* ===========!!!!WARNING!!!================= */
 /* ===========!!!!DO NOT MODIFY BELOW!!!================= */
@@ -316,13 +328,78 @@ void pushbutton_ISR(void)
     return;
 }
 
+/********************************************************************
+ * setupVGA
+ *
+ * The function setups the front and back buffer of the VGA display
+ *******************************************************************/
+void setupVGA(void)
+{
+    volatile int *pixel_ctrl_ptr = (int *)0xFF203020;
+    /* set front pixel buffer to start of FPGA On-chip memory */
+    *(pixel_ctrl_ptr + 1) = 0xC8000000; // first store the address in the
+                                        // back buffer
+    /* now, swap the front/back buffers, to set the front buffer location */
+    wait_for_vsync();
+    /* initialize a pointer to the pixel buffer, used by drawing functions */
+    pixel_buffer_start = *pixel_ctrl_ptr;
+    clear_screen(); // pixel_buffer_start points to the pixel buffer
+    /* set back pixel buffer to start of SDRAM memory */
+    *(pixel_ctrl_ptr + 1) = 0xC0000000;
+    pixel_buffer_start = *(pixel_ctrl_ptr + 1); // we draw on the back buffer
+    clear_screen();                             // pixel_buffer_start points to the pixel buffer
+}
+
+/********************************************************************
+ * wait_for_vsync
+ *
+ * The function swaps the front and back buffer
+ *******************************************************************/
+void wait_for_vsync()
+{
+    volatile int *pixel_ctrl_ptr = (int *)PIXEL_BUF_CTRL_BASE;
+    register int status;
+
+    *pixel_ctrl_ptr = 1;
+
+    status = *(pixel_ctrl_ptr + 3);
+    while ((status & 0x01) != 0)
+    {
+        status = *(pixel_ctrl_ptr + 3);
+    }
+    return;
+}
+
+/********************************************************************
+ * wait_for_vsync
+ *
+ * The function swaps the front and back buffer
+ *******************************************************************/
+void clear_screen()
+{
+    int x;
+    int y;
+    for (x = 0; x < RESOLUTION_X; x++)
+    {
+        for (y = 0; y < RESOLUTION_Y; y++)
+        {
+            *(short int *)(pixel_buffer_start + (y << 10) + (x << 1)) = WHITE;
+        }
+    }
+}
+
 int main(void)
 {
+    /* Interrupt setup routine */
     disable_A9_interrupts(); // disable interrupts in the A9 processor
     set_A9_IRQ_stack();      // initialize the stack pointer for IRQ mode
     config_GIC();            // configure the general interrupt controller
     config_KEYs();           // configure KEYs to generate interrupts
     enable_A9_interrupts();  // enable interrupts in the A9 processor
-    while (1)                // wait for an interrupt
+
+    /* VGA setup routine */
+    setupVGA();
+
+    while (1) // wait for an interrupt
         ;
 }
