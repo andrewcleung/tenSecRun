@@ -134,10 +134,7 @@ enum PlayerState
 {
     STILL = 0,
     LEFT,
-    RIGHT,
-    JUMP,
-    FALL,
-    DEAD,
+    RIGHT
 };
 
 typedef struct position
@@ -150,7 +147,7 @@ typedef struct player
 {
     Position pos;
     enum PlayerState state;
-    bool thanos;
+    bool jump;
 } Player;
 
 /* Global variables */
