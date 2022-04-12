@@ -112,6 +112,8 @@
 #define TEMP 100
 #define HEAD_RADIUS 6
 #define TORSO_LENGTH 8
+#define TORSO_LENGTH_30 2
+#define TORSO_LENGTH_60 6
 #define JOINT_LENGTH_30 2
 #define JOINT_LENGTH_45 4
 #define JOINT_LENGTH_60 5
@@ -646,6 +648,7 @@ void drawCurrentObjects()
     }
     //For debugging:
     //drawPlayerResting();
+    //drawPlayerRunningRight();
     wait_for_vsync();
 }
 
@@ -757,15 +760,62 @@ void drawPlayerResting()
     //left foot
     x_box[8] = x_box[7] - JOINT_LENGTH_45;
     y_box[8] = y_box[7] + JOINT_LENGTH_45;
-    //left leg
+    //right leg
     x_box[9] = x_box[6] + JOINT_LENGTH_45;
     y_box[9] = y_box[6] + JOINT_LENGTH_45;
-    //left foot
+    //right foot
     x_box[10] = x_box[9] + JOINT_LENGTH_30;
     y_box[10] = y_box[9] + JOINT_LENGTH_60;
 
     drawPlayer(x_box, y_box);
 }
+
+void drawPlayerRunningRight()
+{
+    int x_box[NUM_JOINTS];
+	int y_box[NUM_JOINTS];
+    /*draw human, from 100 x 100 */
+	//Head
+	x_box[0] = TEMP + 30;
+	y_box[0] = TEMP;
+
+    //temporary numbers for now, just for testing
+    drawCircle(TEMP + 32,TEMP, HEAD_RADIUS);
+
+	//Neck
+	x_box[1] = x_box[0];
+    y_box[1] = y_box[0] + HEAD_RADIUS;
+	//Left arm
+	x_box[2] = x_box[0] - JOINT_LENGTH_60;
+	y_box[2] = y_box[1] - JOINT_LENGTH_30;
+    //Left hand
+	x_box[3] = x_box[2] - JOINT_LENGTH_45;
+	y_box[3] = y_box[2] + JOINT_LENGTH_45;
+    //Right arm
+	x_box[4] = x_box[0] + JOINT_LENGTH_45;
+	y_box[4] = y_box[1] + JOINT_LENGTH_45;
+    //Right hand
+	x_box[5] = x_box[4] + JOINT_LENGTH_60;
+	y_box[5] = y_box[4] - JOINT_LENGTH_30;
+    //Balls
+    x_box[6] = x_box[1] - TORSO_LENGTH_30;
+    y_box[6] = y_box[1] + TORSO_LENGTH_60;
+    //left leg
+    x_box[7] = x_box[6] - JOINT_LENGTH_45;
+    y_box[7] = y_box[6] + JOINT_LENGTH_45;
+    //left foot
+    x_box[8] = x_box[7] - JOINT_LENGTH_45;
+    y_box[8] = y_box[7] + JOINT_LENGTH_45;
+    //right leg
+    x_box[9] = x_box[6] + JOINT_LENGTH_45;
+    y_box[9] = y_box[6] + JOINT_LENGTH_45;
+    //right foot
+    x_box[10] = x_box[9] - JOINT_LENGTH_45;
+    y_box[10] = y_box[9] + JOINT_LENGTH_45;
+
+    drawPlayer(x_box, y_box);
+}
+
 
 /*
  * draw Player
