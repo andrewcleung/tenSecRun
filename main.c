@@ -118,57 +118,6 @@
 #define JOINT_LENGTH_45 4
 #define JOINT_LENGTH_60 5
 
-/* Functions declarations */
-/**************************** Interrupt controls ***********************************/
-void disable_A9_interrupts(void);
-void set_A9_IRQ_stack(void);
-void config_GIC(void);
-void config_KEYs(void);              // configure the KEYs
-void config_mpcore_priv_timer(void); // configure A9 private timer
-void enable_A9_interrupts(void);
-void config_interrupt(int, int);
-// Helper function to setup all devices
-void setup_interrupts(void);
-
-/* Interrupt routines */
-void pushbutton_ISR(void);
-void mpcore_priv_timer_ISR(void);
-
-/**************************** Timer routines ***********************************/
-void start_mpcore_priv_timer(void);
-void stop_mpcore_priv_timer(void);
-
-/**************************** VGA setup routine ***********************************/
-void setupVGA(void);   // Setup the front and back buffer of the VGA display
-void wait_for_vsync(); // Swap between front and back buffer
-void clear_screen();
-
-/**************************** Level setup routine ***********************************/
-void setupLevels();
-void setupLevels_lv1();
-void updateLevel(int level);
-
-/**************************** Draw routine ************************************/
-/* Game objects */
-void plot_pixel(int x, int y, short int line_color); // plot individual pixels on the VGA coordinate
-void drawCurrentObjects();                           // draw the current objects on the screen
-void drawPlatformBlock(int baseX, int baseY);        // draw the platform block
-void drawStart(int baseX, int baseY);                // draw the starting block
-void drawEnd(int baseX, int baseY);                  // draw the ending block
-void drawEmpty(int baseX, int baseY);                // draw the empty space
-
-/* Player */
-void drawPlayerResting();
-void drawPlayerRunningRight();
-void drawPlayer(int x_box[NUM_JOINTS], int y_box[NUM_JOINTS]);
-
-/* Shapes */
-void drawLine(int x0, int y0, int x1, int y1, short int line_color);
-void drawCircle(int x_center, int y_centerc, int r, short int line_color);
-
-/**************************** Helper Functions ************************************/
-void swap(int *A, int *B);
-
 /**************************** Data structures ************************************/
 /* On screen objects */
 enum GameObject
@@ -213,6 +162,7 @@ typedef struct player
 
 typedef struct levels
 {
+    int levelNumber;
     Position_boxlen start;
     Position_boxlen end;
     enum GameObject levelObjects[BLOCK_RESOLUTION_X][BLOCK_RESOLUTION_Y];
@@ -238,6 +188,63 @@ typedef struct gamestate
     enum GameObject currentObjects[BLOCK_RESOLUTION_X][BLOCK_RESOLUTION_Y];
 } GameState;
 
+/* Functions declarations */
+/**************************** Interrupt controls ***********************************/
+void disable_A9_interrupts(void);
+void set_A9_IRQ_stack(void);
+void config_GIC(void);
+void config_KEYs(void);              // configure the KEYs
+void config_mpcore_priv_timer(void); // configure A9 private timer
+void enable_A9_interrupts(void);
+void config_interrupt(int, int);
+// Helper function to setup all devices
+void setup_interrupts(void);
+
+/* Interrupt routines */
+void pushbutton_ISR(void);
+void mpcore_priv_timer_ISR(void);
+
+/**************************** Timer routines ***********************************/
+void start_mpcore_priv_timer(void);
+void stop_mpcore_priv_timer(void);
+
+/**************************** VGA setup routine ***********************************/
+void setupVGA(void);   // Setup the front and back buffer of the VGA display
+void wait_for_vsync(); // Swap between front and back buffer
+void clear_screen();
+
+/**************************** Level setup routine ***********************************/
+void setupLevels();
+void setupLevels_lv1();
+void updateLevel(Levels level);
+
+/**************************** Draw routine ************************************/
+/* Game objects */
+void plot_pixel(int x, int y, short int line_color); // plot individual pixels on the VGA coordinate
+void drawCurrentObjects();                           // draw the current objects on the screen
+void drawPlatformBlock(int baseX, int baseY);        // draw the platform block
+void drawStart(int baseX, int baseY);                // draw the starting block
+void drawEnd(int baseX, int baseY);                  // draw the ending block
+void drawEmpty(int baseX, int baseY);                // draw the empty space
+
+/* Testing objects */
+void drawTestBox(int vgaX, int vgaY);
+
+/* Player */
+void drawPlayerResting();
+void drawPlayerRunningRight();
+void drawPlayer(int x_box[NUM_JOINTS], int y_box[NUM_JOINTS]);
+
+/* Shapes */
+void drawLine(int x0, int y0, int x1, int y1, short int line_color);
+void drawCircle(int x_center, int y_centerc, int r, short int line_color);
+
+/* Animation routine */
+void refreshAnimation();
+
+/**************************** Helper Functions ************************************/
+void swap(int *A, int *B);
+
 /**************************** Global variables ************************************/
 Levels level1;
 GameState myGame;
@@ -259,7 +266,7 @@ void config_KEYs()
 void config_mpcore_priv_timer(void)
 {
     volatile int *MPcore_private_timer_ptr = (int *)MPCORE_PRIV_TIMER;
-    int counter = 200000000;                 // timeout = 1/(200 MHz) x 200x10^6 = 1 sec
+    int counter = 6250000;                 // timeout = 1/(200 MHz) x 200x10^6 = 1 sec
     *(MPcore_private_timer_ptr) = counter;   // write to timer load register
     *(MPcore_private_timer_ptr + 2) = 0b110; // interrupt = 1 (enable interrupt),
     // mode = 1 (auto), enable = 0 (start timer later)
@@ -435,11 +442,8 @@ void mpcore_priv_timer_ISR(void)
     volatile int *MPcore_private_timer_ptr = (int *)MPCORE_PRIV_TIMER;
 
     // draw routine
-    volatile int *LEDR_ptr = (int *)LEDR_BASE;
-    if (((*LEDR_ptr) & 0x1) == 0)
-        (*LEDR_ptr) = 0x1;
-    else
-        (*LEDR_ptr) = 0x0;
+   refreshAnimation();
+   myGame.myPlayer.pos.x += 1;
 
     *(MPcore_private_timer_ptr + 3) = 1; // reset timer flag bit
 }
@@ -538,7 +542,7 @@ void clear_screen()
             plot_pixel(x, y, WHITE);
         }
     }
-    wait_for_vsync();
+    refreshAnimation();
 }
 
 /********************************************************************
@@ -558,6 +562,9 @@ void setupLevels()
  *******************************************************************/
 void setupLevels_lv1()
 {
+    // update the level number
+    level1.levelNumber = 1;
+
     // draw the platform for level 1
     for (int x = 0; x < BLOCK_RESOLUTION_X; x++)
     {
@@ -586,23 +593,22 @@ void setupLevels_lv1()
  *
  * update the current level
  *******************************************************************/
-void updateLevel(int level)
+void updateLevel(Levels level)
 {
+    // updating the current object array
     for (int x = 0; x < BLOCK_RESOLUTION_X; x++)
     {
         for (int y = 0; y < BLOCK_RESOLUTION_Y; y++)
         {
-            switch (level)
-            {
-            case 1:
-                myGame.currentObjects[x][y] = level1.levelObjects[x][y];
-                break;
-            default:
-                myGame.currentObjects[x][y] = level1.levelObjects[x][y];
-                break;
-            }
+            myGame.currentObjects[x][y] = level.levelObjects[x][y];
         }
     }
+    myGame.start = level.start;
+    myGame.end = level.end;
+    myGame.level = level.levelNumber;
+    // Update my player
+    myGame.myPlayer.pos.x = myGame.start.x * BOX_LEN; // scale to VGA position
+    myGame.myPlayer.pos.y = (myGame.start.y - 1 /* player height*/) * BOX_LEN; //scale to VGA position
 }
 
 /********************************************************************
@@ -652,10 +658,6 @@ void drawCurrentObjects()
             }
         }
     }
-    // For debugging:
-    // drawPlayerResting();
-    // drawPlayerRunningRight();
-    wait_for_vsync();
 }
 
 /********************************************************************
@@ -854,6 +856,35 @@ void drawPlayer(int x_box[NUM_JOINTS], int y_box[NUM_JOINTS])
 }
 
 /********************************************************************
+ * drawTestBox(int vgaX, int vgaY)
+ *
+ * the function draws a testing object  in the VGA coordinates
+ *******************************************************************/
+void drawTestBox(int vgaX, int vgaY)
+{
+    for (int x = 0; x < BOX_LEN; x++)
+    {
+        for (int y = 0; y < BOX_LEN; y++)
+        {
+            plot_pixel(vgaX + x, vgaY + y, GREEN);
+        }
+    }
+}
+
+/********************************************************************
+ * void refreshAnimation();
+ *
+ * the function refreshes all the drawing using the timer
+ *******************************************************************/
+void refreshAnimation() {
+    volatile int * pixel_ctrl_ptr = (int *) PIXEL_BUF_CTRL_BASE;
+    drawCurrentObjects();
+    drawTestBox(myGame.myPlayer.pos.x, myGame.myPlayer.pos.y);
+    wait_for_vsync();
+    pixel_buffer_start = *(pixel_ctrl_ptr + 1); // new back buffer
+}
+
+/********************************************************************
  * drawLine(int x0, int y0, int x1, int y1, short int line_color)
  *
  * the function draws a line in the VGA coordinates
@@ -952,8 +983,7 @@ int main(void)
     // Setup all the levels before the game
     setupLevels();
 
-    updateLevel(1);
-    drawCurrentObjects();
+    updateLevel(level1);
     start_mpcore_priv_timer();
 
     while (1) // wait for an interrupt
