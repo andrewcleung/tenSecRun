@@ -74,6 +74,7 @@
 #define OM_FIQ 0b10001;
 
 /* VGA colors */
+#define BLACK 0x0
 #define WHITE 0xFFFF
 #define YELLOW 0xFFE0
 #define RED 0xF800
@@ -84,6 +85,12 @@
 #define GREY 0xC618
 #define PINK 0xFC18
 #define ORANGE 0xFC00
+
+/* Game colour */
+#define COLOR_PLATFORM 0xC618
+#define COLOR_PLATFORM_BORDER 0x0
+#define COLOR_START 0xF800
+#define COLOR_END 0x001F
 
 /* Animation definitions */
 #define ABS(x) (((x) > 0) ? (x) : -(x))
@@ -119,6 +126,13 @@ void clear_screen();
 /* Level setup routine */
 void setupLevels();
 void setupLevels_lv1();
+void updateLevel(int level);
+
+/* Draw routine */
+void plot_pixel(int x, int y, short int line_color);
+void drawCurrentObjects();
+void drawPlatformBlock(int baseX, int baseY);
+void drawEmpty(int baseX, int baseY);
 
 /* Data structures */
 /* On screen objects */
@@ -159,7 +173,7 @@ typedef struct player
 enum GameObject currentObjects[BLOCK_RESOLUTION_X][BLOCK_RESOLUTION_Y];
 
 /* Levels */
-enum GameObject objects_lv1 [BLOCK_RESOLUTION_X][BLOCK_RESOLUTION_Y];
+enum GameObject objects_lv1[BLOCK_RESOLUTION_X][BLOCK_RESOLUTION_Y];
 Player myPlayer;
 
 /* VGA buffer */
@@ -346,12 +360,11 @@ void setupVGA(void)
     /* now, swap the front/back buffers, to set the front buffer location */
     wait_for_vsync();
     /* initialize a pointer to the pixel buffer, used by drawing functions */
-    pixel_buffer_start = *pixel_ctrl_ptr;
-    clear_screen(); // pixel_buffer_start points to the pixel buffer
+    pixel_buffer_start = *pixel_ctrl_ptr; // pixel_buffer_start points to the pixel buffer
+
     /* set back pixel buffer to start of SDRAM memory */
-    *(pixel_ctrl_ptr + 1) = 0xC0000000;
-    pixel_buffer_start = *(pixel_ctrl_ptr + 1); // we draw on the back buffer
-    clear_screen();                             // pixel_buffer_start points to the pixel buffer
+    *(pixel_ctrl_ptr + 1) = 0xC0000000;         // we draw on the back buffer
+    pixel_buffer_start = *(pixel_ctrl_ptr + 1); // pixel_buffer_start points to the pixel buffer
 }
 
 /********************************************************************
@@ -375,9 +388,9 @@ void wait_for_vsync()
 }
 
 /********************************************************************
- * wait_for_vsync
+ * clear_screen
  *
- * The function swaps the front and back buffer
+ * Clear the whole screen to white
  *******************************************************************/
 void clear_screen()
 {
@@ -387,9 +400,10 @@ void clear_screen()
     {
         for (y = 0; y < RESOLUTION_Y; y++)
         {
-            *(short int *)(pixel_buffer_start + (y << 10) + (x << 1)) = WHITE;
+            plot_pixel(x, y, WHITE);
         }
     }
+    wait_for_vsync();
 }
 
 /********************************************************************
@@ -397,7 +411,8 @@ void clear_screen()
  *
  * Routine to setup all the leves
  *******************************************************************/
-void setupLevels() {
+void setupLevels()
+{
     setupLevels_lv1();
 }
 
@@ -406,10 +421,127 @@ void setupLevels() {
  *
  * setup level 1 object
  *******************************************************************/
-void setupLevels_lv1() {
+void setupLevels_lv1()
+{
     // draw the platform for level 1
-    for (int x = 0; x < BLOCK_RESOLUTION_X; x++) {
-        objects_lv1[x][5] = PLATFORM_BLOCK;
+    for (int x = 0; x < BLOCK_RESOLUTION_X; x++)
+    {
+        objects_lv1[x][20] = PLATFORM_BLOCK;
+    }
+
+    // create gaps
+    for (int x = 20; x < 23; x++)
+    {
+        objects_lv1[x][20] = EMPTY;
+    }
+}
+
+/********************************************************************
+ * updateLevel(int level)
+ *
+ * update the current level
+ *******************************************************************/
+void updateLevel(int level)
+{
+    for (int x = 0; x < BLOCK_RESOLUTION_X; x++)
+    {
+        for (int y = 0; y < BLOCK_RESOLUTION_Y; y++)
+        {
+            switch (level)
+            {
+            case 1:
+                currentObjects[x][y] = objects_lv1[x][y];
+                break;
+            default:
+                currentObjects[x][y] = objects_lv1[x][y];
+                break;
+            }
+        }
+    }
+}
+
+/********************************************************************
+ * plot_pixels
+ *
+ * draw the pixel on the screen
+ *******************************************************************/
+void plot_pixel(int x, int y, short int line_color)
+{
+    *(short int *)(pixel_buffer_start + (y << 10) + (x << 1)) = line_color;
+}
+
+/********************************************************************
+ * drawCurrentObjects
+ *
+ * draw current objects on the screen
+ *******************************************************************/
+void drawCurrentObjects()
+{
+    for (int x = 0; x < BLOCK_RESOLUTION_X; x++)
+    {
+        for (int y = 0; y < BLOCK_RESOLUTION_Y; y++)
+        {
+            switch (currentObjects[x][y])
+            {
+            case EMPTY:
+                drawEmpty(x, y);
+                break;
+            case PLAYER:
+                break;
+            case PLATFORM_BLOCK:
+                drawPlatformBlock(x, y);
+                break;
+            case FIREBALL:
+                break;
+            case SPIKE:
+                break;
+            case START:
+                break;
+            case END:
+                break;
+            case THANOS:
+                break;
+            default:
+                drawEmpty(x, y);
+                break;
+            }
+        }
+    }
+    wait_for_vsync();
+}
+
+/********************************************************************
+ * drawPlatformBlock
+ *
+ * draw all the platform blocks
+ *******************************************************************/
+void drawPlatformBlock(int baseX, int baseY)
+{
+    for (int x = 0; x < BOX_LEN; x++)
+    {
+        for (int y = 0; y < BOX_LEN; y++)
+        {
+            if (x == 0 || y == 0 || x == BOX_LEN - 1 || y == BOX_LEN - 1)
+                plot_pixel(baseX * BOX_LEN + x, baseY * BOX_LEN + y, COLOR_PLATFORM_BORDER);
+            else
+                plot_pixel(baseX * BOX_LEN + x, baseY * BOX_LEN + y, COLOR_PLATFORM);
+        }
+    }
+}
+
+/********************************************************************
+ * drawEmpty
+ *
+ * draw all the platform blocks
+ *******************************************************************/
+void drawEmpty(int baseX, int baseY)
+{
+    for (int x = 0; x < BOX_LEN; x++)
+    {
+        for (int y = 0; y < BOX_LEN; y++)
+        {
+            plot_pixel(baseX * BOX_LEN + x, baseY * BOX_LEN + y, WHITE);
+        }
     }
 }
 
@@ -424,6 +556,10 @@ int main(void)
 
     /* VGA setup routine */
     setupVGA();
+
+    setupLevels();
+    updateLevel(1);
+    drawCurrentObjects();
 
     while (1) // wait for an interrupt
         ;
