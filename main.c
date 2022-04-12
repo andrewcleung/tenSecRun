@@ -877,11 +877,11 @@ void drawTestBox(int vgaX, int vgaY)
  * the function refreshes all the drawing using the timer
  *******************************************************************/
 void refreshAnimation() {
-    volatile int * pixel_ctrl_ptr = (int *) PIXEL_BUF_CTRL_BASE;
+    volatile int * pixel_ctrl_ptr = (int *)0xFF203020;
+	pixel_buffer_start = *(pixel_ctrl_ptr + 1); // new back buffer
     drawCurrentObjects();
     drawTestBox(myGame.myPlayer.pos.x, myGame.myPlayer.pos.y);
     wait_for_vsync();
-    pixel_buffer_start = *(pixel_ctrl_ptr + 1); // new back buffer
 }
 
 /********************************************************************
@@ -974,16 +974,17 @@ void swap(int *A, int *B)
 
 int main(void)
 {
+    // Setup all the levels before the game
+    setupLevels();
+    updateLevel(level1);
+
     // Interrupt setup routine
     setup_interrupts();
 
     // VGA setup routine
     setupVGA();
+    clear_screen();
 
-    // Setup all the levels before the game
-    setupLevels();
-
-    updateLevel(level1);
     start_mpcore_priv_timer();
 
     while (1) // wait for an interrupt
