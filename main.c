@@ -139,7 +139,6 @@ void drawEmpty(int baseX, int baseY);
 enum GameObject
 {
     EMPTY = 0, // default value of the enum is empty
-    PLAYER,
     PLATFORM_BLOCK,
     FIREBALL,
     SPIKE,
@@ -485,8 +484,6 @@ void drawCurrentObjects()
             {
             case EMPTY:
                 drawEmpty(x, y);
-                break;
-            case PLAYER:
                 break;
             case PLATFORM_BLOCK:
                 drawPlatformBlock(x, y);
