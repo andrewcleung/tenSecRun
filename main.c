@@ -112,11 +112,17 @@ void disable_A9_interrupts(void);
 void set_A9_IRQ_stack(void);
 void config_GIC(void);
 void config_KEYs(void);
+void config_mpcore_priv_timer(void); // configure A9 private timer
 void enable_A9_interrupts(void);
 void config_interrupt(int, int);
 
 /* Interrupt routines */
 void pushbutton_ISR(void);
+void mpcore_priv_timer_ISR(void);
+
+/* Timer subroutines */
+void start_mpcore_priv_timer(void);
+void stop_mpcore_priv_timer(void);
 
 /* VGA setup routine */
 void setupVGA(void);   // Setup the front and back buffer of the VGA display
@@ -224,6 +230,16 @@ void config_KEYs()
     *(KEY_ptr + 2) = 0xF;                      // enable interrupts for all four KEYs
 }
 
+/* Setup the A9 private timer, you have to manually start the timer using start_mpcore_priv_timer */
+void config_mpcore_priv_timer(void)
+{
+    volatile int *MPcore_private_timer_ptr = (int *)MPCORE_PRIV_TIMER;
+    int counter = 200000000;                 // timeout = 1/(200 MHz) x 200x10^6 = 1 sec
+    *(MPcore_private_timer_ptr) = counter;   // write to timer load register
+    *(MPcore_private_timer_ptr + 2) = 0b110; // interrupt = 1 (enable interrupt),
+    // mode = 1 (auto), enable = 0 (start timer later)
+}
+
 // Define the IRQ exception handler
 void __attribute__((interrupt)) __cs3_isr_irq(void)
 {
@@ -231,6 +247,8 @@ void __attribute__((interrupt)) __cs3_isr_irq(void)
     int interrupt_ID = *((int *)0xFFFEC10C);
     if (interrupt_ID == 73) // check if interrupt is from the KEYs
         pushbutton_ISR();
+    else if (interrupt_ID == 29)
+        mpcore_priv_timer_ISR();
     else
         while (1)
             ; // if unexpected, then stay here
@@ -297,6 +315,7 @@ void disable_A9_interrupts(void)
 void config_GIC(void)
 {
     config_interrupt(73, 1); // configure the FPGA KEYs interrupt (73)
+    config_interrupt(29, 1); // configure the A9 private timer (29)
     // Set Interrupt Priority Mask Register (ICCPMR). Enable all priorities
     *((int *)0xFFFEC104) = 0xFFFF;
     // Set the enable in the CPU Interface Control Register (ICCICR)
@@ -379,6 +398,47 @@ void pushbutton_ISR(void)
         HEX_bits = 0b01001111;
     *HEX3_HEX0_ptr = HEX_bits;
     return;
+}
+
+/********************************************************************
+ * mpcore_priv_timer_ISR - Interrupt Service Routine
+ *
+ * This routine is specifically use for drawing the frames in the game
+ *******************************************************************/
+void mpcore_priv_timer_ISR(void)
+{
+    volatile int *MPcore_private_timer_ptr = (int *)MPCORE_PRIV_TIMER;
+
+    // draw routine
+    volatile int *LEDR_ptr = (int *)LEDR_BASE;
+    if (((*LEDR_ptr) & 0x1) == 0)
+        (*LEDR_ptr) = 0x1;
+    else
+        (*LEDR_ptr) = 0x0;
+
+    *(MPcore_private_timer_ptr + 3) = 1; // reset timer flag bit
+}
+
+/********************************************************************
+ * start_mpcore_priv_timer
+ *
+ * starts the A9 private timer
+ *******************************************************************/
+void start_mpcore_priv_timer(void)
+{
+    volatile int *MPcore_private_timer_ptr = (int *)MPCORE_PRIV_TIMER;
+    *(MPcore_private_timer_ptr + 2) = 0b111;
+}
+
+/********************************************************************
+ * stop_mpcore_priv_timer
+ *
+ * stops the A9 private timer
+ *******************************************************************/
+void stop_mpcore_priv_timer(void)
+{
+    volatile int *MPcore_private_timer_ptr = (int *)MPCORE_PRIV_TIMER;
+    *(MPcore_private_timer_ptr + 2) = 0b110;
 }
 
 /********************************************************************
@@ -635,6 +695,7 @@ int main(void)
     set_A9_IRQ_stack();      // initialize the stack pointer for IRQ mode
     config_GIC();            // configure the general interrupt controller
     config_KEYs();           // configure KEYs to generate interrupts
+    config_mpcore_priv_timer();
     enable_A9_interrupts();  // enable interrupts in the A9 processor
 
     /* VGA setup routine */
@@ -643,6 +704,7 @@ int main(void)
     setupLevels();
     updateLevel(1);
     drawCurrentObjects();
+    start_mpcore_priv_timer();
 
     while (1) // wait for an interrupt
         ;
