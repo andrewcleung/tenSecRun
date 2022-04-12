@@ -116,6 +116,10 @@ void setupVGA(void);   // Setup the front and back buffer of the VGA display
 void wait_for_vsync(); // Swap between front and back buffer
 void clear_screen();
 
+/* Level setup routine */
+void setupLevels();
+void setupLevels_lv1();
+
 /* Data structures */
 /* On screen objects */
 enum GameObject
@@ -153,6 +157,9 @@ typedef struct player
 /* Global variables */
 /* Onscreen objects */
 enum GameObject currentObjects[BLOCK_RESOLUTION_X][BLOCK_RESOLUTION_Y];
+
+/* Levels */
+enum GameObject objects_lv1 [BLOCK_RESOLUTION_X][BLOCK_RESOLUTION_Y];
 Player myPlayer;
 
 /* VGA buffer */
@@ -382,6 +389,27 @@ void clear_screen()
         {
             *(short int *)(pixel_buffer_start + (y << 10) + (x << 1)) = WHITE;
         }
+    }
+}
+
+/********************************************************************
+ * setupLevels
+ *
+ * Routine to setup all the leves
+ *******************************************************************/
+void setupLevels() {
+    setupLevels_lv1();
+}
+
+/********************************************************************
+ * setupLevels_lv1
+ *
+ * setup level 1 object
+ *******************************************************************/
+void setupLevels_lv1() {
+    // draw the platform for level 1
+    for (int x = 0; x < BLOCK_RESOLUTION_X; x++) {
+        objects_lv1[x][5] = PLATFORM_BLOCK;
     }
 }
 
