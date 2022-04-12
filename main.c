@@ -135,31 +135,41 @@ void drawPlatformBlock(int baseX, int baseY);
 void drawEmpty(int baseX, int baseY);
 
 /* Data structures */
+
 /* On screen objects */
 enum GameObject
 {
-    EMPTY = 0, // default value of the enum is empty
-    PLATFORM_BLOCK,
-    FIREBALL,
-    SPIKE,
-    START,
-    END,
-    THANOS
+    GAMEOBJ_EMPTY = 0, // default value of the enum is empty
+    GAMEOBJ_PLATFORM_BLOCK,
+    GAMEOBJ_FIREBALL,
+    GAMEOBJ_SPIKE,
+    GAMEOBJ_START,
+    GAMEOBJ_END,
+    GAMEOBJ_THANOS
 };
 
 enum PlayerState
 {
-    STILL = 0,
-    LEFT,
-    RIGHT
+    PLAYERSTATE_STILL = 0,
+    PLAYERSTATE_LEFT,
+    PLAYERSTATE_RIGHT
 };
 
+/* Use for declaring a position of an object, where x<320 and y<240 */
 typedef struct position
 {
     int x;
     int y;
 } Position;
 
+/* Use for declaring a relative position of an object, where x<40 and y<30 */
+typedef struct position_boxlen
+{
+    int x;
+    int y;
+} Position_boxlen;
+
+/* Information of the current player */
 typedef struct player
 {
     Position pos;
@@ -167,13 +177,29 @@ typedef struct player
     bool jump;
 } Player;
 
-/* Global variables */
-/* Onscreen objects */
-enum GameObject currentObjects[BLOCK_RESOLUTION_X][BLOCK_RESOLUTION_Y];
+enum GameCurrentProgress {
+    GAMEPROG_BEFORE = 0,
+    GAMEPROG_START,
+    GAMEPROG_WIN,
+    GAMEPROG_LOSE
+};
 
+/* Global variables */
 /* Levels */
 enum GameObject objects_lv1[BLOCK_RESOLUTION_X][BLOCK_RESOLUTION_Y];
-Player myPlayer;
+
+/* State of the game */
+typedef struct gamestate {
+    enum GameCurrentProgress progress;
+    int level;
+    Position_boxlen start;
+    Position_boxlen end;
+    Player myPlayer;
+    /* Onscreen objects */
+    enum GameObject currentObjects[BLOCK_RESOLUTION_X][BLOCK_RESOLUTION_Y];
+}GameState;
+
+GameState myGame;
 
 /* VGA buffer */
 volatile int pixel_buffer_start;
@@ -425,13 +451,13 @@ void setupLevels_lv1()
     // draw the platform for level 1
     for (int x = 0; x < BLOCK_RESOLUTION_X; x++)
     {
-        objects_lv1[x][20] = PLATFORM_BLOCK;
+        objects_lv1[x][20] = GAMEOBJ_PLATFORM_BLOCK;
     }
 
     // create gaps
     for (int x = 20; x < 23; x++)
     {
-        objects_lv1[x][20] = EMPTY;
+        objects_lv1[x][20] = GAMEOBJ_EMPTY;
     }
 }
 
@@ -449,10 +475,10 @@ void updateLevel(int level)
             switch (level)
             {
             case 1:
-                currentObjects[x][y] = objects_lv1[x][y];
+                myGame.currentObjects[x][y] = objects_lv1[x][y];
                 break;
             default:
-                currentObjects[x][y] = objects_lv1[x][y];
+                myGame.currentObjects[x][y] = objects_lv1[x][y];
                 break;
             }
         }
@@ -480,23 +506,23 @@ void drawCurrentObjects()
     {
         for (int y = 0; y < BLOCK_RESOLUTION_Y; y++)
         {
-            switch (currentObjects[x][y])
+            switch (myGame.currentObjects[x][y])
             {
-            case EMPTY:
+            case GAMEOBJ_EMPTY:
                 drawEmpty(x, y);
                 break;
-            case PLATFORM_BLOCK:
+            case GAMEOBJ_PLATFORM_BLOCK:
                 drawPlatformBlock(x, y);
                 break;
-            case FIREBALL:
+            case GAMEOBJ_FIREBALL:
                 break;
-            case SPIKE:
+            case GAMEOBJ_SPIKE:
                 break;
-            case START:
+            case GAMEOBJ_START:
                 break;
-            case END:
+            case GAMEOBJ_END:
                 break;
-            case THANOS:
+            case GAMEOBJ_THANOS:
                 break;
             default:
                 drawEmpty(x, y);
