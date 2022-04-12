@@ -123,13 +123,12 @@
 void disable_A9_interrupts(void);
 void set_A9_IRQ_stack(void);
 void config_GIC(void);
-void config_KEYs(void); // configure the KEYs
+void config_KEYs(void);              // configure the KEYs
 void config_mpcore_priv_timer(void); // configure A9 private timer
 void enable_A9_interrupts(void);
 void config_interrupt(int, int);
 // Helper function to setup all devices
 void setup_interrupts(void);
-
 
 /* Interrupt routines */
 void pushbutton_ISR(void);
@@ -150,17 +149,24 @@ void setupLevels_lv1();
 void updateLevel(int level);
 
 /* Draw routine */
+/* Game objects */
 void plot_pixel(int x, int y, short int line_color);
 void drawCurrentObjects();
 void drawPlatformBlock(int baseX, int baseY);
 void drawStart(int baseX, int baseY);
 void drawEnd(int baseX, int baseY);
 void drawEmpty(int baseX, int baseY);
+
+/* Player */
 void drawPlayerResting();
+
+/* Shapes */
 void drawLine(int x0, int y0, int x1, int y1, short int line_color);
-void swap(int *A, int *B);
-void plotCircle(int x_center, int y_center, int x, int y);
+void drawCircleHelper(int x_center, int y_center, int x, int y);
 void drawCircle(int x_center, int y_centerc, int r);
+
+/* Helper functions */
+void swap(int *A, int *B);
 
 /* Data structures */
 
@@ -234,7 +240,6 @@ typedef struct gamestate
 
 /* Global variables */
 Levels level1;
-
 GameState myGame;
 
 /* VGA buffer */
@@ -440,17 +445,18 @@ void mpcore_priv_timer_ISR(void)
 }
 
 // Helper function to setup all devices
-void setup_interrupts(void) {
+void setup_interrupts(void)
+{
     /* Interrupt setup routine */
     disable_A9_interrupts(); // disable interrupts in the A9 processor
     // Stack and GIC configurations
-    set_A9_IRQ_stack();      // initialize the stack pointer for IRQ mode
-    config_GIC();            // configure the general interrupt controller
-    
+    set_A9_IRQ_stack(); // initialize the stack pointer for IRQ mode
+    config_GIC();       // configure the general interrupt controller
+
     // Configure the devices
-    config_KEYs();           // configure KEYs to generate interrupts
+    config_KEYs(); // configure KEYs to generate interrupts
     config_mpcore_priv_timer();
-    enable_A9_interrupts();  // enable interrupts in the A9 processor
+    enable_A9_interrupts(); // enable interrupts in the A9 processor
 }
 
 /********************************************************************
@@ -904,7 +910,7 @@ void swap(int *A, int *B)
 /*
  * Draw circle
  */
-void plotCircle(int x_center, int y_center, int x, int y)
+void drawCircleHelper(int x_center, int y_center, int x, int y)
 {
     plot_pixel(x_center+x, y_center+y, COLOR_PLAYER);
     plot_pixel(x_center-x, y_center+y, COLOR_PLAYER);
@@ -923,9 +929,9 @@ void drawCircle(int x_center, int y_center, int r)
 {
     int x = 0, y = r;
     int d = 3 - 2 * r;
-    plotCircle(x_center, y_center, x, y);
     while (y >= x)
     {
+        drawCircleHelper(x_center, y_center, x, y);
         x++;
         if (d > 0)
         {
@@ -934,7 +940,6 @@ void drawCircle(int x_center, int y_center, int r)
         }
         else
             d = 6 + d + 4 * x;
-        plotCircle(x_center, y_center, x, y);
     }
 }
 
@@ -946,7 +951,9 @@ int main(void)
     // VGA setup routine
     setupVGA();
 
+    // Setup all the levels before the game
     setupLevels();
+
     updateLevel(1);
     drawCurrentObjects();
     start_mpcore_priv_timer();
