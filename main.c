@@ -111,10 +111,13 @@
 void disable_A9_interrupts(void);
 void set_A9_IRQ_stack(void);
 void config_GIC(void);
-void config_KEYs(void);
+void config_KEYs(void); // configure the KEYs
 void config_mpcore_priv_timer(void); // configure A9 private timer
 void enable_A9_interrupts(void);
 void config_interrupt(int, int);
+// Helper function to setup all devices
+void setup_interrupts(void);
+
 
 /* Interrupt routines */
 void pushbutton_ISR(void);
@@ -419,6 +422,20 @@ void mpcore_priv_timer_ISR(void)
     *(MPcore_private_timer_ptr + 3) = 1; // reset timer flag bit
 }
 
+// Helper function to setup all devices
+void setup_interrupts(void) {
+    /* Interrupt setup routine */
+    disable_A9_interrupts(); // disable interrupts in the A9 processor
+    // Stack and GIC configurations
+    set_A9_IRQ_stack();      // initialize the stack pointer for IRQ mode
+    config_GIC();            // configure the general interrupt controller
+    
+    // Configure the devices
+    config_KEYs();           // configure KEYs to generate interrupts
+    config_mpcore_priv_timer();
+    enable_A9_interrupts();  // enable interrupts in the A9 processor
+}
+
 /********************************************************************
  * start_mpcore_priv_timer
  *
@@ -690,15 +707,10 @@ void drawEmpty(int baseX, int baseY)
 
 int main(void)
 {
-    /* Interrupt setup routine */
-    disable_A9_interrupts(); // disable interrupts in the A9 processor
-    set_A9_IRQ_stack();      // initialize the stack pointer for IRQ mode
-    config_GIC();            // configure the general interrupt controller
-    config_KEYs();           // configure KEYs to generate interrupts
-    config_mpcore_priv_timer();
-    enable_A9_interrupts();  // enable interrupts in the A9 processor
+    // Interrupt setup routine
+    setup_interrupts();
 
-    /* VGA setup routine */
+    // VGA setup routine
     setupVGA();
 
     setupLevels();
