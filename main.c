@@ -734,8 +734,6 @@ void drawPlayerResting()
 	x_box[0] = TEMP;
 	y_box[0] = TEMP;
 
-    drawCircle(TEMP,TEMP, HEAD_RADIUS);
-
 	//Neck
 	x_box[1] = x_box[0];
     y_box[1] = y_box[0] + HEAD_RADIUS;
@@ -776,14 +774,11 @@ void drawPlayerRunningRight()
 	int y_box[NUM_JOINTS];
     /*draw human, from 100 x 100 */
 	//Head
-	x_box[0] = TEMP + 30;
+	x_box[0] = TEMP + 32;
 	y_box[0] = TEMP;
 
-    //temporary numbers for now, just for testing
-    drawCircle(TEMP + 32,TEMP, HEAD_RADIUS);
-
 	//Neck
-	x_box[1] = x_box[0];
+	x_box[1] = x_box[0] - 2;
     y_box[1] = y_box[0] + HEAD_RADIUS;
 	//Left arm
 	x_box[2] = x_box[0] - JOINT_LENGTH_60;
@@ -822,6 +817,8 @@ void drawPlayerRunningRight()
  */
  void drawPlayer(int x_box[NUM_JOINTS], int y_box[NUM_JOINTS])
  {
+    //draw head
+    drawCircle(x_box[0],x_box[0], HEAD_RADIUS);
 	//draw neck to left arm
 	drawLine(x_box[1], y_box[1], x_box[2], y_box[2], 
 						COLOR_PLAYER);
