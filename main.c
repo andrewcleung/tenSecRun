@@ -106,6 +106,16 @@
 #define BLOCK_RESOLUTION_X 40
 #define BLOCK_RESOLUTION_Y 30
 
+/* Player size */
+#define NUM_JOINTS 11
+#define TEMP 100
+#define HEAD_LENGTH 20
+#define NECK_LENGTH 2
+#define TORSO_LENGTH 8
+#define JOINT_LENGTH_30 3
+#define JOINT_LENGTH_45 5
+#define JOINT_LENGTH_60 7
+
 /* Functions declarations */
 /* interrupt controls */
 void disable_A9_interrupts(void);
@@ -144,6 +154,9 @@ void drawPlatformBlock(int baseX, int baseY);
 void drawStart(int baseX, int baseY);
 void drawEnd(int baseX, int baseY);
 void drawEmpty(int baseX, int baseY);
+void drawPlayerResting();
+void drawLine(int x0, int y0, int x1, int y1, short int line_color);
+void swap(int *A, int *B);
 
 /* Data structures */
 
@@ -704,6 +717,138 @@ void drawEmpty(int baseX, int baseY)
         }
     }
 }
+
+void drawPlayerResting()
+{
+    int x_box[NUM_JOINTS];
+	int y_box[NUM_JOINTS];
+    /*draw human, from 100 x 100 */
+	//Head
+	x_box[0] = TEMP;
+	y_box[0] = TEMP;
+	//Neck
+	x_box[1] = x_box[0];
+    y_box[1] = y_box[0] + NECK_LENGTH;
+	//Left arm
+	x_box[2] = x_box[0] - JOINT_LENGTH_45;
+	y_box[2] = y_box[1] + JOINT_LENGTH_45;
+    //Left hand
+	x_box[3] = x_box[2] - JOINT_LENGTH_30;
+	y_box[3] = y_box[2] + JOINT_LENGTH_60;
+    //Right arm
+	x_box[4] = x_box[0] + JOINT_LENGTH_30;
+	y_box[4] = y_box[1] + JOINT_LENGTH_60;
+    //Right hand
+	x_box[5] = x_box[4] + JOINT_LENGTH_45;
+	y_box[5] = y_box[4] + JOINT_LENGTH_45;
+    //Balls
+    x_box[6] = x_box[1];
+    y_box[6] = y_box[1] + TORSO_LENGTH;
+    //left leg
+    x_box[7] = x_box[6] - JOINT_LENGTH_30;
+    y_box[7] = y_box[6] + JOINT_LENGTH_60;
+    //left foot
+    x_box[8] = x_box[7] - JOINT_LENGTH_45;
+    y_box[8] = y_box[7] + JOINT_LENGTH_45;
+    //left leg
+    x_box[9] = x_box[6] + JOINT_LENGTH_45;
+    y_box[9] = y_box[6] + JOINT_LENGTH_45;
+    //left foot
+    x_box[10] = x_box[9] + JOINT_LENGTH_30;
+    y_box[10] = y_box[9] + JOINT_LENGTH_60;
+}
+
+/*
+ * draw Player
+ */
+ void drawPlayer(int x_box[NUM_JOINTS], int y_box[NUM_JOINTS])
+ {
+    //draw the head to neck
+	drawLine(x_box[0], y_box[0], x_box[1], y_box[1], 
+						BLACK);
+	//draw neck to left arm
+	drawLine(x_box[1], y_box[1], x_box[2], y_box[2], 
+						BLACK);
+	//draw left arm to left hand
+	drawLine(x_box[2], y_box[2], x_box[3], y_box[3], 
+						BLACK);
+    //draw neck to right arm
+	drawLine(x_box[1], y_box[1], x_box[4], y_box[4], 
+						BLACK);
+    //draw right arm to right hand
+    drawLine(x_box[4], y_box[4], x_box[5], y_box[5], 
+	                    BLACK);
+    //draw neck to balls
+    drawLine(x_box[1], y_box[1], x_box[6], y_box[6], 
+					    BLACK);
+    //draw balls to left leg
+	drawLine(x_box[6], y_box[6], x_box[7], y_box[7], 
+						BLACK);
+    //draw left leg to left foot
+    drawLine(x_box[7], y_box[7], x_box[8], y_box[8], 
+	                    BLACK);
+    //draw balls to right leg
+    drawLine(x_box[6], y_box[6], x_box[9], y_box[9], 
+					    BLACK);
+    //draw right leg to right foot
+	drawLine(x_box[9], y_box[9], x_box[10], y_box[10], 
+						BLACK);
+ }
+
+/*
+ * drawLine
+ */
+ void drawLine(int x0, int y0, int x1, int y1, short int line_color)
+{
+	bool is_steep = ABS(y1 - y0) > ABS(x1 - x0);
+	if (is_steep)
+	{
+		swap(&x0, &y0);	
+		swap(&x1, &y1);
+	}
+	if (x0 > x1)
+	{
+		swap(&x0, &x1);
+		swap(&y0, &y1);
+	}
+	int deltax = x1 - x0;
+	int deltay = ABS(y1 - y0);
+	int error = -(deltax / 2);
+	int y = y0;
+	int y_step = 0;
+	if (y0 < y1) 
+		y_step = 1 ;
+	else 
+		y_step = -1;
+
+	for (int x = x0; x < x1; ++x)
+	{
+		if (is_steep) 
+			plot_pixel(y, x, line_color);
+		else
+			plot_pixel(x, y, line_color);
+			
+		error = error + deltay;
+			
+		if (error > 0)
+		{
+			y = y + y_step;
+		 	error = error - deltax;
+		}
+	}
+}
+
+/*
+ * swap
+ */
+void swap(int *A, int *B)
+{
+	int temp = *A;
+	*A = *B;
+	*B = temp;
+}
+
+
 
 int main(void)
 {
