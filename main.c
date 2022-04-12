@@ -91,6 +91,7 @@
 #define COLOR_PLATFORM_BORDER 0x0
 #define COLOR_START 0xF800
 #define COLOR_END 0x001F
+#define COLOR_PLAYER 0xF800
 
 /* Animation definitions */
 #define ABS(x) (((x) > 0) ? (x) : -(x))
@@ -109,10 +110,10 @@
 /* Player size */
 #define NUM_JOINTS 11
 #define TEMP 100
-#define NECK_LENGTH 2
+#define HEAD_RADIUS 6
 #define TORSO_LENGTH 8
 #define JOINT_LENGTH_30 2
-#define JOINT_LENGTH_45 3
+#define JOINT_LENGTH_45 4
 #define JOINT_LENGTH_60 5
 
 /* Functions declarations */
@@ -156,6 +157,8 @@ void drawEmpty(int baseX, int baseY);
 void drawPlayerResting();
 void drawLine(int x0, int y0, int x1, int y1, short int line_color);
 void swap(int *A, int *B);
+void plotCircle(int x_center, int y_center, int x, int y);
+void drawCircle(int x_center, int y_centerc, int r);
 
 /* Data structures */
 
@@ -727,9 +730,12 @@ void drawPlayerResting()
 	//Head
 	x_box[0] = TEMP;
 	y_box[0] = TEMP;
+
+    drawCircle(TEMP,TEMP, HEAD_RADIUS);
+
 	//Neck
 	x_box[1] = x_box[0];
-    y_box[1] = y_box[0] + NECK_LENGTH;
+    y_box[1] = y_box[0] + HEAD_RADIUS;
 	//Left arm
 	x_box[2] = x_box[0] - JOINT_LENGTH_45;
 	y_box[2] = y_box[1] + JOINT_LENGTH_45;
@@ -757,6 +763,8 @@ void drawPlayerResting()
     //left foot
     x_box[10] = x_box[9] + JOINT_LENGTH_30;
     y_box[10] = y_box[9] + JOINT_LENGTH_60;
+
+    drawPlayer(x_box, y_box);
 }
 
 /*
@@ -764,36 +772,33 @@ void drawPlayerResting()
  */
  void drawPlayer(int x_box[NUM_JOINTS], int y_box[NUM_JOINTS])
  {
-    //draw the head to neck
-	drawLine(x_box[0], y_box[0], x_box[1], y_box[1], 
-						BLACK);
 	//draw neck to left arm
 	drawLine(x_box[1], y_box[1], x_box[2], y_box[2], 
-						BLACK);
+						COLOR_PLAYER);
 	//draw left arm to left hand
 	drawLine(x_box[2], y_box[2], x_box[3], y_box[3], 
-						BLACK);
+						COLOR_PLAYER);
     //draw neck to right arm
 	drawLine(x_box[1], y_box[1], x_box[4], y_box[4], 
-						BLACK);
+						COLOR_PLAYER);
     //draw right arm to right hand
     drawLine(x_box[4], y_box[4], x_box[5], y_box[5], 
-	                    BLACK);
+	                    COLOR_PLAYER);
     //draw neck to balls
     drawLine(x_box[1], y_box[1], x_box[6], y_box[6], 
-					    BLACK);
+					    COLOR_PLAYER);
     //draw balls to left leg
 	drawLine(x_box[6], y_box[6], x_box[7], y_box[7], 
-						BLACK);
+						COLOR_PLAYER);
     //draw left leg to left foot
     drawLine(x_box[7], y_box[7], x_box[8], y_box[8], 
-	                    BLACK);
+	                    COLOR_PLAYER);
     //draw balls to right leg
     drawLine(x_box[6], y_box[6], x_box[9], y_box[9], 
-					    BLACK);
+					    COLOR_PLAYER);
     //draw right leg to right foot
 	drawLine(x_box[9], y_box[9], x_box[10], y_box[10], 
-						BLACK);
+						COLOR_PLAYER);
  }
 
 /*
@@ -849,7 +854,42 @@ void swap(int *A, int *B)
 	*B = temp;
 }
 
-
+/*
+ * Draw circle
+ */
+void plotCircle(int x_center, int y_center, int x, int y)
+{
+    plot_pixel(x_center+x, y_center+y, COLOR_PLAYER);
+    plot_pixel(x_center-x, y_center+y, COLOR_PLAYER);
+    plot_pixel(x_center+x, y_center-y, COLOR_PLAYER);
+    plot_pixel(x_center-x, y_center-y, COLOR_PLAYER);
+    plot_pixel(x_center+y, y_center+x, COLOR_PLAYER);
+    plot_pixel(x_center-y, y_center+x, COLOR_PLAYER);
+    plot_pixel(x_center+y, y_center-x, COLOR_PLAYER);
+    plot_pixel(x_center-y, y_center-x, COLOR_PLAYER);
+}
+ 
+/*
+ * Algorithm to draw circle
+ */
+void drawCircle(int x_center, int y_center, int r)
+{
+    int x = 0, y = r;
+    int d = 3 - 2 * r;
+    plotCircle(x_center, y_center, x, y);
+    while (y >= x)
+    {
+        x++;
+        if (d > 0)
+        {
+            y--; 
+            d = 10 + 4 * (x - y) + d;
+        }
+        else
+            d = 6 + d + 4 * x;
+        plotCircle(x_center, y_center, x, y);
+    }
+}
 
 int main(void)
 {
