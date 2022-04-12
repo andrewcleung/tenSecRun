@@ -109,12 +109,11 @@
 /* Player size */
 #define NUM_JOINTS 11
 #define TEMP 100
-#define HEAD_LENGTH 20
 #define NECK_LENGTH 2
 #define TORSO_LENGTH 8
-#define JOINT_LENGTH_30 3
-#define JOINT_LENGTH_45 5
-#define JOINT_LENGTH_60 7
+#define JOINT_LENGTH_30 2
+#define JOINT_LENGTH_45 3
+#define JOINT_LENGTH_60 5
 
 /* Functions declarations */
 /* interrupt controls */
@@ -642,6 +641,7 @@ void drawCurrentObjects()
             }
         }
     }
+    drawPlayerResting();
     wait_for_vsync();
 }
 
