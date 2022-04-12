@@ -641,7 +641,8 @@ void drawCurrentObjects()
             }
         }
     }
-    drawPlayerResting();
+    //For debugging:
+    //drawPlayerResting();
     wait_for_vsync();
 }
 
