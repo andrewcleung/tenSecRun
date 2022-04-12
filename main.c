@@ -119,7 +119,7 @@
 #define JOINT_LENGTH_60 5
 
 /* Functions declarations */
-/* interrupt controls */
+/**************************** Interrupt controls ***********************************/
 void disable_A9_interrupts(void);
 void set_A9_IRQ_stack(void);
 void config_GIC(void);
@@ -134,42 +134,42 @@ void setup_interrupts(void);
 void pushbutton_ISR(void);
 void mpcore_priv_timer_ISR(void);
 
-/* Timer subroutines */
+/**************************** Timer routines ***********************************/
 void start_mpcore_priv_timer(void);
 void stop_mpcore_priv_timer(void);
 
-/* VGA setup routine */
+/**************************** VGA setup routine ***********************************/
 void setupVGA(void);   // Setup the front and back buffer of the VGA display
 void wait_for_vsync(); // Swap between front and back buffer
 void clear_screen();
 
-/* Level setup routine */
+/**************************** Level setup routine ***********************************/
 void setupLevels();
 void setupLevels_lv1();
 void updateLevel(int level);
 
-/* Draw routine */
+/**************************** Draw routine ************************************/
 /* Game objects */
-void plot_pixel(int x, int y, short int line_color);
-void drawCurrentObjects();
-void drawPlatformBlock(int baseX, int baseY);
-void drawStart(int baseX, int baseY);
-void drawEnd(int baseX, int baseY);
-void drawEmpty(int baseX, int baseY);
+void plot_pixel(int x, int y, short int line_color); // plot individual pixels on the VGA coordinate
+void drawCurrentObjects();                           // draw the current objects on the screen
+void drawPlatformBlock(int baseX, int baseY);        // draw the platform block
+void drawStart(int baseX, int baseY);                // draw the starting block
+void drawEnd(int baseX, int baseY);                  // draw the ending block
+void drawEmpty(int baseX, int baseY);                // draw the empty space
 
 /* Player */
 void drawPlayerResting();
+void drawPlayerRunningRight();
+void drawPlayer(int x_box[NUM_JOINTS], int y_box[NUM_JOINTS]);
 
 /* Shapes */
 void drawLine(int x0, int y0, int x1, int y1, short int line_color);
-void drawCircleHelper(int x_center, int y_center, int x, int y);
-void drawCircle(int x_center, int y_centerc, int r);
+void drawCircle(int x_center, int y_centerc, int r, short int line_color);
 
-/* Helper functions */
+/**************************** Helper Functions ************************************/
 void swap(int *A, int *B);
 
-/* Data structures */
-
+/**************************** Data structures ************************************/
 /* On screen objects */
 enum GameObject
 {
@@ -238,7 +238,7 @@ typedef struct gamestate
     enum GameObject currentObjects[BLOCK_RESOLUTION_X][BLOCK_RESOLUTION_Y];
 } GameState;
 
-/* Global variables */
+/**************************** Global variables ************************************/
 Levels level1;
 GameState myGame;
 
@@ -652,9 +652,9 @@ void drawCurrentObjects()
             }
         }
     }
-    //For debugging:
-    //drawPlayerResting();
-    //drawPlayerRunningRight();
+    // For debugging:
+    // drawPlayerResting();
+    // drawPlayerRunningRight();
     wait_for_vsync();
 }
 
@@ -734,40 +734,40 @@ void drawEmpty(int baseX, int baseY)
 void drawPlayerResting()
 {
     int x_box[NUM_JOINTS];
-	int y_box[NUM_JOINTS];
+    int y_box[NUM_JOINTS];
     /*draw human, from 100 x 100 */
-	//Head
-	x_box[0] = TEMP;
-	y_box[0] = TEMP;
+    // Head
+    x_box[0] = TEMP;
+    y_box[0] = TEMP;
 
-	//Neck
-	x_box[1] = x_box[0];
+    // Neck
+    x_box[1] = x_box[0];
     y_box[1] = y_box[0] + HEAD_RADIUS;
-	//Left arm
-	x_box[2] = x_box[0] - JOINT_LENGTH_45;
-	y_box[2] = y_box[1] + JOINT_LENGTH_45;
-    //Left hand
-	x_box[3] = x_box[2] - JOINT_LENGTH_30;
-	y_box[3] = y_box[2] + JOINT_LENGTH_60;
-    //Right arm
-	x_box[4] = x_box[0] + JOINT_LENGTH_30;
-	y_box[4] = y_box[1] + JOINT_LENGTH_60;
-    //Right hand
-	x_box[5] = x_box[4] + JOINT_LENGTH_45;
-	y_box[5] = y_box[4] + JOINT_LENGTH_45;
-    //Balls
+    // Left arm
+    x_box[2] = x_box[0] - JOINT_LENGTH_45;
+    y_box[2] = y_box[1] + JOINT_LENGTH_45;
+    // Left hand
+    x_box[3] = x_box[2] - JOINT_LENGTH_30;
+    y_box[3] = y_box[2] + JOINT_LENGTH_60;
+    // Right arm
+    x_box[4] = x_box[0] + JOINT_LENGTH_30;
+    y_box[4] = y_box[1] + JOINT_LENGTH_60;
+    // Right hand
+    x_box[5] = x_box[4] + JOINT_LENGTH_45;
+    y_box[5] = y_box[4] + JOINT_LENGTH_45;
+    // Balls
     x_box[6] = x_box[1];
     y_box[6] = y_box[1] + TORSO_LENGTH;
-    //left leg
+    // left leg
     x_box[7] = x_box[6] - JOINT_LENGTH_30;
     y_box[7] = y_box[6] + JOINT_LENGTH_60;
-    //left foot
+    // left foot
     x_box[8] = x_box[7] - JOINT_LENGTH_45;
     y_box[8] = y_box[7] + JOINT_LENGTH_45;
-    //right leg
+    // right leg
     x_box[9] = x_box[6] + JOINT_LENGTH_45;
     y_box[9] = y_box[6] + JOINT_LENGTH_45;
-    //right foot
+    // right foot
     x_box[10] = x_box[9] + JOINT_LENGTH_30;
     y_box[10] = y_box[9] + JOINT_LENGTH_60;
 
@@ -777,170 +777,168 @@ void drawPlayerResting()
 void drawPlayerRunningRight()
 {
     int x_box[NUM_JOINTS];
-	int y_box[NUM_JOINTS];
+    int y_box[NUM_JOINTS];
     /*draw human, from 100 x 100 */
-	//Head
-	x_box[0] = TEMP + 32;
-	y_box[0] = TEMP;
+    // Head
+    x_box[0] = TEMP + 32;
+    y_box[0] = TEMP;
 
-	//Neck
-	x_box[1] = x_box[0] - 2;
+    // Neck
+    x_box[1] = x_box[0] - 2;
     y_box[1] = y_box[0] + HEAD_RADIUS;
-	//Left arm
-	x_box[2] = x_box[0] - JOINT_LENGTH_60;
-	y_box[2] = y_box[1] - JOINT_LENGTH_30;
-    //Left hand
-	x_box[3] = x_box[2] - JOINT_LENGTH_45;
-	y_box[3] = y_box[2] + JOINT_LENGTH_45;
-    //Right arm
-	x_box[4] = x_box[0] + JOINT_LENGTH_45;
-	y_box[4] = y_box[1] + JOINT_LENGTH_45;
-    //Right hand
-	x_box[5] = x_box[4] + JOINT_LENGTH_60;
-	y_box[5] = y_box[4] - JOINT_LENGTH_30;
-    //Balls
+    // Left arm
+    x_box[2] = x_box[0] - JOINT_LENGTH_60;
+    y_box[2] = y_box[1] - JOINT_LENGTH_30;
+    // Left hand
+    x_box[3] = x_box[2] - JOINT_LENGTH_45;
+    y_box[3] = y_box[2] + JOINT_LENGTH_45;
+    // Right arm
+    x_box[4] = x_box[0] + JOINT_LENGTH_45;
+    y_box[4] = y_box[1] + JOINT_LENGTH_45;
+    // Right hand
+    x_box[5] = x_box[4] + JOINT_LENGTH_60;
+    y_box[5] = y_box[4] - JOINT_LENGTH_30;
+    // Balls
     x_box[6] = x_box[1] - TORSO_LENGTH_30;
     y_box[6] = y_box[1] + TORSO_LENGTH_60;
-    //left leg
+    // left leg
     x_box[7] = x_box[6] - JOINT_LENGTH_45;
     y_box[7] = y_box[6] + JOINT_LENGTH_45;
-    //left foot
+    // left foot
     x_box[8] = x_box[7] - JOINT_LENGTH_45;
     y_box[8] = y_box[7] + JOINT_LENGTH_45;
-    //right leg
+    // right leg
     x_box[9] = x_box[6] + JOINT_LENGTH_45;
     y_box[9] = y_box[6] + JOINT_LENGTH_45;
-    //right foot
+    // right foot
     x_box[10] = x_box[9] - JOINT_LENGTH_45;
     y_box[10] = y_box[9] + JOINT_LENGTH_45;
 
     drawPlayer(x_box, y_box);
 }
 
-
 /*
  * draw Player
  */
- void drawPlayer(int x_box[NUM_JOINTS], int y_box[NUM_JOINTS])
- {
-    //draw head
-    drawCircle(x_box[0],x_box[0], HEAD_RADIUS);
-	//draw neck to left arm
-	drawLine(x_box[1], y_box[1], x_box[2], y_box[2], 
-						COLOR_PLAYER);
-	//draw left arm to left hand
-	drawLine(x_box[2], y_box[2], x_box[3], y_box[3], 
-						COLOR_PLAYER);
-    //draw neck to right arm
-	drawLine(x_box[1], y_box[1], x_box[4], y_box[4], 
-						COLOR_PLAYER);
-    //draw right arm to right hand
-    drawLine(x_box[4], y_box[4], x_box[5], y_box[5], 
-	                    COLOR_PLAYER);
-    //draw neck to balls
-    drawLine(x_box[1], y_box[1], x_box[6], y_box[6], 
-					    COLOR_PLAYER);
-    //draw balls to left leg
-	drawLine(x_box[6], y_box[6], x_box[7], y_box[7], 
-						COLOR_PLAYER);
-    //draw left leg to left foot
-    drawLine(x_box[7], y_box[7], x_box[8], y_box[8], 
-	                    COLOR_PLAYER);
-    //draw balls to right leg
-    drawLine(x_box[6], y_box[6], x_box[9], y_box[9], 
-					    COLOR_PLAYER);
-    //draw right leg to right foot
-	drawLine(x_box[9], y_box[9], x_box[10], y_box[10], 
-						COLOR_PLAYER);
- }
-
-/*
- * drawLine
- */
- void drawLine(int x0, int y0, int x1, int y1, short int line_color)
+void drawPlayer(int x_box[NUM_JOINTS], int y_box[NUM_JOINTS])
 {
-	bool is_steep = ABS(y1 - y0) > ABS(x1 - x0);
-	if (is_steep)
-	{
-		swap(&x0, &y0);	
-		swap(&x1, &y1);
-	}
-	if (x0 > x1)
-	{
-		swap(&x0, &x1);
-		swap(&y0, &y1);
-	}
-	int deltax = x1 - x0;
-	int deltay = ABS(y1 - y0);
-	int error = -(deltax / 2);
-	int y = y0;
-	int y_step = 0;
-	if (y0 < y1) 
-		y_step = 1 ;
-	else 
-		y_step = -1;
-
-	for (int x = x0; x < x1; ++x)
-	{
-		if (is_steep) 
-			plot_pixel(y, x, line_color);
-		else
-			plot_pixel(x, y, line_color);
-			
-		error = error + deltay;
-			
-		if (error > 0)
-		{
-			y = y + y_step;
-		 	error = error - deltax;
-		}
-	}
+    // draw head
+    drawCircle(x_box[0], x_box[0], HEAD_RADIUS, COLOR_PLAYER);
+    // draw neck to left arm
+    drawLine(x_box[1], y_box[1], x_box[2], y_box[2],
+             COLOR_PLAYER);
+    // draw left arm to left hand
+    drawLine(x_box[2], y_box[2], x_box[3], y_box[3],
+             COLOR_PLAYER);
+    // draw neck to right arm
+    drawLine(x_box[1], y_box[1], x_box[4], y_box[4],
+             COLOR_PLAYER);
+    // draw right arm to right hand
+    drawLine(x_box[4], y_box[4], x_box[5], y_box[5],
+             COLOR_PLAYER);
+    // draw neck to balls
+    drawLine(x_box[1], y_box[1], x_box[6], y_box[6],
+             COLOR_PLAYER);
+    // draw balls to left leg
+    drawLine(x_box[6], y_box[6], x_box[7], y_box[7],
+             COLOR_PLAYER);
+    // draw left leg to left foot
+    drawLine(x_box[7], y_box[7], x_box[8], y_box[8],
+             COLOR_PLAYER);
+    // draw balls to right leg
+    drawLine(x_box[6], y_box[6], x_box[9], y_box[9],
+             COLOR_PLAYER);
+    // draw right leg to right foot
+    drawLine(x_box[9], y_box[9], x_box[10], y_box[10],
+             COLOR_PLAYER);
 }
 
-/*
- * swap
- */
-void swap(int *A, int *B)
+/********************************************************************
+ * drawLine(int x0, int y0, int x1, int y1, short int line_color)
+ *
+ * the function draws a line in the VGA coordinates
+ *******************************************************************/
+void drawLine(int x0, int y0, int x1, int y1, short int line_color)
 {
-	int temp = *A;
-	*A = *B;
-	*B = temp;
+    bool is_steep = ABS(y1 - y0) > ABS(x1 - x0);
+    if (is_steep)
+    {
+        swap(&x0, &y0);
+        swap(&x1, &y1);
+    }
+    if (x0 > x1)
+    {
+        swap(&x0, &x1);
+        swap(&y0, &y1);
+    }
+    int deltax = x1 - x0;
+    int deltay = ABS(y1 - y0);
+    int error = -(deltax / 2);
+    int y = y0;
+    int y_step = 0;
+    if (y0 < y1)
+        y_step = 1;
+    else
+        y_step = -1;
+
+    for (int x = x0; x < x1; ++x)
+    {
+        if (is_steep)
+            plot_pixel(y, x, line_color);
+        else
+            plot_pixel(x, y, line_color);
+
+        error = error + deltay;
+
+        if (error > 0)
+        {
+            y = y + y_step;
+            error = error - deltax;
+        }
+    }
 }
 
-/*
- * Draw circle
- */
-void drawCircleHelper(int x_center, int y_center, int x, int y)
-{
-    plot_pixel(x_center+x, y_center+y, COLOR_PLAYER);
-    plot_pixel(x_center-x, y_center+y, COLOR_PLAYER);
-    plot_pixel(x_center+x, y_center-y, COLOR_PLAYER);
-    plot_pixel(x_center-x, y_center-y, COLOR_PLAYER);
-    plot_pixel(x_center+y, y_center+x, COLOR_PLAYER);
-    plot_pixel(x_center-y, y_center+x, COLOR_PLAYER);
-    plot_pixel(x_center+y, y_center-x, COLOR_PLAYER);
-    plot_pixel(x_center-y, y_center-x, COLOR_PLAYER);
-}
- 
-/*
- * Algorithm to draw circle
- */
-void drawCircle(int x_center, int y_center, int r)
+/********************************************************************
+ * drawCircle(int x_center, int y_center, int r)
+ *
+ * Draw a circle on the VGA coordinate
+ *******************************************************************/
+void drawCircle(int x_center, int y_center, int r, short int line_color)
 {
     int x = 0, y = r;
     int d = 3 - 2 * r;
     while (y >= x)
     {
-        drawCircleHelper(x_center, y_center, x, y);
+        plot_pixel(x_center + x, y_center + y, line_color);
+        plot_pixel(x_center - x, y_center + y, line_color);
+        plot_pixel(x_center + x, y_center - y, line_color);
+        plot_pixel(x_center - x, y_center - y, line_color);
+        plot_pixel(x_center + y, y_center + x, line_color);
+        plot_pixel(x_center - y, y_center + x, line_color);
+        plot_pixel(x_center + y, y_center - x, line_color);
+        plot_pixel(x_center - y, y_center - x, line_color);
         x++;
         if (d > 0)
         {
-            y--; 
+            y--;
             d = 10 + 4 * (x - y) + d;
         }
         else
             d = 6 + d + 4 * x;
     }
+}
+
+/********************************************************************
+ * swap(int *A, int *B)
+ *
+ * the function swaps the value of A and B
+ * Note A and B are pointers
+ *******************************************************************/
+void swap(int *A, int *B)
+{
+    int temp = *A;
+    *A = *B;
+    *B = temp;
 }
 
 int main(void)
