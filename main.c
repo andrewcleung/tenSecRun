@@ -107,6 +107,9 @@
 #define BLOCK_RESOLUTION_X 40
 #define BLOCK_RESOLUTION_Y 30
 
+/* Player attributes */
+#define PLAYER_SPEED_NORMAL 5;
+
 /* Player size */
 #define NUM_JOINTS 11
 #define TEMP 100
@@ -157,6 +160,8 @@ typedef struct player
 {
     Position pos;
     enum PlayerState state;
+    int horizontal_speed;
+    int vertical_speed;
     bool jump;
 } Player;
 
@@ -239,8 +244,18 @@ void drawPlayer(int x_box[NUM_JOINTS], int y_box[NUM_JOINTS]);
 void drawLine(int x0, int y0, int x1, int y1, short int line_color);
 void drawCircle(int x_center, int y_centerc, int r, short int line_color);
 
-/* Animation routine */
+/**************************** Animation routine ************************************/
 void refreshAnimation();
+
+/* Player phyisics */
+void updatePlayerSpeed(); // updates the player's horizontal and veritcal speed
+
+/**************************** Game handler ************************************/
+void resetGame();
+void updateCurrentGame();
+
+/**************************** Input handler ************************************/
+void ps2KeyboardInputHandler(char byte1, char byte2, char byte3);
 
 /**************************** Helper Functions ************************************/
 void swap(int *A, int *B);
@@ -266,7 +281,7 @@ void config_KEYs()
 void config_mpcore_priv_timer(void)
 {
     volatile int *MPcore_private_timer_ptr = (int *)MPCORE_PRIV_TIMER;
-    int counter = 6250000;                 // timeout = 1/(200 MHz) x 200x10^6 = 1 sec
+    int counter = 1562500;                   // timeout = 1/(200 MHz) x 200x10^6 = 1 sec
     *(MPcore_private_timer_ptr) = counter;   // write to timer load register
     *(MPcore_private_timer_ptr + 2) = 0b110; // interrupt = 1 (enable interrupt),
     // mode = 1 (auto), enable = 0 (start timer later)
@@ -442,8 +457,9 @@ void mpcore_priv_timer_ISR(void)
     volatile int *MPcore_private_timer_ptr = (int *)MPCORE_PRIV_TIMER;
 
     // draw routine
-   refreshAnimation();
-   myGame.myPlayer.pos.x += 1;
+    updatePlayerSpeed();
+    refreshAnimation();
+    myGame.myPlayer.pos.x += myGame.myPlayer.horizontal_speed;
 
     *(MPcore_private_timer_ptr + 3) = 1; // reset timer flag bit
 }
@@ -607,8 +623,8 @@ void updateLevel(Levels level)
     myGame.end = level.end;
     myGame.level = level.levelNumber;
     // Update my player
-    myGame.myPlayer.pos.x = myGame.start.x * BOX_LEN; // scale to VGA position
-    myGame.myPlayer.pos.y = (myGame.start.y - 1 /* player height*/) * BOX_LEN; //scale to VGA position
+    myGame.myPlayer.pos.x = myGame.start.x * BOX_LEN;                          // scale to VGA position
+    myGame.myPlayer.pos.y = (myGame.start.y - 1 /* player height*/) * BOX_LEN; // scale to VGA position
 }
 
 /********************************************************************
@@ -876,12 +892,86 @@ void drawTestBox(int vgaX, int vgaY)
  *
  * the function refreshes all the drawing using the timer
  *******************************************************************/
-void refreshAnimation() {
-    volatile int * pixel_ctrl_ptr = (int *)0xFF203020;
-	pixel_buffer_start = *(pixel_ctrl_ptr + 1); // new back buffer
+void refreshAnimation()
+{
+    volatile int *pixel_ctrl_ptr = (int *)0xFF203020;
+    pixel_buffer_start = *(pixel_ctrl_ptr + 1); // new back buffer
     drawCurrentObjects();
     drawTestBox(myGame.myPlayer.pos.x, myGame.myPlayer.pos.y);
     wait_for_vsync();
+}
+
+/********************************************************************
+ * void updatePlayerSpeed();
+ *
+ * updates the player's horizontal and veritcal speed
+ *******************************************************************/
+void updatePlayerSpeed()
+{
+    // horizontal
+    int baseSpeed = PLAYER_SPEED_NORMAL;
+    switch (myGame.myPlayer.state)
+    {
+    case PLAYERSTATE_LEFT:
+        myGame.myPlayer.horizontal_speed = -baseSpeed;
+        break;
+    case PLAYERSTATE_RIGHT:
+        myGame.myPlayer.horizontal_speed = baseSpeed;
+        break;
+    case PLAYERSTATE_STILL:
+        myGame.myPlayer.horizontal_speed = 0;
+        break;
+    default:
+        myGame.myPlayer.horizontal_speed = 0;
+    }
+}
+
+/********************************************************************
+ * void resetGame();
+ *
+ * reset the game to its initial state
+ *******************************************************************/
+void resetGame() {
+    return;
+}
+
+/********************************************************************
+ * void updateCurrentGame();
+ *
+ * update the current player and game state based on the flags
+ *******************************************************************/
+void updateCurrentGame() {
+    return;
+}
+
+
+
+/********************************************************************
+ * void ps2KeyboardInputHandler(char byte1, char byte2, char byte3);
+ *
+ * the function handles different input by the keyboard
+ *******************************************************************/
+void ps2KeyboardInputHandler(char byte1, char byte2, char byte3)
+{
+    if (byte3 == 0xF0)
+        return;
+    // player movements
+    if (byte2 == 0xF0)
+    {
+        myGame.myPlayer.state = PLAYERSTATE_STILL;
+        return;
+    }
+    // move to the left
+    if (byte3 == 0x1C)
+    {
+        myGame.myPlayer.state = PLAYERSTATE_LEFT;
+        return;
+    }
+    if (byte3 == 0x23)
+    {
+        myGame.myPlayer.state = PLAYERSTATE_RIGHT;
+        return;
+    }
 }
 
 /********************************************************************
@@ -987,6 +1077,26 @@ int main(void)
 
     start_mpcore_priv_timer();
 
-    while (1) // wait for an interrupt
-        ;
+    /* Declare volatile pointers to I/O registers (volatile means that IO load
+      and store instructions will be used to access these pointer locations,
+      instead of regular memory loads and stores) */
+    volatile int *PS2_ptr = (int *)PS2_BASE;
+    int PS2_data, RVALID;
+    char byte1 = 0, byte2 = 0, byte3 = 0;
+    // PS/2 mouse needs to be reset (must be already plugged in)
+    *(PS2_ptr) = 0xFF; // reset
+
+    while (1)
+    {
+        PS2_data = *(PS2_ptr);      // read the Data register in the PS/2 port
+        RVALID = PS2_data & 0x8000; // extract the RVALID field
+        if (RVALID)
+        {
+            /* shift the next data byte into the display */
+            byte1 = byte2;
+            byte2 = byte3;
+            byte3 = PS2_data & 0xFF;
+            ps2KeyboardInputHandler(byte1, byte2, byte3);
+        }
+    }
 }
