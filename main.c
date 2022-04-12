@@ -132,6 +132,8 @@ void updateLevel(int level);
 void plot_pixel(int x, int y, short int line_color);
 void drawCurrentObjects();
 void drawPlatformBlock(int baseX, int baseY);
+void drawStart(int baseX, int baseY);
+void drawEnd(int baseX, int baseY);
 void drawEmpty(int baseX, int baseY);
 
 /* Data structures */
@@ -177,19 +179,24 @@ typedef struct player
     bool jump;
 } Player;
 
-enum GameCurrentProgress {
+typedef struct levels
+{
+    Position_boxlen start;
+    Position_boxlen end;
+    enum GameObject levelObjects[BLOCK_RESOLUTION_X][BLOCK_RESOLUTION_Y];
+} Levels;
+
+enum GameCurrentProgress
+{
     GAMEPROG_BEFORE = 0,
     GAMEPROG_START,
     GAMEPROG_WIN,
     GAMEPROG_LOSE
 };
 
-/* Global variables */
-/* Levels */
-enum GameObject objects_lv1[BLOCK_RESOLUTION_X][BLOCK_RESOLUTION_Y];
-
 /* State of the game */
-typedef struct gamestate {
+typedef struct gamestate
+{
     enum GameCurrentProgress progress;
     int level;
     Position_boxlen start;
@@ -197,7 +204,10 @@ typedef struct gamestate {
     Player myPlayer;
     /* Onscreen objects */
     enum GameObject currentObjects[BLOCK_RESOLUTION_X][BLOCK_RESOLUTION_Y];
-}GameState;
+} GameState;
+
+/* Global variables */
+Levels level1;
 
 GameState myGame;
 
@@ -451,14 +461,24 @@ void setupLevels_lv1()
     // draw the platform for level 1
     for (int x = 0; x < BLOCK_RESOLUTION_X; x++)
     {
-        objects_lv1[x][20] = GAMEOBJ_PLATFORM_BLOCK;
+        level1.levelObjects[x][20] = GAMEOBJ_PLATFORM_BLOCK;
     }
 
     // create gaps
     for (int x = 20; x < 23; x++)
     {
-        objects_lv1[x][20] = GAMEOBJ_EMPTY;
+        level1.levelObjects[x][20] = GAMEOBJ_EMPTY;
     }
+
+    // starting position
+    level1.levelObjects[2][20] = GAMEOBJ_START;
+    level1.start.x = 2;
+    level1.start.y = 20;
+
+    // ending position
+    level1.levelObjects[38][20] = GAMEOBJ_END;
+    level1.end.x = 38;
+    level1.end.y = 20;
 }
 
 /********************************************************************
@@ -475,10 +495,10 @@ void updateLevel(int level)
             switch (level)
             {
             case 1:
-                myGame.currentObjects[x][y] = objects_lv1[x][y];
+                myGame.currentObjects[x][y] = level1.levelObjects[x][y];
                 break;
             default:
-                myGame.currentObjects[x][y] = objects_lv1[x][y];
+                myGame.currentObjects[x][y] = level1.levelObjects[x][y];
                 break;
             }
         }
@@ -519,8 +539,10 @@ void drawCurrentObjects()
             case GAMEOBJ_SPIKE:
                 break;
             case GAMEOBJ_START:
+                drawStart(x, y);
                 break;
             case GAMEOBJ_END:
+                drawEnd(x, y);
                 break;
             case GAMEOBJ_THANOS:
                 break;
@@ -548,6 +570,44 @@ void drawPlatformBlock(int baseX, int baseY)
                 plot_pixel(baseX * BOX_LEN + x, baseY * BOX_LEN + y, COLOR_PLATFORM_BORDER);
             else
                 plot_pixel(baseX * BOX_LEN + x, baseY * BOX_LEN + y, COLOR_PLATFORM);
+        }
+    }
+}
+
+/********************************************************************
+ * drawStart
+ *
+ * draw the starting block
+ *******************************************************************/
+void drawStart(int baseX, int baseY)
+{
+    for (int x = 0; x < BOX_LEN; x++)
+    {
+        for (int y = 0; y < BOX_LEN; y++)
+        {
+            if (x == 0 || y == 0 || x == BOX_LEN - 1 || y == BOX_LEN - 1)
+                plot_pixel(baseX * BOX_LEN + x, baseY * BOX_LEN + y, COLOR_PLATFORM_BORDER);
+            else
+                plot_pixel(baseX * BOX_LEN + x, baseY * BOX_LEN + y, COLOR_START);
+        }
+    }
+}
+
+/********************************************************************
+ * drawEnd
+ *
+ * draw the ending block
+ *******************************************************************/
+void drawEnd(int baseX, int baseY)
+{
+    for (int x = 0; x < BOX_LEN; x++)
+    {
+        for (int y = 0; y < BOX_LEN; y++)
+        {
+            if (x == 0 || y == 0 || x == BOX_LEN - 1 || y == BOX_LEN - 1)
+                plot_pixel(baseX * BOX_LEN + x, baseY * BOX_LEN + y, COLOR_PLATFORM_BORDER);
+            else
+                plot_pixel(baseX * BOX_LEN + x, baseY * BOX_LEN + y, COLOR_END);
         }
     }
 }
