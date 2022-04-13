@@ -243,6 +243,8 @@ void drawPlayer(int x_box[NUM_JOINTS], int y_box[NUM_JOINTS]);
 /* Shapes */
 void drawLine(int x0, int y0, int x1, int y1, short int line_color);
 void drawCircle(int x_center, int y_centerc, int r, short int line_color);
+void drawBox(int vgaX, int vgaY, int boxLen, short int boxColor);
+void drawBoxWithBorder(int vgaX, int vgaY, int boxLen, int borderWid, short int boxColor, short int borderColor);
 
 /**************************** Animation routine ************************************/
 void refreshAnimation();
@@ -683,16 +685,7 @@ void drawCurrentObjects()
  *******************************************************************/
 void drawPlatformBlock(int baseX, int baseY)
 {
-    for (int x = 0; x < BOX_LEN; x++)
-    {
-        for (int y = 0; y < BOX_LEN; y++)
-        {
-            if (x == 0 || y == 0 || x == BOX_LEN - 1 || y == BOX_LEN - 1)
-                plot_pixel(baseX * BOX_LEN + x, baseY * BOX_LEN + y, COLOR_PLATFORM_BORDER);
-            else
-                plot_pixel(baseX * BOX_LEN + x, baseY * BOX_LEN + y, COLOR_PLATFORM);
-        }
-    }
+    drawBoxWithBorder(baseX*BOX_LEN, baseY*BOX_LEN, BOX_LEN, 1, COLOR_PLATFORM, COLOR_PLATFORM_BORDER);
 }
 
 /********************************************************************
@@ -702,16 +695,7 @@ void drawPlatformBlock(int baseX, int baseY)
  *******************************************************************/
 void drawStart(int baseX, int baseY)
 {
-    for (int x = 0; x < BOX_LEN; x++)
-    {
-        for (int y = 0; y < BOX_LEN; y++)
-        {
-            if (x == 0 || y == 0 || x == BOX_LEN - 1 || y == BOX_LEN - 1)
-                plot_pixel(baseX * BOX_LEN + x, baseY * BOX_LEN + y, COLOR_PLATFORM_BORDER);
-            else
-                plot_pixel(baseX * BOX_LEN + x, baseY * BOX_LEN + y, COLOR_START);
-        }
-    }
+    drawBoxWithBorder(baseX*BOX_LEN, baseY*BOX_LEN, BOX_LEN, 1, COLOR_START, COLOR_PLATFORM_BORDER);
 }
 
 /********************************************************************
@@ -721,16 +705,7 @@ void drawStart(int baseX, int baseY)
  *******************************************************************/
 void drawEnd(int baseX, int baseY)
 {
-    for (int x = 0; x < BOX_LEN; x++)
-    {
-        for (int y = 0; y < BOX_LEN; y++)
-        {
-            if (x == 0 || y == 0 || x == BOX_LEN - 1 || y == BOX_LEN - 1)
-                plot_pixel(baseX * BOX_LEN + x, baseY * BOX_LEN + y, COLOR_PLATFORM_BORDER);
-            else
-                plot_pixel(baseX * BOX_LEN + x, baseY * BOX_LEN + y, COLOR_END);
-        }
-    }
+    drawBoxWithBorder(baseX*BOX_LEN, baseY*BOX_LEN, BOX_LEN, 1, COLOR_END, COLOR_PLATFORM_BORDER);
 }
 
 /********************************************************************
@@ -878,13 +853,7 @@ void drawPlayer(int x_box[NUM_JOINTS], int y_box[NUM_JOINTS])
  *******************************************************************/
 void drawTestBox(int vgaX, int vgaY)
 {
-    for (int x = 0; x < BOX_LEN; x++)
-    {
-        for (int y = 0; y < BOX_LEN; y++)
-        {
-            plot_pixel(vgaX + x, vgaY + y, GREEN);
-        }
-    }
+    drawBox(vgaX, vgaY, BOX_LEN, GREEN);
 }
 
 /********************************************************************
@@ -931,7 +900,8 @@ void updatePlayerSpeed()
  *
  * reset the game to its initial state
  *******************************************************************/
-void resetGame() {
+void resetGame()
+{
     return;
 }
 
@@ -940,11 +910,10 @@ void resetGame() {
  *
  * update the current player and game state based on the flags
  *******************************************************************/
-void updateCurrentGame() {
+void updateCurrentGame()
+{
     return;
 }
-
-
 
 /********************************************************************
  * void ps2KeyboardInputHandler(char byte1, char byte2, char byte3);
@@ -1050,53 +1019,87 @@ void drawCircle(int x_center, int y_center, int r, short int line_color)
 }
 
 /********************************************************************
- * swap(int *A, int *B)
+ * void drawBox(int vgaX, int vgaY, int boxLen, short int boxColor);
  *
- * the function swaps the value of A and B
- * Note A and B are pointers
+ * Draw a box on the VGA coordinate
  *******************************************************************/
-void swap(int *A, int *B)
+void drawBox(int vgaX, int vgaY, int boxLen, short int boxColor)
 {
-    int temp = *A;
-    *A = *B;
-    *B = temp;
-}
-
-int main(void)
-{
-    // Setup all the levels before the game
-    setupLevels();
-    updateLevel(level1);
-
-    // Interrupt setup routine
-    setup_interrupts();
-
-    // VGA setup routine
-    setupVGA();
-    clear_screen();
-
-    start_mpcore_priv_timer();
-
-    /* Declare volatile pointers to I/O registers (volatile means that IO load
-      and store instructions will be used to access these pointer locations,
-      instead of regular memory loads and stores) */
-    volatile int *PS2_ptr = (int *)PS2_BASE;
-    int PS2_data, RVALID;
-    char byte1 = 0, byte2 = 0, byte3 = 0;
-    // PS/2 mouse needs to be reset (must be already plugged in)
-    *(PS2_ptr) = 0xFF; // reset
-
-    while (1)
+    for (int x = 0; x < boxLen; x++)
     {
-        PS2_data = *(PS2_ptr);      // read the Data register in the PS/2 port
-        RVALID = PS2_data & 0x8000; // extract the RVALID field
-        if (RVALID)
+        for (int y = 0; y < boxLen; y++)
         {
-            /* shift the next data byte into the display */
-            byte1 = byte2;
-            byte2 = byte3;
-            byte3 = PS2_data & 0xFF;
-            ps2KeyboardInputHandler(byte1, byte2, byte3);
+            plot_pixel(vgaX + x, vgaY + y, boxColor);
         }
     }
 }
+
+/********************************************************************
+ * void drawBoxWithBorder(int vgaX, int vgaY, int boxLen,int borderWid, short int boxColor, short int borderColor);
+ *
+ * Draw a box with borderon the VGA coordinate
+ *******************************************************************/
+void drawBoxWithBorder(int vgaX, int vgaY, int boxLen, int borderWid, short int boxColor, short int borderColor)
+{
+    for (int x = 0; x < boxLen; x++)
+    {
+        for (int y = 0; y < boxLen; y++)
+        {
+            if (x < borderWid || y < borderWid || x >= boxLen - borderWid || y >= boxLen - borderWid)
+                plot_pixel(vgaX + x, vgaY + y, borderColor);
+            else
+                plot_pixel(vgaX + x, vgaY + y, boxColor);
+        }
+    }
+}
+    /********************************************************************
+     * swap(int *A, int *B)
+     *
+     * the function swaps the value of A and B
+     * Note A and B are pointers
+     *******************************************************************/
+    void swap(int *A, int *B)
+    {
+        int temp = *A;
+        *A = *B;
+        *B = temp;
+    }
+
+    int main(void)
+    {
+        // Setup all the levels before the game
+        setupLevels();
+        updateLevel(level1);
+
+        // Interrupt setup routine
+        setup_interrupts();
+
+        // VGA setup routine
+        setupVGA();
+        clear_screen();
+
+        start_mpcore_priv_timer();
+
+        /* Declare volatile pointers to I/O registers (volatile means that IO load
+          and store instructions will be used to access these pointer locations,
+          instead of regular memory loads and stores) */
+        volatile int *PS2_ptr = (int *)PS2_BASE;
+        int PS2_data, RVALID;
+        char byte1 = 0, byte2 = 0, byte3 = 0;
+        // PS/2 mouse needs to be reset (must be already plugged in)
+        *(PS2_ptr) = 0xFF; // reset
+
+        while (1)
+        {
+            PS2_data = *(PS2_ptr);      // read the Data register in the PS/2 port
+            RVALID = PS2_data & 0x8000; // extract the RVALID field
+            if (RVALID)
+            {
+                /* shift the next data byte into the display */
+                byte1 = byte2;
+                byte2 = byte3;
+                byte3 = PS2_data & 0xFF;
+                ps2KeyboardInputHandler(byte1, byte2, byte3);
+            }
+        }
+    }
