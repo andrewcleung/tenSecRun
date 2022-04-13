@@ -244,6 +244,9 @@ void drawPlayerRunningRight(int baseX, int baseY);
 void drawPlayerRunningLeft(int baseX, int baseY);
 void drawPlayerJumping(int baseX, int baseY);
 
+/* Obstacles */
+void drawFireball(int baseX, int baseY);
+
 /* Shapes */
 void drawLine(int x0, int y0, int x1, int y1, short int line_color);
 void drawCircle(int x_center, int y_centerc, int r, short int line_color);
@@ -680,7 +683,13 @@ void drawCurrentObjects()
             }
         }
     }
-
+    /* Debugging purposes
+    drawPlayerResting(50, 50);
+	drawPlayerRunningRight(100, 50);
+	drawPlayerRunningLeft(150, 50);
+	drawPlayerJumping(200, 50);
+    drawFireball(250, 50);
+    */
 }
 
 /********************************************************************
@@ -729,6 +738,11 @@ void drawEmpty(int baseX, int baseY)
     }
 }
 
+/********************************************************************
+ * drawPlayerResting(int baseX, int baseY)
+ *
+ * draws player in its resting state
+ *******************************************************************/
 void drawPlayerResting(int baseX, int baseY)
 {
     //Draw head
@@ -787,6 +801,11 @@ void drawPlayerResting(int baseX, int baseY)
     }
 }
 
+/********************************************************************
+ * drawPlayerRunningRight(int baseX, int baseY)
+ *
+ * draws player in its running state in the right direction
+ *******************************************************************/
 void drawPlayerRunningRight(int baseX, int baseY)
 {
     //Draw head
@@ -857,6 +876,11 @@ void drawPlayerRunningRight(int baseX, int baseY)
     plot_pixel(baseX + 0, baseY + 19, COLOR_PLAYER);
 }
 
+/********************************************************************
+ * drawPlayerRunningLeft(int baseX, int baseY)
+ *
+ * draws player in its running state in the left direction
+ *******************************************************************/
 void drawPlayerRunningLeft(int baseX, int baseY)
 {
     //Draw head
@@ -926,6 +950,11 @@ void drawPlayerRunningLeft(int baseX, int baseY)
     plot_pixel(baseX + 9, baseY + 19, COLOR_PLAYER);
 }
 
+/********************************************************************
+ * drawPlayerJumping(int baseX, int baseY)
+ *
+ * draws player in its jumping state
+ *******************************************************************/
 void drawPlayerJumping(int baseX, int baseY)
 {
     //Draw head
@@ -983,6 +1012,59 @@ void drawPlayerJumping(int baseX, int baseY)
         plot_pixel(baseX + 2, baseY + 17 + j, COLOR_PLAYER);
         plot_pixel(baseX + 6, baseY + 17 + j, COLOR_PLAYER);
     }
+}
+
+void drawFireball(int baseX, int baseY)
+{
+    plot_pixel(baseX + 1, baseY, RED);
+    plot_pixel(baseX + 5, baseY, RED);
+
+    plot_pixel(baseX + 2, baseY + 1, RED);
+    plot_pixel(baseX + 4, baseY + 1, RED);
+    plot_pixel(baseX + 5, baseY + 1, RED);
+
+    plot_pixel(baseX + 1, baseY + 2, RED);
+    plot_pixel(baseX + 3, baseY + 2, RED);
+    plot_pixel(baseX + 4, baseY + 2, RED);
+    plot_pixel(baseX + 5, baseY + 2, ORANGE);
+    plot_pixel(baseX + 6, baseY + 2, RED);
+
+    plot_pixel(baseX, baseY + 3, RED);
+    plot_pixel(baseX + 1, baseY + 3, RED);
+    plot_pixel(baseX + 2, baseY + 3, RED);
+    plot_pixel(baseX + 3, baseY + 3, ORANGE);
+    plot_pixel(baseX + 4, baseY + 3, ORANGE);
+    plot_pixel(baseX + 5, baseY + 3, ORANGE);
+    plot_pixel(baseX + 6, baseY + 3, ORANGE);
+    plot_pixel(baseX + 7, baseY + 3, RED);
+
+    plot_pixel(baseX, baseY + 4, RED);
+    plot_pixel(baseX + 1, baseY + 4, ORANGE);
+    plot_pixel(baseX + 2, baseY + 4, ORANGE);
+    plot_pixel(baseX + 3, baseY + 4, YELLOW);
+    plot_pixel(baseX + 4, baseY + 4, YELLOW);
+    plot_pixel(baseX + 5, baseY + 4, YELLOW);
+    plot_pixel(baseX + 6, baseY + 4, ORANGE);
+    plot_pixel(baseX + 7, baseY + 4, RED);
+
+    plot_pixel(baseX, baseY + 5, RED);
+    plot_pixel(baseX + 1, baseY + 5, ORANGE);
+    plot_pixel(baseX + 2, baseY + 5, YELLOW);
+    plot_pixel(baseX + 3, baseY + 5, YELLOW);
+    plot_pixel(baseX + 4, baseY + 5, WHITE);
+    plot_pixel(baseX + 5, baseY + 5, YELLOW);
+    plot_pixel(baseX + 6, baseY + 5, ORANGE);
+    plot_pixel(baseX + 7, baseY + 5, RED);
+
+    plot_pixel(baseX + 1, baseY + 6, RED);
+    plot_pixel(baseX + 2, baseY + 6, YELLOW);
+    plot_pixel(baseX + 3, baseY + 6, YELLOW);
+    plot_pixel(baseX + 4, baseY + 6, WHITE);
+    plot_pixel(baseX + 5, baseY + 6, WHITE);
+    plot_pixel(baseX + 6, baseY + 6, RED);
+
+    plot_pixel(baseX + 2, baseY + 7, RED);
+    plot_pixel(baseX + 5, baseY + 7, RED);
 }
 
 /********************************************************************
