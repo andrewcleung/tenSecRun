@@ -108,7 +108,10 @@
 #define BLOCK_RESOLUTION_Y 30
 
 /* Player attributes */
-#define PLAYER_SPEED_NORMAL 5;
+#define PLAYER_SPEED_NORMAL 5
+
+/* level attirbutes */
+#define NUMBER_OF_LEVELS 2
 
 /* Player size */
 #define NUM_JOINTS 11
@@ -263,7 +266,7 @@ void ps2KeyboardInputHandler(char byte1, char byte2, char byte3);
 void swap(int *A, int *B);
 
 /**************************** Global variables ************************************/
-Levels level1;
+Levels gameLevels[NUMBER_OF_LEVELS];
 GameState myGame;
 
 /* VGA buffer */
@@ -581,29 +584,29 @@ void setupLevels()
 void setupLevels_lv1()
 {
     // update the level number
-    level1.levelNumber = 1;
+    gameLevels[0].levelNumber = 1;
 
     // draw the platform for level 1
     for (int x = 0; x < BLOCK_RESOLUTION_X; x++)
     {
-        level1.levelObjects[x][20] = GAMEOBJ_PLATFORM_BLOCK;
+        gameLevels[0].levelObjects[x][20] = GAMEOBJ_PLATFORM_BLOCK;
     }
 
     // create gaps
     for (int x = 20; x < 23; x++)
     {
-        level1.levelObjects[x][20] = GAMEOBJ_EMPTY;
+        gameLevels[0].levelObjects[x][20] = GAMEOBJ_EMPTY;
     }
 
     // starting position
-    level1.levelObjects[2][20] = GAMEOBJ_START;
-    level1.start.x = 2;
-    level1.start.y = 20;
+    gameLevels[0].levelObjects[2][20] = GAMEOBJ_START;
+    gameLevels[0].start.x = 2;
+    gameLevels[0].start.y = 20;
 
     // ending position
-    level1.levelObjects[38][20] = GAMEOBJ_END;
-    level1.end.x = 38;
-    level1.end.y = 20;
+    gameLevels[0].levelObjects[38][20] = GAMEOBJ_END;
+    gameLevels[0].end.x = 38;
+    gameLevels[0].end.y = 20;
 }
 
 /********************************************************************
@@ -1069,7 +1072,7 @@ void drawBoxWithBorder(int vgaX, int vgaY, int boxLen, int borderWid, short int 
     {
         // Setup all the levels before the game
         setupLevels();
-        updateLevel(level1);
+        updateLevel(gameLevels[0]);
 
         // Interrupt setup routine
         setup_interrupts();
