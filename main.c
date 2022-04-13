@@ -246,6 +246,7 @@ void drawPlayerJumping(int baseX, int baseY);
 
 /* Obstacles */
 void drawFireball(int baseX, int baseY);
+void drawSpike(int baseX, int baseY);
 
 /* Shapes */
 void drawLine(int x0, int y0, int x1, int y1, short int line_color);
@@ -689,6 +690,7 @@ void drawCurrentObjects()
 	drawPlayerRunningLeft(150, 50);
 	drawPlayerJumping(200, 50);
     drawFireball(250, 50);
+    drawSpike(300, 50);
     */
 }
 
@@ -1014,6 +1016,11 @@ void drawPlayerJumping(int baseX, int baseY)
     }
 }
 
+/********************************************************************
+ * drawFireball(int baseX, int baseY)
+ *
+ * draws fireball
+ *******************************************************************/
 void drawFireball(int baseX, int baseY)
 {
     plot_pixel(baseX + 1, baseY, RED);
@@ -1065,6 +1072,35 @@ void drawFireball(int baseX, int baseY)
 
     plot_pixel(baseX + 2, baseY + 7, RED);
     plot_pixel(baseX + 5, baseY + 7, RED);
+}
+
+/********************************************************************
+ * drawSpike(int baseX, int baseY)
+ *
+ * draws spike object
+ *******************************************************************/
+void drawSpike(int baseX, int baseY)
+{
+    for(int i = 0; i < 8; i++)
+    {
+        plot_pixel(baseX + 3, baseY + i, BLACK);
+        plot_pixel(baseX + 4, baseY + i, BLACK);
+    }
+    for(int i = 2; i < 8; i++)
+    {
+        plot_pixel(baseX + 2, baseY + i, BLACK);
+        plot_pixel(baseX + 5, baseY + i, BLACK);
+    }
+    for(int i = 4; i < 8; i++)
+    {
+        plot_pixel(baseX + 1, baseY + i, BLACK);
+        plot_pixel(baseX + 6, baseY + i, BLACK);
+    }
+    for(int i = 6; i < 8; i++)
+    {
+        plot_pixel(baseX, baseY + i, BLACK);
+        plot_pixel(baseX + 7, baseY + i, BLACK);
+    }
 }
 
 /********************************************************************
