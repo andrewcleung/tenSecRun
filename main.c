@@ -102,10 +102,10 @@
 
 /* Object block size */
 /* DO NOT CHANGE THIS*/
-#define BOX_LEN 8
+#define BOX_LEN 10
 
-#define BLOCK_RESOLUTION_X 40
-#define BLOCK_RESOLUTION_Y 30
+#define BLOCK_RESOLUTION_X 32
+#define BLOCK_RESOLUTION_Y 24
 
 /* Player attributes */
 #define PLAYER_SPEED_NORMAL 5
@@ -235,6 +235,9 @@ void drawStart(int baseX, int baseY);                // draw the starting block
 void drawEnd(int baseX, int baseY);                  // draw the ending block
 void drawEmpty(int baseX, int baseY);                // draw the empty space
 
+/* Title screen */
+void drawBigTitle();
+
 /* Testing objects */
 void drawTestBox(int vgaX, int vgaY);
 
@@ -287,7 +290,7 @@ void drawBoxWithBorder(int vgaX, int vgaY, int boxLen, int borderWid, short int 
 void refreshAnimation();
 
 /* Player phyisics */
-void updatePlayerSpeed(); // updates the player's horizontal and veritcal speed
+void updatePlayerStatus(); // updates the player's horizontal and veritcal speed, his current location
 
 /**************************** Game handler ************************************/
 void resetGame();
@@ -475,13 +478,19 @@ void pushbutton_ISR(void)
     press = *(KEY_ptr + 3); // read the pushbutton interrupt register
     *(KEY_ptr + 3) = press; // Clear the interrupt
     if (press & 0x1)        // KEY0
+    {
         HEX_bits = 0b00111111;
+        myGame.progress = GAMEPROG_START;
+    }
     else if (press & 0x2) // KEY1
         HEX_bits = 0b00000110;
     else if (press & 0x4) // KEY2
         HEX_bits = 0b01011011;
     else // press & 0x8, which is KEY3
+    {
+        resetGame();
         HEX_bits = 0b01001111;
+    }
     *HEX3_HEX0_ptr = HEX_bits;
     return;
 }
@@ -496,9 +505,8 @@ void mpcore_priv_timer_ISR(void)
     volatile int *MPcore_private_timer_ptr = (int *)MPCORE_PRIV_TIMER;
 
     // draw routine
-    updatePlayerSpeed();
+    updatePlayerStatus();
     refreshAnimation();
-    myGame.myPlayer.pos.x += myGame.myPlayer.horizontal_speed;
 
     *(MPcore_private_timer_ptr + 3) = 1; // reset timer flag bit
 }
@@ -590,6 +598,8 @@ void clear_screen()
 {
     int x;
     int y;
+    volatile int *pixel_ctrl_ptr = (int *)PIXEL_BUF_CTRL_BASE;
+    pixel_buffer_start = *(pixel_ctrl_ptr + 1); // new back buffer
     for (x = 0; x < RESOLUTION_X; x++)
     {
         for (y = 0; y < RESOLUTION_Y; y++)
@@ -597,7 +607,18 @@ void clear_screen()
             plot_pixel(x, y, WHITE);
         }
     }
-    refreshAnimation();
+    wait_for_vsync();
+    pixel_buffer_start = *(pixel_ctrl_ptr + 1); // new back buffer
+
+    for (x = 0; x < RESOLUTION_X; x++)
+    {
+        for (y = 0; y < RESOLUTION_Y; y++)
+        {
+            plot_pixel(x, y, WHITE);
+        }
+    }
+    wait_for_vsync();
+    pixel_buffer_start = *(pixel_ctrl_ptr + 1); // new back buffer
 }
 
 /********************************************************************
@@ -638,8 +659,8 @@ void setupLevels_lv1()
     gameLevels[0].start.y = 20;
 
     // ending position
-    gameLevels[0].levelObjects[38][20] = GAMEOBJ_END;
-    gameLevels[0].end.x = 38;
+    gameLevels[0].levelObjects[30][20] = GAMEOBJ_END;
+    gameLevels[0].end.x = 30;
     gameLevels[0].end.y = 20;
 }
 
@@ -664,6 +685,10 @@ void updateLevel(Levels level)
     // Update my player
     myGame.myPlayer.pos.x = myGame.start.x * BOX_LEN;                          // scale to VGA position
     myGame.myPlayer.pos.y = (myGame.start.y - 1 /* player height*/) * BOX_LEN; // scale to VGA position
+    // reset player flags
+    myGame.progress = GAMEPROG_BEFORE;
+    myGame.myPlayer.state = PLAYERSTATE_STILL;
+    myGame.myPlayer.jump = false;
 }
 
 /********************************************************************
@@ -757,7 +782,7 @@ void drawCurrentObjects()
  *******************************************************************/
 void drawPlatformBlock(int baseX, int baseY)
 {
-    drawBoxWithBorder(baseX*BOX_LEN, baseY*BOX_LEN, BOX_LEN, 1, COLOR_PLATFORM, COLOR_PLATFORM_BORDER);
+    drawBoxWithBorder(baseX * BOX_LEN, baseY * BOX_LEN, BOX_LEN, 1, COLOR_PLATFORM, COLOR_PLATFORM_BORDER);
 }
 
 /********************************************************************
@@ -767,7 +792,7 @@ void drawPlatformBlock(int baseX, int baseY)
  *******************************************************************/
 void drawStart(int baseX, int baseY)
 {
-    drawBoxWithBorder(baseX*BOX_LEN, baseY*BOX_LEN, BOX_LEN, 1, COLOR_START, COLOR_PLATFORM_BORDER);
+    drawBoxWithBorder(baseX * BOX_LEN, baseY * BOX_LEN, BOX_LEN, 1, COLOR_START, COLOR_PLATFORM_BORDER);
 }
 
 /********************************************************************
@@ -777,7 +802,7 @@ void drawStart(int baseX, int baseY)
  *******************************************************************/
 void drawEnd(int baseX, int baseY)
 {
-    drawBoxWithBorder(baseX*BOX_LEN, baseY*BOX_LEN, BOX_LEN, 1, COLOR_END, COLOR_PLATFORM_BORDER);
+    drawBoxWithBorder(baseX * BOX_LEN, baseY * BOX_LEN, BOX_LEN, 1, COLOR_END, COLOR_PLATFORM_BORDER);
 }
 
 /********************************************************************
@@ -797,6 +822,43 @@ void drawEmpty(int baseX, int baseY)
 }
 
 /********************************************************************
+ * drawBigTitle
+ *
+ * draw the big title on the screen
+ * Characters has a height of 15 blocks, starting from 7
+ *******************************************************************/
+void drawBigTitle()
+{
+    // number 1
+    for (int baseY = 7; baseY < 22; baseY++)
+        drawBox(5 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+    // number 0
+    for (int baseX = 8; baseX < 12; baseX++)
+    {
+        for (int baseY = 7; baseY < 22; baseY++)
+        {
+            if (baseX == 8 || baseY == 7 || baseX == 11 || baseY == 21)
+                drawBox(baseX * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+        }
+    }
+    // R
+    for (int baseY = 14; baseY < 22; baseY++)
+        drawBox(16 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, MAGENTA);
+    for (int baseX = 16; baseX < 21; baseX++)
+        drawBox(baseX * BOX_LEN, 14 * BOX_LEN, BOX_LEN, MAGENTA);
+    drawBox(20 * BOX_LEN, 15 * BOX_LEN, BOX_LEN, MAGENTA);
+    drawBox(20 * BOX_LEN, 16 * BOX_LEN, BOX_LEN, MAGENTA);
+
+    // U
+    for (int baseY = 14; baseY < 22; baseY++)
+        drawBox(24 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, MAGENTA);
+    for (int baseY = 14; baseY < 22; baseY++)
+        drawBox(27 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, MAGENTA);
+    for (int baseX = 24; baseX < 28; baseX++)
+        drawBox(baseX * BOX_LEN, 14 * BOX_LEN, BOX_LEN, MAGENTA);
+}
+
+/*******************************************************************
  * drawPlayerResting(int baseX, int baseY)
  *
  * draws player in its resting state
@@ -1178,17 +1240,27 @@ void refreshAnimation()
 {
     volatile int *pixel_ctrl_ptr = (int *)0xFF203020;
     pixel_buffer_start = *(pixel_ctrl_ptr + 1); // new back buffer
-    drawCurrentObjects();
-    drawTestBox(myGame.myPlayer.pos.x, myGame.myPlayer.pos.y);
+    switch (myGame.progress)
+    {
+    case GAMEPROG_BEFORE:
+        drawBigTitle();
+        break;
+    case GAMEPROG_START:
+        drawCurrentObjects();
+        drawTestBox(myGame.myPlayer.pos.x, myGame.myPlayer.pos.y);
+        break;
+    default:
+        drawBigTitle();
+    }
     wait_for_vsync();
 }
 
 /********************************************************************
- * void updatePlayerSpeed();
+ * void updatePlayerStatus();
  *
  * updates the player's horizontal and veritcal speed
  *******************************************************************/
-void updatePlayerSpeed()
+void updatePlayerStatus()
 {
     // horizontal
     int baseSpeed = PLAYER_SPEED_NORMAL;
@@ -1206,6 +1278,9 @@ void updatePlayerSpeed()
     default:
         myGame.myPlayer.horizontal_speed = 0;
     }
+
+    // Update the player's horizontal speed
+    myGame.myPlayer.pos.x += myGame.myPlayer.horizontal_speed;
 }
 
 /********************************************************************
@@ -1215,6 +1290,15 @@ void updatePlayerSpeed()
  *******************************************************************/
 void resetGame()
 {
+    stop_mpcore_priv_timer();
+
+    // clear both VGA buffers
+    clear_screen();
+    updateLevel(gameLevels[0]);
+    updatePlayerStatus();
+
+    start_mpcore_priv_timer();
+
     return;
 }
 
@@ -1222,6 +1306,7 @@ void resetGame()
  * void updateCurrentGame();
  *
  * update the current player and game state based on the flags
+ * Reserve for player phyiscs
  *******************************************************************/
 void updateCurrentGame()
 {
@@ -1235,6 +1320,7 @@ void updateCurrentGame()
  *******************************************************************/
 void ps2KeyboardInputHandler(char byte1, char byte2, char byte3)
 {
+    // start the game when any key is being pressed
     if (byte3 == 0xF0)
         return;
     // player movements
@@ -1366,11 +1452,11 @@ void drawBoxWithBorder(int vgaX, int vgaY, int boxLen, int borderWid, short int 
     }
 }
 /********************************************************************
-    * swap(int *A, int *B)
-    *
-    * the function swaps the value of A and B
-    * Note A and B are pointers
-    *******************************************************************/
+ * swap(int *A, int *B)
+ *
+ * the function swaps the value of A and B
+ * Note A and B are pointers
+ *******************************************************************/
 void swap(int *A, int *B)
 {
     int temp = *A;
@@ -1834,8 +1920,8 @@ int main(void)
     start_mpcore_priv_timer();
 
     /* Declare volatile pointers to I/O registers (volatile means that IO load
-        and store instructions will be used to access these pointer locations,
-        instead of regular memory loads and stores) */
+      and store instructions will be used to access these pointer locations,
+      instead of regular memory loads and stores) */
     volatile int *PS2_ptr = (int *)PS2_BASE;
     int PS2_data, RVALID;
     char byte1 = 0, byte2 = 0, byte3 = 0;
