@@ -279,6 +279,17 @@ void drawX(int vgaX, int vgaY, short int textColour);
 void drawY(int vgaX, int vgaY, short int textColour);
 void drawZ(int vgaX, int vgaY, short int textColour);
 
+/* Numbers */
+void draw0(int vgaX, int vgaY, short int textColour);
+void draw1(int vgaX, int vgaY, short int textColour);
+void draw2(int vgaX, int vgaY, short int textColour);
+void draw3(int vgaX, int vgaY, short int textColour);
+void draw4(int vgaX, int vgaY, short int textColour);
+void draw5(int vgaX, int vgaY, short int textColour);
+void draw6(int vgaX, int vgaY, short int textColour);
+void draw7(int vgaX, int vgaY, short int textColour);
+void draw8(int vgaX, int vgaY, short int textColour);
+void draw9(int vgaX, int vgaY, short int textColour);
 
 /* Shapes */
 void drawLine(int x0, int y0, int x1, int y1, short int line_color);
@@ -738,7 +749,7 @@ void drawCurrentObjects()
             }
         }
     }
-    /* Debugging purposes 
+    /* Debugging purposes */
     drawPlayerResting(50, 50);
 	drawPlayerRunningRight(100, 50);
 	drawPlayerRunningLeft(150, 50);
@@ -772,7 +783,17 @@ void drawCurrentObjects()
     drawX(290, 25, BLACK);
     drawY(300, 25, BLACK);
     drawZ(310, 25, BLACK);
-    */
+    
+    draw0(50, 75, BLACK);
+    draw1(60, 75, BLACK);
+    draw2(70, 75, BLACK);
+    draw3(80, 75, BLACK);
+    draw4(90, 75, BLACK);
+    draw5(100, 75, BLACK);
+    draw6(110, 75, BLACK);
+    draw7(120, 75, BLACK);
+    draw8(130, 75, BLACK);
+    draw9(140, 75, BLACK);
 }
 
 /********************************************************************
@@ -1901,6 +1922,188 @@ void drawZ(int vgaX, int vgaY, short int textColour)
     plot_pixel(vgaX + 4, vgaY + 5, textColour);
     plot_pixel(vgaX + 1, vgaY + 6, textColour);
     plot_pixel(vgaX + 1, vgaY + 7, textColour);
+    plot_pixel(vgaX, vgaY + 8, textColour);
+}
+
+/********************************************************************
+    * draw[Number](int vgaX, int vgaY, short int textColour)
+    *
+    * the following functions draws out their respective numbers
+    *******************************************************************/
+void draw0(int vgaX, int vgaY, short int textColour)
+{
+    for(int j = 1; j <= 8; j++)
+    {
+        plot_pixel(vgaX, vgaY + j, textColour);
+        plot_pixel(vgaX + 4, vgaY + j, textColour);
+    }
+    for(int i = 1; i <= 3; i++)
+    {
+        plot_pixel(vgaX + i, vgaY, textColour);
+        plot_pixel(vgaX + i, vgaY + 9, textColour);
+    }
+}
+
+void draw1(int vgaX, int vgaY, short int textColour)
+{
+    for(int j = 0; j <= 9; j++)
+    {
+        plot_pixel(vgaX + 4, vgaY + j, textColour);
+    }
+}
+
+void draw2(int vgaX, int vgaY, short int textColour)
+{
+    for(int i = 0; i <= 4; i++)
+    {
+        plot_pixel(vgaX + i, vgaY + 9, textColour);
+    }
+    for(int i = 1; i <= 3; i++)
+    {
+        plot_pixel(vgaX + i, vgaY, textColour);
+    }
+    for(int j = 1; j <= 4; j++)
+    {
+         plot_pixel(vgaX + 4, vgaY + j, textColour);
+    }
+    plot_pixel(vgaX, vgaY + 1, textColour);
+    plot_pixel(vgaX, vgaY + 2, textColour);
+    for(int i = 0; i <= 3; i++)
+    {
+        plot_pixel(vgaX + i, vgaY + 8 - i, textColour);
+    }
+}
+
+void draw3(int vgaX, int vgaY, short int textColour)
+{
+    for(int j = 1; j <= 8; j++)
+    {
+        if (j != 4)
+        {
+            plot_pixel(vgaX + 4, vgaY + j, textColour);
+        }
+    }
+    for(int i = 1; i <= 3; i++)
+    {
+        plot_pixel(vgaX + i, vgaY, textColour);
+        if(i != 1)
+        {
+            plot_pixel(vgaX + i, vgaY + 4, textColour);
+        }
+        plot_pixel(vgaX + i, vgaY + 9, textColour);
+    }
+    plot_pixel(vgaX, vgaY + 1, textColour);
+    plot_pixel(vgaX, vgaY + 8, textColour);
+}
+
+void draw4(int vgaX, int vgaY, short int textColour)
+{
+    for(int j = 0; j <= 9; j++)
+    {
+        plot_pixel(vgaX + 4, vgaY + j, textColour);
+    }
+    for(int j = 0; j <= 4; j++)
+    {
+        plot_pixel(vgaX, vgaY + j, textColour);
+    }
+    for(int i = 1; i <= 4; i++)
+    {
+        plot_pixel(vgaX + i, vgaY + 5, textColour);
+    }
+}
+
+void draw5(int vgaX, int vgaY, short int textColour)
+{
+    for(int i = 1; i <= 3; i++)
+    {
+        plot_pixel(vgaX + i, vgaY + 4, textColour);
+        plot_pixel(vgaX + i, vgaY + 9, textColour);
+    }
+    for(int i = 0; i <= 4; i++)
+    {
+        plot_pixel(vgaX + i, vgaY, textColour);
+    }
+    for(int j = 1; j <= 4; j++)
+    {
+        plot_pixel(vgaX, vgaY + j, textColour);
+    }
+    for(int j = 5; j <= 8; j++)
+    {
+        plot_pixel(vgaX + 4, vgaY + j, textColour);
+    }
+    plot_pixel(vgaX, vgaY + 8, textColour);
+}
+
+void draw6(int vgaX, int vgaY, short int textColour)
+{
+    for(int j = 1; j <= 8; j++)
+    {
+        plot_pixel(vgaX, vgaY + j, textColour);
+    }
+    for(int i = 1; i <= 3; i++)
+    {
+        plot_pixel(vgaX + i, vgaY, textColour);
+        plot_pixel(vgaX + i, vgaY + 4, textColour);
+        plot_pixel(vgaX + i, vgaY + 9, textColour);
+    }
+    for(int j = 5; j <= 8; j++)
+    {
+        plot_pixel(vgaX + 4, vgaY + j, textColour);
+    }
+    plot_pixel(vgaX + 4, vgaY + 1, textColour);
+}
+
+void draw7(int vgaX, int vgaY, short int textColour)
+{
+    for(int i = 0; i <= 4; i++)
+    {
+        plot_pixel(vgaX + i, vgaY, textColour);
+    }
+    plot_pixel(vgaX + 4, vgaY + 1, textColour);
+    plot_pixel(vgaX + 3, vgaY + 2, textColour);
+    plot_pixel(vgaX + 3, vgaY + 3, textColour);
+    plot_pixel(vgaX + 2, vgaY + 4, textColour);
+    plot_pixel(vgaX + 2, vgaY + 5, textColour);
+    plot_pixel(vgaX + 1, vgaY + 6, textColour);
+    plot_pixel(vgaX + 1, vgaY + 7, textColour);
+    plot_pixel(vgaX, vgaY + 8, textColour);
+    plot_pixel(vgaX, vgaY + 9, textColour);
+}
+
+void draw8(int vgaX, int vgaY, short int textColour)
+{
+    for(int j = 1; j <= 8; j++)
+    {
+        if (j != 4)
+        {
+            plot_pixel(vgaX, vgaY + j, textColour);
+            plot_pixel(vgaX + 4, vgaY + j, textColour);
+        }
+    }
+    for(int i = 1; i <= 3; i++)
+    {
+        plot_pixel(vgaX + i, vgaY, textColour);
+        plot_pixel(vgaX + i, vgaY + 4, textColour);
+        plot_pixel(vgaX + i, vgaY + 9, textColour);
+    }
+}
+
+void draw9(int vgaX, int vgaY, short int textColour)
+{
+    for(int j = 1; j <= 8; j++)
+    {
+        plot_pixel(vgaX + 4, vgaY + j, textColour);
+    }
+     for(int i = 1; i <= 3; i++)
+    {
+        plot_pixel(vgaX + i, vgaY, textColour);
+        plot_pixel(vgaX + i, vgaY + 4, textColour);
+        plot_pixel(vgaX + i, vgaY + 9, textColour);
+    }
+    for(int j = 1; j <= 3; j++)
+    {
+        plot_pixel(vgaX, vgaY + j, textColour);
+    }
     plot_pixel(vgaX, vgaY + 8, textColour);
 }
 
