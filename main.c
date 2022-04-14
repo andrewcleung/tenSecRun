@@ -108,7 +108,7 @@
 #define BLOCK_RESOLUTION_Y 24
 
 /* Physics */
-#define PLAYER_SPEED_NORMAL 5
+#define PLAYER_SPEED_NORMAL 8
 #define GRAVITY -10
 #define PLAYER_INITIAL_UP_VELOCITY 40
 
@@ -261,6 +261,7 @@ void drawPlayerResting(int vgaX, int vgaY);
 void drawPlayerRunningRight(int vgaX, int vgaY);
 void drawPlayerRunningLeft(int vgaX, int vgaY);
 void drawPlayerJumping(int vgaX, int vgaY);
+void drawPlayer(int vgaX, int vgaY); // determine the animation of the player
 
 /* Obstacles */
 void drawFireball(int baseX, int baseY);
@@ -540,15 +541,19 @@ void mpcore_priv_timer_ISR(void)
     volatile int *MPcore_private_timer_ptr = (int *)MPCORE_PRIV_TIMER;
 
     // frame counter
-    if (myGame.progress == GAMEPROG_START) {
-        if (myTimer.countDown == 0) {
+    if (myGame.progress == GAMEPROG_START)
+    {
+        if (myTimer.countDown == 0)
+        {
             myGame.progress = GAMEPROG_LOSE;
         }
-        else if (myTimer.frame == 32) {
+        else if (myTimer.frame == 32)
+        {
             myTimer.countDown--;
             myTimer.frame = 0;
         }
-        else {
+        else
+        {
             myTimer.frame++;
         }
     }
@@ -1567,6 +1572,34 @@ void drawPlayerJumping(int vgaX, int vgaY)
 }
 
 /********************************************************************
+ * void drawPlayer(int vgaX, int vgaY)
+ *
+ * determine the animation of the player
+ *******************************************************************/
+void drawPlayer(int vgaX, int vgaY)
+{
+      if (myGame.myPlayer.airborne == true)
+    {
+        drawPlayerJumping(vgaX, vgaY);
+        return;
+    }
+    switch (myGame.myPlayer.state)
+    {
+    case PLAYERSTATE_LEFT:
+        drawPlayerRunningLeft(vgaX, vgaY);
+        return;
+    case PLAYERSTATE_RIGHT:
+        drawPlayerRunningRight(vgaX, vgaY);
+        return;
+    case PLAYERSTATE_STILL:
+        drawPlayerResting(vgaX, vgaY);
+        return;
+    default:
+        drawPlayerResting(vgaX, vgaY);
+        return;
+    }
+}
+/********************************************************************
  * drawFireball(int baseX, int baseY)
  *
  * draws fireball
@@ -1759,16 +1792,16 @@ void refreshAnimation()
         break;
     case GAMEPROG_START:
         drawCurrentObjects();
-        drawPlayerResting(myGame.myPlayer.pos.x, myGame.myPlayer.pos.y);
+        drawPlayer(myGame.myPlayer.pos.x, myGame.myPlayer.pos.y);
         break;
     case GAMEPROG_LOSE:
         drawCurrentObjects();
-        drawPlayerResting(myGame.myPlayer.pos.x, myGame.myPlayer.pos.y);
+        drawPlayer(myGame.myPlayer.pos.x, myGame.myPlayer.pos.y);
         drawLosingScreen();
         break;
     case GAMEPROG_WIN:
         drawCurrentObjects();
-        drawPlayerResting(myGame.myPlayer.pos.x, myGame.myPlayer.pos.y);
+        drawPlayer(myGame.myPlayer.pos.x, myGame.myPlayer.pos.y);
         drawWinningScreen();
         break;
     default:
@@ -1868,7 +1901,7 @@ updatePlayerStatusHorizontalReturn:
     for (int xPos = playerVgaPosX; xPos <= playerVgaPosXRight; xPos++)
     {
         // empty ground check
-        if (myGame.currentObjects[((int)(xPos) / BOX_LEN)][playerVgaPosYBottom / BOX_LEN] == GAMEOBJ_EMPTY)
+        if (myGame.currentObjects[((int)(xPos) / BOX_LEN)][(playerVgaPosYBottom+1) / BOX_LEN] == GAMEOBJ_EMPTY)
         {
             myGame.myPlayer.airborne = true;
         }
