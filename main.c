@@ -174,6 +174,12 @@ typedef struct levels
     enum GameObject levelObjects[BLOCK_RESOLUTION_X][BLOCK_RESOLUTION_Y];
 } Levels;
 
+typedef struct timer
+{
+    int frame;
+    int countDown;
+} Timer;
+
 enum GameCurrentProgress
 {
     GAMEPROG_BEFORE = 0,
@@ -234,6 +240,9 @@ void drawPlatformBlock(int baseX, int baseY);        // draw the platform block
 void drawStart(int baseX, int baseY);                // draw the starting block
 void drawEnd(int baseX, int baseY);                  // draw the ending block
 void drawEmpty(int baseX, int baseY);                // draw the empty space
+
+/* Timer */
+void drawTimer(int count);
 
 /* Title screen */
 void drawBigTitle();
@@ -323,6 +332,7 @@ void swap(int *A, int *B);
 /**************************** Global variables ************************************/
 Levels gameLevels[NUMBER_OF_LEVELS];
 GameState myGame;
+Timer myTimer;
 
 /* VGA buffer */
 volatile int pixel_buffer_start;
@@ -529,6 +539,19 @@ void mpcore_priv_timer_ISR(void)
 {
     volatile int *MPcore_private_timer_ptr = (int *)MPCORE_PRIV_TIMER;
 
+    // frame counter
+    if (myGame.progress == GAMEPROG_START) {
+        if (myTimer.countDown == 0) {
+            myGame.progress = GAMEPROG_LOSE;
+        }
+        else if (myTimer.frame == 32) {
+            myTimer.countDown--;
+            myTimer.frame = 0;
+        }
+        else {
+            myTimer.frame++;
+        }
+    }
     // draw routine
     updatePlayerStatus();
     hitboxCheck();
@@ -681,6 +704,7 @@ void setupLevels_lv1()
     gameLevels[0].levelObjects[10][10] = GAMEOBJ_PLATFORM_BLOCK;
     gameLevels[0].levelObjects[9][10] = GAMEOBJ_PLATFORM_BLOCK;
     gameLevels[0].levelObjects[8][10] = GAMEOBJ_PLATFORM_BLOCK;
+    gameLevels[0].levelObjects[11][6] = GAMEOBJ_PLATFORM_BLOCK;
 
     // create gaps
     for (int x = 20; x < 23; x++)
@@ -939,6 +963,10 @@ void updateLevel(Levels level)
     // Reset speeds
     myGame.myPlayer.horizontal_speed = 0;
     myGame.myPlayer.vertical_speed = 0;
+
+    // reset timer
+    myTimer.frame = 0;
+    myTimer.countDown = 10;
 }
 
 /********************************************************************
@@ -971,11 +999,11 @@ void drawCurrentObjects()
                 drawPlatformBlock(x, y);
                 break;
             case GAMEOBJ_FIREBALL:
-            // ignored using baseX and baseY as function parameter, use vga instead
+                // ignored using baseX and baseY as function parameter, use vga instead
                 drawFireball(x * BOX_LEN, y * BOX_LEN);
                 break;
             case GAMEOBJ_SPIKE:
-            // ignored using baseX and baseY as function parameter, use vga instead
+                // ignored using baseX and baseY as function parameter, use vga instead
                 drawSpike(x * BOX_LEN, y * BOX_LEN);
                 break;
             case GAMEOBJ_START:
@@ -990,6 +1018,8 @@ void drawCurrentObjects()
             }
         }
     }
+    // Drawing the timer
+    drawTimer(myTimer.countDown);
 }
 
 /********************************************************************
@@ -1624,6 +1654,61 @@ void drawSpike(int baseX, int baseY)
     {
         plot_pixel(baseX, baseY + i, BLACK);
         plot_pixel(baseX + 9, baseY + i, BLACK);
+    }
+}
+
+/********************************************************************
+ * void drawTimer(int count)
+ *
+ * the function draws the timer at the corner of the display
+ *******************************************************************/
+void drawTimer(int count)
+{
+    Position firstNumberPos;
+    Position secondNumberPos;
+    firstNumberPos.x = 0;
+    firstNumberPos.y = 0;
+    secondNumberPos.x = 10;
+    secondNumberPos.y = 0;
+
+    switch (count)
+    {
+    case 0:
+        draw0(firstNumberPos.x, firstNumberPos.y, MAGENTA);
+        break;
+    case 1:
+        draw1(firstNumberPos.x, firstNumberPos.y, MAGENTA);
+        break;
+    case 2:
+        draw2(firstNumberPos.x, firstNumberPos.y, MAGENTA);
+        break;
+    case 3:
+        draw3(firstNumberPos.x, firstNumberPos.y, MAGENTA);
+        break;
+    case 4:
+        draw4(firstNumberPos.x, firstNumberPos.y, MAGENTA);
+        break;
+    case 5:
+        draw5(firstNumberPos.x, firstNumberPos.y, MAGENTA);
+        break;
+    case 6:
+        draw6(firstNumberPos.x, firstNumberPos.y, MAGENTA);
+        break;
+    case 7:
+        draw7(firstNumberPos.x, firstNumberPos.y, MAGENTA);
+        break;
+    case 8:
+        draw8(firstNumberPos.x, firstNumberPos.y, MAGENTA);
+        break;
+    case 9:
+        draw9(firstNumberPos.x, firstNumberPos.y, MAGENTA);
+        break;
+    case 10:
+        draw1(firstNumberPos.x, firstNumberPos.y, MAGENTA);
+        draw0(secondNumberPos.x, secondNumberPos.y, MAGENTA);
+        break;
+    default:
+        draw0(firstNumberPos.x, firstNumberPos.y, MAGENTA);
     }
 }
 
