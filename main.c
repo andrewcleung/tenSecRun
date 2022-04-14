@@ -749,7 +749,7 @@ void drawCurrentObjects()
             }
         }
     }
-    /* Debugging purposes */
+    /* Debugging purposes 
     drawPlayerResting(50, 50);
 	drawPlayerRunningRight(100, 50);
 	drawPlayerRunningLeft(150, 50);
@@ -794,6 +794,7 @@ void drawCurrentObjects()
     draw7(120, 75, BLACK);
     draw8(130, 75, BLACK);
     draw9(140, 75, BLACK);
+    */
 }
 
 /********************************************************************
@@ -1162,55 +1163,75 @@ void drawPlayerJumping(int baseX, int baseY)
  *******************************************************************/
 void drawFireball(int baseX, int baseY)
 {
-    plot_pixel(baseX + 1, baseY, RED);
-    plot_pixel(baseX + 5, baseY, RED);
-
-    plot_pixel(baseX + 2, baseY + 1, RED);
-    plot_pixel(baseX + 4, baseY + 1, RED);
+    plot_pixel(baseX, baseY, RED);
+    plot_pixel(baseX + 3, baseY, RED);
+    plot_pixel(baseX + 7, baseY, RED);
+    
+    plot_pixel(baseX, baseY + 1, RED);
+    plot_pixel(baseX + 3, baseY + 1, RED);
     plot_pixel(baseX + 5, baseY + 1, RED);
+    plot_pixel(baseX + 7, baseY + 1, RED);
 
-    plot_pixel(baseX + 1, baseY + 2, RED);
-    plot_pixel(baseX + 3, baseY + 2, RED);
-    plot_pixel(baseX + 4, baseY + 2, RED);
-    plot_pixel(baseX + 5, baseY + 2, ORANGE);
+    plot_pixel(baseX + 2, baseY + 2, RED);
     plot_pixel(baseX + 6, baseY + 2, RED);
+    plot_pixel(baseX + 9, baseY + 2, RED);
 
-    plot_pixel(baseX, baseY + 3, RED);
     plot_pixel(baseX + 1, baseY + 3, RED);
-    plot_pixel(baseX + 2, baseY + 3, RED);
-    plot_pixel(baseX + 3, baseY + 3, ORANGE);
-    plot_pixel(baseX + 4, baseY + 3, ORANGE);
-    plot_pixel(baseX + 5, baseY + 3, ORANGE);
-    plot_pixel(baseX + 6, baseY + 3, ORANGE);
-    plot_pixel(baseX + 7, baseY + 3, RED);
+    plot_pixel(baseX + 3, baseY + 3, RED);
+    plot_pixel(baseX + 5, baseY + 3, RED);
+    plot_pixel(baseX + 6, baseY + 3, RED);
+    plot_pixel(baseX + 9, baseY + 3, RED);
 
-    plot_pixel(baseX, baseY + 4, RED);
-    plot_pixel(baseX + 1, baseY + 4, ORANGE);
-    plot_pixel(baseX + 2, baseY + 4, ORANGE);
-    plot_pixel(baseX + 3, baseY + 4, YELLOW);
-    plot_pixel(baseX + 4, baseY + 4, YELLOW);
-    plot_pixel(baseX + 5, baseY + 4, YELLOW);
+    plot_pixel(baseX + 1, baseY + 4, RED);
+    plot_pixel(baseX + 2, baseY + 4, RED);
+    plot_pixel(baseX + 4, baseY + 4, RED);
+    plot_pixel(baseX + 5, baseY + 4, RED);
     plot_pixel(baseX + 6, baseY + 4, ORANGE);
     plot_pixel(baseX + 7, baseY + 4, RED);
+    plot_pixel(baseX + 8, baseY + 4, RED);
+    plot_pixel(baseX + 9, baseY + 4, RED);
 
     plot_pixel(baseX, baseY + 5, RED);
-    plot_pixel(baseX + 1, baseY + 5, ORANGE);
-    plot_pixel(baseX + 2, baseY + 5, YELLOW);
-    plot_pixel(baseX + 3, baseY + 5, YELLOW);
-    plot_pixel(baseX + 4, baseY + 5, WHITE);
-    plot_pixel(baseX + 5, baseY + 5, YELLOW);
+    plot_pixel(baseX + 1, baseY + 5, RED);
+    plot_pixel(baseX + 2, baseY + 5, RED);
+    plot_pixel(baseX + 3, baseY + 5, RED);
+    plot_pixel(baseX + 4, baseY + 5, ORANGE);
+    plot_pixel(baseX + 5, baseY + 5, ORANGE);
     plot_pixel(baseX + 6, baseY + 5, ORANGE);
-    plot_pixel(baseX + 7, baseY + 5, RED);
+    plot_pixel(baseX + 7, baseY + 5, ORANGE);
+    plot_pixel(baseX + 8, baseY + 5, RED);
+    plot_pixel(baseX + 9, baseY + 5, RED);
 
+    plot_pixel(baseX, baseY + 6, RED);
     plot_pixel(baseX + 1, baseY + 6, RED);
-    plot_pixel(baseX + 2, baseY + 6, YELLOW);
-    plot_pixel(baseX + 3, baseY + 6, YELLOW);
-    plot_pixel(baseX + 4, baseY + 6, WHITE);
-    plot_pixel(baseX + 5, baseY + 6, WHITE);
-    plot_pixel(baseX + 6, baseY + 6, RED);
+    plot_pixel(baseX + 2, baseY + 6, ORANGE);
+    plot_pixel(baseX + 3, baseY + 6, ORANGE);
+    plot_pixel(baseX + 4, baseY + 6, YELLOW);
+    plot_pixel(baseX + 5, baseY + 6, YELLOW);
+    plot_pixel(baseX + 6, baseY + 6, YELLOW);
+    plot_pixel(baseX + 7, baseY + 6, ORANGE);
+    plot_pixel(baseX + 8, baseY + 6, RED);
 
-    plot_pixel(baseX + 2, baseY + 7, RED);
-    plot_pixel(baseX + 5, baseY + 7, RED);
+    plot_pixel(baseX, baseY + 7, RED);
+    plot_pixel(baseX + 1, baseY + 7, RED);
+    plot_pixel(baseX + 2, baseY + 7, ORANGE);
+    plot_pixel(baseX + 3, baseY + 7, YELLOW);
+    plot_pixel(baseX + 4, baseY + 7, YELLOW);
+    plot_pixel(baseX + 5, baseY + 7, WHITE);
+    plot_pixel(baseX + 6, baseY + 7, YELLOW);
+    plot_pixel(baseX + 7, baseY + 7, ORANGE);
+    plot_pixel(baseX + 8, baseY + 7, RED);
+
+    plot_pixel(baseX + 1, baseY + 8, RED);
+    plot_pixel(baseX + 2, baseY + 8, RED);
+    plot_pixel(baseX + 3, baseY + 8, YELLOW);
+    plot_pixel(baseX + 4, baseY + 8, YELLOW);
+    plot_pixel(baseX + 5, baseY + 8, WHITE);
+    plot_pixel(baseX + 6, baseY + 8, WHITE);
+    plot_pixel(baseX + 7, baseY + 8, RED);
+
+    plot_pixel(baseX + 3, baseY + 9, RED);
+    plot_pixel(baseX + 6, baseY + 9, RED);
 }
 
 /********************************************************************
@@ -1220,25 +1241,30 @@ void drawFireball(int baseX, int baseY)
  *******************************************************************/
 void drawSpike(int baseX, int baseY)
 {
-    for(int i = 0; i < 8; i++)
+    for(int i = 0; i <= 9; i++)
     {
-        plot_pixel(baseX + 3, baseY + i, BLACK);
         plot_pixel(baseX + 4, baseY + i, BLACK);
-    }
-    for(int i = 2; i < 8; i++)
-    {
-        plot_pixel(baseX + 2, baseY + i, BLACK);
         plot_pixel(baseX + 5, baseY + i, BLACK);
     }
-    for(int i = 4; i < 8; i++)
+    for(int i = 2; i <= 9; i++)
     {
-        plot_pixel(baseX + 1, baseY + i, BLACK);
+        plot_pixel(baseX + 3, baseY + i, BLACK);
         plot_pixel(baseX + 6, baseY + i, BLACK);
     }
-    for(int i = 6; i < 8; i++)
+    for(int i = 4; i <= 9; i++)
+    {
+        plot_pixel(baseX + 2, baseY + i, BLACK);
+        plot_pixel(baseX + 7, baseY + i, BLACK);
+    }
+    for(int i = 6; i <= 9; i++)
+    {
+        plot_pixel(baseX + 1, baseY + i, BLACK);
+        plot_pixel(baseX + 8, baseY + i, BLACK);
+    }
+    for(int i = 8; i <= 9; i++)
     {
         plot_pixel(baseX, baseY + i, BLACK);
-        plot_pixel(baseX + 7, baseY + i, BLACK);
+        plot_pixel(baseX + 9, baseY + i, BLACK);
     }
 }
 
