@@ -102,10 +102,10 @@
 
 /* Object block size */
 /* DO NOT CHANGE THIS*/
-#define BOX_LEN 8
+#define BOX_LEN 10
 
-#define BLOCK_RESOLUTION_X 40
-#define BLOCK_RESOLUTION_Y 30
+#define BLOCK_RESOLUTION_X 32
+#define BLOCK_RESOLUTION_Y 24
 
 /* Player attributes */
 #define PLAYER_SPEED_NORMAL 5
@@ -625,8 +625,8 @@ void setupLevels_lv1()
     gameLevels[0].start.y = 20;
 
     // ending position
-    gameLevels[0].levelObjects[38][20] = GAMEOBJ_END;
-    gameLevels[0].end.x = 38;
+    gameLevels[0].levelObjects[30][20] = GAMEOBJ_END;
+    gameLevels[0].end.x = 30;
     gameLevels[0].end.y = 20;
 }
 
@@ -786,14 +786,6 @@ void drawBigTitle()
     for (int baseY = 14; baseY < 22; baseY++)
         drawBox(27 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, MAGENTA);
     for (int baseX = 24; baseX < 28; baseX++)
-        drawBox(baseX * BOX_LEN, 21 * BOX_LEN, BOX_LEN, MAGENTA);
-
-    // n
-    for (int baseY = 14; baseY < 22; baseY++)
-        drawBox(31 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, MAGENTA);
-    for (int baseY = 14; baseY < 22; baseY++)
-        drawBox(34 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, MAGENTA);
-    for (int baseX = 31; baseX < 35; baseX++)
         drawBox(baseX * BOX_LEN, 14 * BOX_LEN, BOX_LEN, MAGENTA);
 }
 
