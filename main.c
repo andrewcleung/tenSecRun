@@ -248,6 +248,34 @@ void drawPlayerJumping(int baseX, int baseY);
 void drawFireball(int baseX, int baseY);
 void drawSpike(int baseX, int baseY);
 
+/* Letters */
+void drawA(int baseX, int baseY);
+void drawB(int baseX, int baseY);
+void drawC(int baseX, int baseY);
+void drawD(int baseX, int baseY);
+void drawE(int baseX, int baseY);
+void drawF(int baseX, int baseY);
+void drawG(int baseX, int baseY);
+void drawH(int baseX, int baseY);
+void drawI(int baseX, int baseY);
+void drawJ(int baseX, int baseY);
+void drawK(int baseX, int baseY);
+void drawL(int baseX, int baseY);
+void drawM(int baseX, int baseY);
+void drawN(int baseX, int baseY);
+void drawO(int baseX, int baseY);
+void drawP(int baseX, int baseY);
+void drawQ(int baseX, int baseY);
+void drawR(int baseX, int baseY);
+void drawS(int baseX, int baseY);
+void drawT(int baseX, int baseY);
+void drawU(int baseX, int baseY);
+void drawV(int baseX, int baseY);
+void drawW(int baseX, int baseY);
+void drawX(int baseX, int baseY);
+void drawY(int baseX, int baseY);
+void drawZ(int baseX, int baseY);
+
 /* Shapes */
 void drawLine(int x0, int y0, int x1, int y1, short int line_color);
 void drawCircle(int x_center, int y_centerc, int r, short int line_color);
@@ -1309,54 +1337,54 @@ void drawBoxWithBorder(int vgaX, int vgaY, int boxLen, int borderWid, short int 
         }
     }
 }
-    /********************************************************************
-     * swap(int *A, int *B)
-     *
-     * the function swaps the value of A and B
-     * Note A and B are pointers
-     *******************************************************************/
-    void swap(int *A, int *B)
+/********************************************************************
+    * swap(int *A, int *B)
+    *
+    * the function swaps the value of A and B
+    * Note A and B are pointers
+    *******************************************************************/
+void swap(int *A, int *B)
+{
+    int temp = *A;
+    *A = *B;
+    *B = temp;
+}
+
+int main(void)
+{
+    // Setup all the levels before the game
+    setupLevels();
+    updateLevel(gameLevels[0]);
+
+    // Interrupt setup routine
+    setup_interrupts();
+
+    // VGA setup routine
+    setupVGA();
+    clear_screen();
+
+    start_mpcore_priv_timer();
+
+    /* Declare volatile pointers to I/O registers (volatile means that IO load
+        and store instructions will be used to access these pointer locations,
+        instead of regular memory loads and stores) */
+    volatile int *PS2_ptr = (int *)PS2_BASE;
+    int PS2_data, RVALID;
+    char byte1 = 0, byte2 = 0, byte3 = 0;
+    // PS/2 mouse needs to be reset (must be already plugged in)
+    *(PS2_ptr) = 0xFF; // reset
+
+    while (1)
     {
-        int temp = *A;
-        *A = *B;
-        *B = temp;
-    }
-
-    int main(void)
-    {
-        // Setup all the levels before the game
-        setupLevels();
-        updateLevel(gameLevels[0]);
-
-        // Interrupt setup routine
-        setup_interrupts();
-
-        // VGA setup routine
-        setupVGA();
-        clear_screen();
-
-        start_mpcore_priv_timer();
-
-        /* Declare volatile pointers to I/O registers (volatile means that IO load
-          and store instructions will be used to access these pointer locations,
-          instead of regular memory loads and stores) */
-        volatile int *PS2_ptr = (int *)PS2_BASE;
-        int PS2_data, RVALID;
-        char byte1 = 0, byte2 = 0, byte3 = 0;
-        // PS/2 mouse needs to be reset (must be already plugged in)
-        *(PS2_ptr) = 0xFF; // reset
-
-        while (1)
+        PS2_data = *(PS2_ptr);      // read the Data register in the PS/2 port
+        RVALID = PS2_data & 0x8000; // extract the RVALID field
+        if (RVALID)
         {
-            PS2_data = *(PS2_ptr);      // read the Data register in the PS/2 port
-            RVALID = PS2_data & 0x8000; // extract the RVALID field
-            if (RVALID)
-            {
-                /* shift the next data byte into the display */
-                byte1 = byte2;
-                byte2 = byte3;
-                byte3 = PS2_data & 0xFF;
-                ps2KeyboardInputHandler(byte1, byte2, byte3);
-            }
+            /* shift the next data byte into the display */
+            byte1 = byte2;
+            byte2 = byte3;
+            byte3 = PS2_data & 0xFF;
+            ps2KeyboardInputHandler(byte1, byte2, byte3);
         }
     }
+}
