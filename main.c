@@ -352,7 +352,7 @@ void config_KEYs()
 void config_mpcore_priv_timer(void)
 {
     volatile int *MPcore_private_timer_ptr = (int *)MPCORE_PRIV_TIMER;
-    int counter = 1562500;                   // timeout = 1/(200 MHz) x 200x10^6 = 1 sec
+    int counter = 6250000;                   // timeout = 1/(200 MHz) x 200x10^6 = 1 sec
     *(MPcore_private_timer_ptr) = counter;   // write to timer load register
     *(MPcore_private_timer_ptr + 2) = 0b110; // interrupt = 1 (enable interrupt),
     // mode = 1 (auto), enable = 0 (start timer later)
