@@ -490,6 +490,8 @@ void pushbutton_ISR(void)
 {
     /* KEY base address */
     volatile int *KEY_ptr = (int *)KEY_BASE;
+    /* Switch address */
+    volatile int *SW_ptr = (int *)SW_BASE;
     /* HEX display base address */
     volatile int *HEX3_HEX0_ptr = (int *)HEX3_HEX0_BASE;
     int press, HEX_bits;
@@ -498,6 +500,11 @@ void pushbutton_ISR(void)
     if (press & 0x1)        // KEY0
     {
         HEX_bits = 0b00111111;
+        clear_screen();
+        if ((*SW_ptr) < 3 && (*SW_ptr) >= 0)
+            updateLevel(gameLevels[*SW_ptr]);
+        else
+            updateLevel(gameLevels[2]);
         myGame.progress = GAMEPROG_START;
     }
     else if (press & 0x2) // KEY1
@@ -524,6 +531,7 @@ void mpcore_priv_timer_ISR(void)
 
     // draw routine
     updatePlayerStatus();
+    hitboxCheck();
     refreshAnimation();
 
     *(MPcore_private_timer_ptr + 3) = 1; // reset timer flag bit
@@ -1637,6 +1645,16 @@ void refreshAnimation()
         drawCurrentObjects();
         drawPlayerResting(myGame.myPlayer.pos.x, myGame.myPlayer.pos.y);
         break;
+    case GAMEPROG_LOSE:
+        drawCurrentObjects();
+        drawPlayerResting(myGame.myPlayer.pos.x, myGame.myPlayer.pos.y);
+        drawLosingScreen();
+        break;
+    case GAMEPROG_WIN:
+        drawCurrentObjects();
+        drawPlayerResting(myGame.myPlayer.pos.x, myGame.myPlayer.pos.y);
+        drawWinningScreen();
+        break;
     default:
         drawBigTitle();
     }
@@ -1752,15 +1770,22 @@ updatePlayerStatusHorizontalReturn:
                     myGame.myPlayer.pos.y = yPos + 1; // update the y position
                     goto updatePlayerStatusVerticalReturn;
                 }
-
-                for (int yPos = playerVgaPosY; yPos >= playerVgaPosY - myGame.myPlayer.vertical_speed; yPos--)
+                // spike checking
+                if (myGame.currentObjects[((int)(xPos) / BOX_LEN)][yPos / BOX_LEN] == GAMEOBJ_FIREBALL ||
+                    myGame.currentObjects[((int)(xPos) / BOX_LEN)][yPos / BOX_LEN] == GAMEOBJ_SPIKE)
                 {
-                    if (yPos < 0)
-                    {
-                        myGame.myPlayer.vertical_speed = 0;
-                        myGame.myPlayer.pos.y = 0; // update the y posotion
-                        goto updatePlayerStatusVerticalReturn;
-                    }
+                    myGame.myPlayer.vertical_speed = 0;
+                    myGame.myPlayer.pos.y = yPos; // update the y position, the player walked into the spike
+                    goto updatePlayerStatusVerticalReturn;
+                }
+            }
+            for (int yPos = playerVgaPosY; yPos >= playerVgaPosY - myGame.myPlayer.vertical_speed; yPos--)
+            {
+                if (yPos < 0)
+                {
+                    myGame.myPlayer.vertical_speed = 0;
+                    myGame.myPlayer.pos.y = 0; // update the y posotion
+                    goto updatePlayerStatusVerticalReturn;
                 }
             }
         }
@@ -1778,6 +1803,14 @@ updatePlayerStatusHorizontalReturn:
                     myGame.myPlayer.pos.y = yPos - 1; // update the y position
                     goto updatePlayerStatusVerticalReturn;
                 }
+                if (myGame.currentObjects[((int)(xPos) / BOX_LEN)][(yPos + PLAYER_HEIGHT - 1) / BOX_LEN] == GAMEOBJ_FIREBALL ||
+                    myGame.currentObjects[((int)(xPos) / BOX_LEN)][(yPos + PLAYER_HEIGHT - 1) / BOX_LEN] == GAMEOBJ_SPIKE)
+                {
+                    myGame.myPlayer.vertical_speed = 0;
+                    myGame.myPlayer.airborne = false;
+                    myGame.myPlayer.pos.y = yPos; // update the y position
+                    goto updatePlayerStatusVerticalReturn;
+                }
             }
             for (int yPos = playerVgaPosY; yPos <= playerVgaPosY - myGame.myPlayer.vertical_speed; yPos++)
             {
@@ -1785,7 +1818,7 @@ updatePlayerStatusHorizontalReturn:
                 {
                     myGame.myPlayer.vertical_speed = 0;
                     myGame.myPlayer.pos.y = RESOLUTION_Y - 1 - PLAYER_HEIGHT;
-                    // myGame.progress = GAMEPROG_LOSE;
+                    myGame.progress = GAMEPROG_LOSE;
                     goto updatePlayerStatusVerticalReturn;
                 }
             }
@@ -1827,6 +1860,10 @@ void hitboxCheck()
             return;
         }
     }
+
+    // Winning check
+    if (myGame.currentObjects[((playerVgaPosXRight + playerVgaPosX) / (2 * BOX_LEN))][(myGame.myPlayer.pos.y + PLAYER_HEIGHT) / BOX_LEN] == GAMEOBJ_END)
+        myGame.progress = GAMEPROG_WIN;
 }
 
 /********************************************************************
