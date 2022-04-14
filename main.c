@@ -411,7 +411,7 @@ void __attribute__((interrupt)) __cs3_isr_fiq(void)
 void enable_A9_interrupts(void)
 {
     int status = 0b01010011;
-    asm("msr cpsr, %[ps]"
+    __asm("msr cpsr, %[ps]"
         :
         : [ps] "r"(status));
 }
@@ -422,7 +422,7 @@ void enable_A9_interrupts(void)
 void disable_A9_interrupts(void)
 {
     int status = 0b11010011;
-    asm("msr cpsr, %[ps]"
+    __asm("msr cpsr, %[ps]"
         :
         : [ps] "r"(status));
 }
@@ -476,16 +476,16 @@ void set_A9_IRQ_stack(void)
     stack = 0xFFFFFFFF - 7; // top of A9 onchip memory, aligned to 8 bytes
     /* change processor to IRQ mode with interrupts disabled */
     mode = 0b11010010;
-    asm("msr cpsr, %[ps]"
+    __asm("msr cpsr, %[ps]"
         :
         : [ps] "r"(mode));
     /* set banked stack pointer */
-    asm("mov sp, %[ps]"
+    __asm("mov sp, %[ps]"
         :
         : [ps] "r"(stack));
     /* go back to SVC mode before executing subroutine return! */
     mode = 0b11010011;
-    asm("msr cpsr, %[ps]"
+    __asm("msr cpsr, %[ps]"
         :
         : [ps] "r"(mode));
 }
