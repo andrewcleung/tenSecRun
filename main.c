@@ -113,7 +113,7 @@
 #define PLAYER_INITIAL_UP_VELOCITY 40
 
 /* level attirbutes */
-#define NUMBER_OF_LEVELS 2
+#define NUMBER_OF_LEVELS 3
 
 /* Player size in base coordinate */
 #define PLAYER_HEIGHT_BASE 2
@@ -906,6 +906,16 @@ void setupLevels_lv3()
  *******************************************************************/
 void updateLevel(Levels level)
 {
+    // clear currnet level objects
+    // updating the current object array
+    for (int x = 0; x < BLOCK_RESOLUTION_X; x++)
+    {
+        for (int y = 0; y < BLOCK_RESOLUTION_Y; y++)
+        {
+            myGame.currentObjects[x][y] = GAMEOBJ_EMPTY;
+        }
+    }
+
     // updating the current object array
     for (int x = 0; x < BLOCK_RESOLUTION_X; x++)
     {
@@ -961,18 +971,18 @@ void drawCurrentObjects()
                 drawPlatformBlock(x, y);
                 break;
             case GAMEOBJ_FIREBALL:
-                drawFireball(x * 10, y * 10);
+            // ignored using baseX and baseY as function parameter, use vga instead
+                drawFireball(x * BOX_LEN, y * BOX_LEN);
                 break;
             case GAMEOBJ_SPIKE:
-                drawSpike(x * 10, y * 10);
+            // ignored using baseX and baseY as function parameter, use vga instead
+                drawSpike(x * BOX_LEN, y * BOX_LEN);
                 break;
             case GAMEOBJ_START:
                 drawStart(x, y);
                 break;
             case GAMEOBJ_END:
                 drawEnd(x, y);
-                break;
-            case GAMEOBJ_THANOS:
                 break;
             default:
                 drawEmpty(x, y);
@@ -1659,6 +1669,7 @@ void refreshAnimation()
         drawBigTitle();
     }
     wait_for_vsync();
+    pixel_buffer_start = *(pixel_ctrl_ptr + 1); // new back buffer
 }
 
 /********************************************************************
