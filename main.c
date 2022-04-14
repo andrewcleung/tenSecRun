@@ -242,10 +242,10 @@ void drawBigTitle();
 void drawTestBox(int vgaX, int vgaY);
 
 /* Player */
-void drawPlayerResting(int baseX, int baseY);
-void drawPlayerRunningRight(int baseX, int baseY);
-void drawPlayerRunningLeft(int baseX, int baseY);
-void drawPlayerJumping(int baseX, int baseY);
+void drawPlayerResting(int vgaX, int vgaY);
+void drawPlayerRunningRight(int vgaX, int vgaY);
+void drawPlayerRunningLeft(int vgaX, int vgaY);
+void drawPlayerJumping(int vgaX, int vgaY);
 
 /* Obstacles */
 void drawFireball(int baseX, int baseY);
@@ -881,278 +881,278 @@ void drawBigTitle()
 }
 
 /*******************************************************************
- * drawPlayerResting(int baseX, int baseY)
+ * drawPlayerResting(int vgaX, int vgaY)
  *
  * draws player in its resting state
  *******************************************************************/
-void drawPlayerResting(int baseX, int baseY)
+void drawPlayerResting(int vgaX, int vgaY)
 {
     //Draw head
     for(int i = 0; i < 4; i++)
     {
-        plot_pixel(baseX + 4 + i, baseY, COLOR_PLAYER);
-        plot_pixel(baseX + 4 + i, baseY + 7, COLOR_PLAYER);
+        plot_pixel(vgaX + 4 + i, vgaY, COLOR_PLAYER);
+        plot_pixel(vgaX + 4 + i, vgaY + 7, COLOR_PLAYER);
     }
     for(int i = 0; i < 6; i++)
     {
-        plot_pixel(baseX + 3 + i, baseY + 1, COLOR_PLAYER);
-        plot_pixel(baseX + 3 + i, baseY + 6, COLOR_PLAYER);
+        plot_pixel(vgaX + 3 + i, vgaY + 1, COLOR_PLAYER);
+        plot_pixel(vgaX + 3 + i, vgaY + 6, COLOR_PLAYER);
     }
     for(int j = 0; j < 4; j++)
     {
         for(int i = 0; i < 8; i++)
         {
-            plot_pixel(baseX + 2 + i, baseY + 2 + j, COLOR_PLAYER);
+            plot_pixel(vgaX + 2 + i, vgaY + 2 + j, COLOR_PLAYER);
         }
     }
     
     //Draw body and arms
-    plot_pixel(baseX + 3, baseY + 8, COLOR_PLAYER);
-    plot_pixel(baseX + 4, baseY + 8, COLOR_PLAYER);
+    plot_pixel(vgaX + 3, vgaY + 8, COLOR_PLAYER);
+    plot_pixel(vgaX + 4, vgaY + 8, COLOR_PLAYER);
 
 
-    plot_pixel(baseX + 2, baseY + 9, COLOR_PLAYER);
-    plot_pixel(baseX + 4, baseY + 9, COLOR_PLAYER);
-    plot_pixel(baseX + 5, baseY + 9, COLOR_PLAYER);
+    plot_pixel(vgaX + 2, vgaY + 9, COLOR_PLAYER);
+    plot_pixel(vgaX + 4, vgaY + 9, COLOR_PLAYER);
+    plot_pixel(vgaX + 5, vgaY + 9, COLOR_PLAYER);
 
     for(int i = 0; i < 2; i++)
     {
-        plot_pixel(baseX + 1, baseY + 10 + i, COLOR_PLAYER);
-        plot_pixel(baseX + 4, baseY + 10 + i, COLOR_PLAYER);
-        plot_pixel(baseX + 5, baseY + 10 + i, COLOR_PLAYER);
+        plot_pixel(vgaX + 1, vgaY + 10 + i, COLOR_PLAYER);
+        plot_pixel(vgaX + 4, vgaY + 10 + i, COLOR_PLAYER);
+        plot_pixel(vgaX + 5, vgaY + 10 + i, COLOR_PLAYER);
     }
     
-    plot_pixel(baseX + 1, baseY + 12, COLOR_PLAYER);
-    plot_pixel(baseX + 4, baseY + 12, COLOR_PLAYER);
-    plot_pixel(baseX + 6, baseY + 12, COLOR_PLAYER);
+    plot_pixel(vgaX + 1, vgaY + 12, COLOR_PLAYER);
+    plot_pixel(vgaX + 4, vgaY + 12, COLOR_PLAYER);
+    plot_pixel(vgaX + 6, vgaY + 12, COLOR_PLAYER);
 
     //Draw legs
-    plot_pixel(baseX + 2, baseY + 13, COLOR_PLAYER);
-    plot_pixel(baseX + 4, baseY + 13, COLOR_PLAYER);
+    plot_pixel(vgaX + 2, vgaY + 13, COLOR_PLAYER);
+    plot_pixel(vgaX + 4, vgaY + 13, COLOR_PLAYER);
 
-    plot_pixel(baseX + 4, baseY + 14, COLOR_PLAYER);
-    plot_pixel(baseX + 5, baseY + 14, COLOR_PLAYER);
+    plot_pixel(vgaX + 4, vgaY + 14, COLOR_PLAYER);
+    plot_pixel(vgaX + 5, vgaY + 14, COLOR_PLAYER);
 
-    plot_pixel(baseX + 4, baseY + 15, COLOR_PLAYER);
-    plot_pixel(baseX + 6, baseY + 15, COLOR_PLAYER);
+    plot_pixel(vgaX + 4, vgaY + 15, COLOR_PLAYER);
+    plot_pixel(vgaX + 6, vgaY + 15, COLOR_PLAYER);
 
     for(int i = 0; i < 4; i++)
     {
-        plot_pixel(baseX + 3 - i, baseY + 16 + i, COLOR_PLAYER);
-        plot_pixel(baseX + 7, baseY + 16 + i, COLOR_PLAYER);
+        plot_pixel(vgaX + 3 - i, vgaY + 16 + i, COLOR_PLAYER);
+        plot_pixel(vgaX + 7, vgaY + 16 + i, COLOR_PLAYER);
     }
 }
 
 /********************************************************************
- * drawPlayerRunningRight(int baseX, int baseY)
+ * drawPlayerRunningRight(int vgaX, int vgaY)
  *
  * draws player in its running state in the right direction
  *******************************************************************/
-void drawPlayerRunningRight(int baseX, int baseY)
+void drawPlayerRunningRight(int vgaX, int vgaY)
 {
     //Draw head
     for(int i = 0; i < 4; i++)
     {
-        plot_pixel(baseX + 4 + i, baseY, COLOR_PLAYER);
-        plot_pixel(baseX + 4 + i, baseY + 7, COLOR_PLAYER);
+        plot_pixel(vgaX + 4 + i, vgaY, COLOR_PLAYER);
+        plot_pixel(vgaX + 4 + i, vgaY + 7, COLOR_PLAYER);
     }
     for(int i = 0; i < 6; i++)
     {
-        plot_pixel(baseX + 3 + i, baseY + 1, COLOR_PLAYER);
-        plot_pixel(baseX + 3 + i, baseY + 6, COLOR_PLAYER);
+        plot_pixel(vgaX + 3 + i, vgaY + 1, COLOR_PLAYER);
+        plot_pixel(vgaX + 3 + i, vgaY + 6, COLOR_PLAYER);
     }
     for(int j = 0; j < 4; j++)
     {
         for(int i = 0; i < 8; i++)
         {
-            plot_pixel(baseX + 2 + i, baseY + 2 + j, COLOR_PLAYER);
+            plot_pixel(vgaX + 2 + i, vgaY + 2 + j, COLOR_PLAYER);
         }
     }
 
     //Draw body and arms
     for(int i = 0; i < 4; i++)
     {
-        plot_pixel(baseX + 1 + i, baseY + 8, COLOR_PLAYER);
+        plot_pixel(vgaX + 1 + i, vgaY + 8, COLOR_PLAYER);
     }
     
     for(int j = 0; j < 3; j++)
     {
-        plot_pixel(baseX, baseY + 9 + j, COLOR_PLAYER);
-        plot_pixel(baseX + 4, baseY + 9 + j, COLOR_PLAYER);
+        plot_pixel(vgaX, vgaY + 9 + j, COLOR_PLAYER);
+        plot_pixel(vgaX + 4, vgaY + 9 + j, COLOR_PLAYER);
     }
 
-    plot_pixel(baseX + 5, baseY + 10, COLOR_PLAYER);
+    plot_pixel(vgaX + 5, vgaY + 10, COLOR_PLAYER);
 
-    plot_pixel(baseX + 3, baseY + 11, COLOR_PLAYER);
-    plot_pixel(baseX + 4, baseY + 11, COLOR_PLAYER);
-    plot_pixel(baseX + 6, baseY + 11, COLOR_PLAYER);
-    plot_pixel(baseX + 7, baseY + 11, COLOR_PLAYER);
-    plot_pixel(baseX + 8, baseY + 11, COLOR_PLAYER);
+    plot_pixel(vgaX + 3, vgaY + 11, COLOR_PLAYER);
+    plot_pixel(vgaX + 4, vgaY + 11, COLOR_PLAYER);
+    plot_pixel(vgaX + 6, vgaY + 11, COLOR_PLAYER);
+    plot_pixel(vgaX + 7, vgaY + 11, COLOR_PLAYER);
+    plot_pixel(vgaX + 8, vgaY + 11, COLOR_PLAYER);
     
 
     //Draw legs
-    plot_pixel(baseX + 3, baseY + 12, COLOR_PLAYER);
+    plot_pixel(vgaX + 3, vgaY + 12, COLOR_PLAYER);
 
-    plot_pixel(baseX + 2, baseY + 13, COLOR_PLAYER);
-    plot_pixel(baseX + 3, baseY + 13, COLOR_PLAYER);
+    plot_pixel(vgaX + 2, vgaY + 13, COLOR_PLAYER);
+    plot_pixel(vgaX + 3, vgaY + 13, COLOR_PLAYER);
 
-    plot_pixel(baseX + 2, baseY + 14, COLOR_PLAYER);
-    plot_pixel(baseX + 4, baseY + 14, COLOR_PLAYER);
-    plot_pixel(baseX + 5, baseY + 14, COLOR_PLAYER);
+    plot_pixel(vgaX + 2, vgaY + 14, COLOR_PLAYER);
+    plot_pixel(vgaX + 4, vgaY + 14, COLOR_PLAYER);
+    plot_pixel(vgaX + 5, vgaY + 14, COLOR_PLAYER);
 
-    plot_pixel(baseX + 1, baseY + 15, COLOR_PLAYER);
-    plot_pixel(baseX + 2, baseY + 15, COLOR_PLAYER);
-    plot_pixel(baseX + 5, baseY + 15, COLOR_PLAYER);
+    plot_pixel(vgaX + 1, vgaY + 15, COLOR_PLAYER);
+    plot_pixel(vgaX + 2, vgaY + 15, COLOR_PLAYER);
+    plot_pixel(vgaX + 5, vgaY + 15, COLOR_PLAYER);
 
-    plot_pixel(baseX + 1, baseY + 16, COLOR_PLAYER);
-    plot_pixel(baseX + 4, baseY + 16, COLOR_PLAYER);
-    plot_pixel(baseX + 5, baseY + 16, COLOR_PLAYER);
+    plot_pixel(vgaX + 1, vgaY + 16, COLOR_PLAYER);
+    plot_pixel(vgaX + 4, vgaY + 16, COLOR_PLAYER);
+    plot_pixel(vgaX + 5, vgaY + 16, COLOR_PLAYER);
 
-    plot_pixel(baseX + 0, baseY + 17, COLOR_PLAYER);
-    plot_pixel(baseX + 1, baseY + 17, COLOR_PLAYER);
-    plot_pixel(baseX + 4, baseY + 17, COLOR_PLAYER);
+    plot_pixel(vgaX + 0, vgaY + 17, COLOR_PLAYER);
+    plot_pixel(vgaX + 1, vgaY + 17, COLOR_PLAYER);
+    plot_pixel(vgaX + 4, vgaY + 17, COLOR_PLAYER);
 
-    plot_pixel(baseX + 0, baseY + 18, COLOR_PLAYER);
-    plot_pixel(baseX + 4, baseY + 18, COLOR_PLAYER);
+    plot_pixel(vgaX + 0, vgaY + 18, COLOR_PLAYER);
+    plot_pixel(vgaX + 4, vgaY + 18, COLOR_PLAYER);
 
-    plot_pixel(baseX + 0, baseY + 19, COLOR_PLAYER);
+    plot_pixel(vgaX + 0, vgaY + 19, COLOR_PLAYER);
 }
 
 /********************************************************************
- * drawPlayerRunningLeft(int baseX, int baseY)
+ * drawPlayerRunningLeft(int vgaX, int vgaY)
  *
  * draws player in its running state in the left direction
  *******************************************************************/
-void drawPlayerRunningLeft(int baseX, int baseY)
+void drawPlayerRunningLeft(int vgaX, int vgaY)
 {
     //Draw head
     for(int i = 0; i < 4; i++)
     {
-        plot_pixel(baseX + 2 + i, baseY, COLOR_PLAYER);
-        plot_pixel(baseX + 2 + i, baseY + 7, COLOR_PLAYER);
+        plot_pixel(vgaX + 2 + i, vgaY, COLOR_PLAYER);
+        plot_pixel(vgaX + 2 + i, vgaY + 7, COLOR_PLAYER);
     }
     for(int i = 0; i < 6; i++)
     {
-        plot_pixel(baseX + 1 + i, baseY + 1, COLOR_PLAYER);
-        plot_pixel(baseX + 1 + i, baseY + 6, COLOR_PLAYER);
+        plot_pixel(vgaX + 1 + i, vgaY + 1, COLOR_PLAYER);
+        plot_pixel(vgaX + 1 + i, vgaY + 6, COLOR_PLAYER);
     }
     for(int j = 0; j < 4; j++)
     {
         for(int i = 0; i < 8; i++)
         {
-            plot_pixel(baseX + i, baseY + 2 + j, COLOR_PLAYER);
+            plot_pixel(vgaX + i, vgaY + 2 + j, COLOR_PLAYER);
         }
     }
 
     //Draw body and arms
     for(int i = 0; i < 4; i++)
     {
-        plot_pixel(baseX + 5 + i, baseY + 8, COLOR_PLAYER);
+        plot_pixel(vgaX + 5 + i, vgaY + 8, COLOR_PLAYER);
     }
     
     for(int j = 0; j < 3; j++)
     {
-        plot_pixel(baseX + 9, baseY + 9 + j, COLOR_PLAYER);
-        plot_pixel(baseX + 5, baseY + 9 + j, COLOR_PLAYER);
+        plot_pixel(vgaX + 9, vgaY + 9 + j, COLOR_PLAYER);
+        plot_pixel(vgaX + 5, vgaY + 9 + j, COLOR_PLAYER);
     }
 
-    plot_pixel(baseX + 4, baseY + 10, COLOR_PLAYER);
+    plot_pixel(vgaX + 4, vgaY + 10, COLOR_PLAYER);
 
-    plot_pixel(baseX + 1, baseY + 11, COLOR_PLAYER);
-    plot_pixel(baseX + 2, baseY + 11, COLOR_PLAYER);
-    plot_pixel(baseX + 3, baseY + 11, COLOR_PLAYER);
-    plot_pixel(baseX + 5, baseY + 11, COLOR_PLAYER);
-    plot_pixel(baseX + 6, baseY + 11, COLOR_PLAYER);
+    plot_pixel(vgaX + 1, vgaY + 11, COLOR_PLAYER);
+    plot_pixel(vgaX + 2, vgaY + 11, COLOR_PLAYER);
+    plot_pixel(vgaX + 3, vgaY + 11, COLOR_PLAYER);
+    plot_pixel(vgaX + 5, vgaY + 11, COLOR_PLAYER);
+    plot_pixel(vgaX + 6, vgaY + 11, COLOR_PLAYER);
 
     //Draw legs
-    plot_pixel(baseX + 6, baseY + 12, COLOR_PLAYER);
+    plot_pixel(vgaX + 6, vgaY + 12, COLOR_PLAYER);
 
-    plot_pixel(baseX + 6, baseY + 13, COLOR_PLAYER);
-    plot_pixel(baseX + 7, baseY + 13, COLOR_PLAYER);
+    plot_pixel(vgaX + 6, vgaY + 13, COLOR_PLAYER);
+    plot_pixel(vgaX + 7, vgaY + 13, COLOR_PLAYER);
 
-    plot_pixel(baseX + 4, baseY + 14, COLOR_PLAYER);
-    plot_pixel(baseX + 5, baseY + 14, COLOR_PLAYER);
-    plot_pixel(baseX + 7, baseY + 14, COLOR_PLAYER);
+    plot_pixel(vgaX + 4, vgaY + 14, COLOR_PLAYER);
+    plot_pixel(vgaX + 5, vgaY + 14, COLOR_PLAYER);
+    plot_pixel(vgaX + 7, vgaY + 14, COLOR_PLAYER);
 
-    plot_pixel(baseX + 4, baseY + 15, COLOR_PLAYER);
-    plot_pixel(baseX + 7, baseY + 15, COLOR_PLAYER);
-    plot_pixel(baseX + 8, baseY + 15, COLOR_PLAYER);
+    plot_pixel(vgaX + 4, vgaY + 15, COLOR_PLAYER);
+    plot_pixel(vgaX + 7, vgaY + 15, COLOR_PLAYER);
+    plot_pixel(vgaX + 8, vgaY + 15, COLOR_PLAYER);
 
-    plot_pixel(baseX + 4, baseY + 16, COLOR_PLAYER);
-    plot_pixel(baseX + 5, baseY + 16, COLOR_PLAYER);
-    plot_pixel(baseX + 8, baseY + 16, COLOR_PLAYER);
+    plot_pixel(vgaX + 4, vgaY + 16, COLOR_PLAYER);
+    plot_pixel(vgaX + 5, vgaY + 16, COLOR_PLAYER);
+    plot_pixel(vgaX + 8, vgaY + 16, COLOR_PLAYER);
 
-    plot_pixel(baseX + 5, baseY + 17, COLOR_PLAYER);
-    plot_pixel(baseX + 8, baseY + 17, COLOR_PLAYER);
-    plot_pixel(baseX + 9, baseY + 17, COLOR_PLAYER);
+    plot_pixel(vgaX + 5, vgaY + 17, COLOR_PLAYER);
+    plot_pixel(vgaX + 8, vgaY + 17, COLOR_PLAYER);
+    plot_pixel(vgaX + 9, vgaY + 17, COLOR_PLAYER);
 
-    plot_pixel(baseX + 5, baseY + 18, COLOR_PLAYER);
-    plot_pixel(baseX + 9, baseY + 18, COLOR_PLAYER);
+    plot_pixel(vgaX + 5, vgaY + 18, COLOR_PLAYER);
+    plot_pixel(vgaX + 9, vgaY + 18, COLOR_PLAYER);
 
-    plot_pixel(baseX + 9, baseY + 19, COLOR_PLAYER);
+    plot_pixel(vgaX + 9, vgaY + 19, COLOR_PLAYER);
 }
 
 /********************************************************************
- * drawPlayerJumping(int baseX, int baseY)
+ * drawPlayerJumping(int vgaX, int vgaY)
  *
  * draws player in its jumping state
  *******************************************************************/
-void drawPlayerJumping(int baseX, int baseY)
+void drawPlayerJumping(int vgaX, int vgaY)
 {
     //Draw head
     for(int i = 0; i < 4; i++)
     {
-        plot_pixel(baseX + 3 + i, baseY, COLOR_PLAYER);
-        plot_pixel(baseX + 3 + i, baseY + 7, COLOR_PLAYER);
+        plot_pixel(vgaX + 3 + i, vgaY, COLOR_PLAYER);
+        plot_pixel(vgaX + 3 + i, vgaY + 7, COLOR_PLAYER);
     }
     for(int i = 0; i < 6; i++)
     {
-        plot_pixel(baseX + 2 + i, baseY + 1, COLOR_PLAYER);
-        plot_pixel(baseX + 2 + i, baseY + 6, COLOR_PLAYER);
+        plot_pixel(vgaX + 2 + i, vgaY + 1, COLOR_PLAYER);
+        plot_pixel(vgaX + 2 + i, vgaY + 6, COLOR_PLAYER);
     }
     for(int j = 0; j < 4; j++)
     {
         for(int i = 0; i < 8; i++)
         {
-            plot_pixel(baseX + 1 + i, baseY + 2 + j, COLOR_PLAYER);
+            plot_pixel(vgaX + 1 + i, vgaY + 2 + j, COLOR_PLAYER);
         }
     }
 
     //Draw body and arms
-    plot_pixel(baseX + 4, baseY + 8, COLOR_PLAYER);
+    plot_pixel(vgaX + 4, vgaY + 8, COLOR_PLAYER);
 
     for(int i = 0; i < 8; i++)
     {
-        plot_pixel(baseX + 1 + i, baseY + 9, COLOR_PLAYER);
+        plot_pixel(vgaX + 1 + i, vgaY + 9, COLOR_PLAYER);
     }
 
     for(int j = 0; j < 4; j++)
     {
-        plot_pixel(baseX + 4, baseY + 10 + j, COLOR_PLAYER);
+        plot_pixel(vgaX + 4, vgaY + 10 + j, COLOR_PLAYER);
     }
 
-    plot_pixel(baseX, baseY + 10, COLOR_PLAYER);
-    plot_pixel(baseX + 9, baseY + 10, COLOR_PLAYER);
+    plot_pixel(vgaX, vgaY + 10, COLOR_PLAYER);
+    plot_pixel(vgaX + 9, vgaY + 10, COLOR_PLAYER);
 
-    plot_pixel(baseX + 1, baseY + 11, COLOR_PLAYER);
-    plot_pixel(baseX + 8, baseY + 11, COLOR_PLAYER);
+    plot_pixel(vgaX + 1, vgaY + 11, COLOR_PLAYER);
+    plot_pixel(vgaX + 8, vgaY + 11, COLOR_PLAYER);
 
     //Draw legs
-    plot_pixel(baseX + 2, baseY + 14, COLOR_PLAYER);
-    plot_pixel(baseX + 3, baseY + 14, COLOR_PLAYER);
-    plot_pixel(baseX + 5, baseY + 14, COLOR_PLAYER);
-    plot_pixel(baseX + 6, baseY + 14, COLOR_PLAYER);
+    plot_pixel(vgaX + 2, vgaY + 14, COLOR_PLAYER);
+    plot_pixel(vgaX + 3, vgaY + 14, COLOR_PLAYER);
+    plot_pixel(vgaX + 5, vgaY + 14, COLOR_PLAYER);
+    plot_pixel(vgaX + 6, vgaY + 14, COLOR_PLAYER);
 
     for(int j = 0; j < 2; j++)
     {
-        plot_pixel(baseX + 1, baseY + 15 + j, COLOR_PLAYER);
-        plot_pixel(baseX + 7, baseY + 15 + j, COLOR_PLAYER);
+        plot_pixel(vgaX + 1, vgaY + 15 + j, COLOR_PLAYER);
+        plot_pixel(vgaX + 7, vgaY + 15 + j, COLOR_PLAYER);
     }
 
     for(int j = 0; j < 2; j++)
     {
-        plot_pixel(baseX + 2, baseY + 17 + j, COLOR_PLAYER);
-        plot_pixel(baseX + 6, baseY + 17 + j, COLOR_PLAYER);
+        plot_pixel(vgaX + 2, vgaY + 17 + j, COLOR_PLAYER);
+        plot_pixel(vgaX + 6, vgaY + 17 + j, COLOR_PLAYER);
     }
 }
 
