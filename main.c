@@ -107,22 +107,18 @@
 #define BLOCK_RESOLUTION_X 32
 #define BLOCK_RESOLUTION_Y 24
 
-/* Player attributes */
+/* Physics */
 #define PLAYER_SPEED_NORMAL 5
+#define GRAVITY -1
 
 /* level attirbutes */
 #define NUMBER_OF_LEVELS 2
 
-/* Player size */
-#define NUM_JOINTS 11
-#define TEMP 100
-#define HEAD_RADIUS 6
-#define TORSO_LENGTH 8
-#define TORSO_LENGTH_30 2
-#define TORSO_LENGTH_60 6
-#define JOINT_LENGTH_30 2
-#define JOINT_LENGTH_45 4
-#define JOINT_LENGTH_60 5
+/* Player size in base coordinate */
+#define PLAYER_HEIGHT_BASE 2
+#define PLAYER_WIDTH_BASE 1
+#define PLAYER_HEIGHT 20
+#define PLAYER_WIDTH 10
 
 /**************************** Data structures ************************************/
 /* On screen objects */
@@ -166,6 +162,7 @@ typedef struct player
     int horizontal_speed;
     int vertical_speed;
     bool jump;
+    bool airborne;
 } Player;
 
 typedef struct levels
@@ -302,6 +299,7 @@ void refreshAnimation();
 
 /* Player phyisics */
 void updatePlayerStatus(); // updates the player's horizontal and veritcal speed, his current location
+void hitboxCheck();        // check if the player is in contact with any fireballs or spikes
 
 /**************************** Game handler ************************************/
 void resetGame();
@@ -658,6 +656,8 @@ void setupLevels_lv1()
         gameLevels[0].levelObjects[x][20] = GAMEOBJ_PLATFORM_BLOCK;
     }
 
+    gameLevels[0].levelObjects[10][19] = GAMEOBJ_PLATFORM_BLOCK;
+
     // create gaps
     for (int x = 20; x < 23; x++)
     {
@@ -694,12 +694,17 @@ void updateLevel(Levels level)
     myGame.end = level.end;
     myGame.level = level.levelNumber;
     // Update my player
-    myGame.myPlayer.pos.x = myGame.start.x * BOX_LEN;                          // scale to VGA position
-    myGame.myPlayer.pos.y = (myGame.start.y - 1 /* player height*/) * BOX_LEN; // scale to VGA position
+    myGame.myPlayer.pos.x = myGame.start.x * BOX_LEN;                                           // scale to VGA position
+    myGame.myPlayer.pos.y = (myGame.start.y - PLAYER_HEIGHT_BASE /* player height*/) * BOX_LEN; // scale to VGA position
     // reset player flags
     myGame.progress = GAMEPROG_BEFORE;
     myGame.myPlayer.state = PLAYERSTATE_STILL;
     myGame.myPlayer.jump = false;
+    myGame.myPlayer.airborne = false;
+
+    // Reset speeds
+    myGame.myPlayer.horizontal_speed = 0;
+    myGame.myPlayer.vertical_speed = 0;
 }
 
 /********************************************************************
@@ -749,52 +754,6 @@ void drawCurrentObjects()
             }
         }
     }
-    /* Debugging purposes 
-    drawPlayerResting(50, 50);
-	drawPlayerRunningRight(100, 50);
-	drawPlayerRunningLeft(150, 50);
-	drawPlayerJumping(200, 50);
-    drawFireball(250, 50);
-    drawSpike(300, 50);
-    drawA(50, 25, BLACK);
-    drawB(60, 25, BLACK);
-    drawC(70, 25, BLACK);
-    drawB(80, 25, BLACK);
-    drawD(90, 25, BLACK);
-    drawE(100, 25, BLACK);
-    drawF(110, 25, BLACK);
-    drawG(120, 25, BLACK);
-    drawH(130, 25, BLACK);
-    drawI(140, 25, BLACK);
-    drawJ(150, 25, BLACK);
-    drawK(160, 25, BLACK);
-    drawL(170, 25, BLACK);
-    drawM(180, 25, BLACK);
-    drawN(190, 25, BLACK);
-    drawO(200, 25, BLACK);
-    drawP(210, 25, BLACK);
-    drawQ(220, 25, BLACK);
-    drawR(230, 25, BLACK);
-    drawS(240, 25, BLACK);
-    drawT(250, 25, BLACK);
-    drawU(260, 25, BLACK);
-    drawV(270, 25, BLACK);
-    drawW(280, 25, BLACK);
-    drawX(290, 25, BLACK);
-    drawY(300, 25, BLACK);
-    drawZ(310, 25, BLACK);
-    
-    draw0(50, 75, BLACK);
-    draw1(60, 75, BLACK);
-    draw2(70, 75, BLACK);
-    draw3(80, 75, BLACK);
-    draw4(90, 75, BLACK);
-    draw5(100, 75, BLACK);
-    draw6(110, 75, BLACK);
-    draw7(120, 75, BLACK);
-    draw8(130, 75, BLACK);
-    draw9(140, 75, BLACK);
-    */
 }
 
 /********************************************************************
@@ -887,46 +846,45 @@ void drawBigTitle()
  *******************************************************************/
 void drawPlayerResting(int vgaX, int vgaY)
 {
-    //Draw head
-    for(int i = 0; i < 4; i++)
+    // Draw head
+    for (int i = 0; i < 4; i++)
     {
         plot_pixel(vgaX + 4 + i, vgaY, COLOR_PLAYER);
         plot_pixel(vgaX + 4 + i, vgaY + 7, COLOR_PLAYER);
     }
-    for(int i = 0; i < 6; i++)
+    for (int i = 0; i < 6; i++)
     {
         plot_pixel(vgaX + 3 + i, vgaY + 1, COLOR_PLAYER);
         plot_pixel(vgaX + 3 + i, vgaY + 6, COLOR_PLAYER);
     }
-    for(int j = 0; j < 4; j++)
+    for (int j = 0; j < 4; j++)
     {
-        for(int i = 0; i < 8; i++)
+        for (int i = 0; i < 8; i++)
         {
             plot_pixel(vgaX + 2 + i, vgaY + 2 + j, COLOR_PLAYER);
         }
     }
-    
-    //Draw body and arms
+
+    // Draw body and arms
     plot_pixel(vgaX + 3, vgaY + 8, COLOR_PLAYER);
     plot_pixel(vgaX + 4, vgaY + 8, COLOR_PLAYER);
-
 
     plot_pixel(vgaX + 2, vgaY + 9, COLOR_PLAYER);
     plot_pixel(vgaX + 4, vgaY + 9, COLOR_PLAYER);
     plot_pixel(vgaX + 5, vgaY + 9, COLOR_PLAYER);
 
-    for(int i = 0; i < 2; i++)
+    for (int i = 0; i < 2; i++)
     {
         plot_pixel(vgaX + 1, vgaY + 10 + i, COLOR_PLAYER);
         plot_pixel(vgaX + 4, vgaY + 10 + i, COLOR_PLAYER);
         plot_pixel(vgaX + 5, vgaY + 10 + i, COLOR_PLAYER);
     }
-    
+
     plot_pixel(vgaX + 1, vgaY + 12, COLOR_PLAYER);
     plot_pixel(vgaX + 4, vgaY + 12, COLOR_PLAYER);
     plot_pixel(vgaX + 6, vgaY + 12, COLOR_PLAYER);
 
-    //Draw legs
+    // Draw legs
     plot_pixel(vgaX + 2, vgaY + 13, COLOR_PLAYER);
     plot_pixel(vgaX + 4, vgaY + 13, COLOR_PLAYER);
 
@@ -936,7 +894,7 @@ void drawPlayerResting(int vgaX, int vgaY)
     plot_pixel(vgaX + 4, vgaY + 15, COLOR_PLAYER);
     plot_pixel(vgaX + 6, vgaY + 15, COLOR_PLAYER);
 
-    for(int i = 0; i < 4; i++)
+    for (int i = 0; i < 4; i++)
     {
         plot_pixel(vgaX + 3 - i, vgaY + 16 + i, COLOR_PLAYER);
         plot_pixel(vgaX + 7, vgaY + 16 + i, COLOR_PLAYER);
@@ -950,32 +908,32 @@ void drawPlayerResting(int vgaX, int vgaY)
  *******************************************************************/
 void drawPlayerRunningRight(int vgaX, int vgaY)
 {
-    //Draw head
-    for(int i = 0; i < 4; i++)
+    // Draw head
+    for (int i = 0; i < 4; i++)
     {
         plot_pixel(vgaX + 4 + i, vgaY, COLOR_PLAYER);
         plot_pixel(vgaX + 4 + i, vgaY + 7, COLOR_PLAYER);
     }
-    for(int i = 0; i < 6; i++)
+    for (int i = 0; i < 6; i++)
     {
         plot_pixel(vgaX + 3 + i, vgaY + 1, COLOR_PLAYER);
         plot_pixel(vgaX + 3 + i, vgaY + 6, COLOR_PLAYER);
     }
-    for(int j = 0; j < 4; j++)
+    for (int j = 0; j < 4; j++)
     {
-        for(int i = 0; i < 8; i++)
+        for (int i = 0; i < 8; i++)
         {
             plot_pixel(vgaX + 2 + i, vgaY + 2 + j, COLOR_PLAYER);
         }
     }
 
-    //Draw body and arms
-    for(int i = 0; i < 4; i++)
+    // Draw body and arms
+    for (int i = 0; i < 4; i++)
     {
         plot_pixel(vgaX + 1 + i, vgaY + 8, COLOR_PLAYER);
     }
-    
-    for(int j = 0; j < 3; j++)
+
+    for (int j = 0; j < 3; j++)
     {
         plot_pixel(vgaX, vgaY + 9 + j, COLOR_PLAYER);
         plot_pixel(vgaX + 4, vgaY + 9 + j, COLOR_PLAYER);
@@ -988,9 +946,8 @@ void drawPlayerRunningRight(int vgaX, int vgaY)
     plot_pixel(vgaX + 6, vgaY + 11, COLOR_PLAYER);
     plot_pixel(vgaX + 7, vgaY + 11, COLOR_PLAYER);
     plot_pixel(vgaX + 8, vgaY + 11, COLOR_PLAYER);
-    
 
-    //Draw legs
+    // Draw legs
     plot_pixel(vgaX + 3, vgaY + 12, COLOR_PLAYER);
 
     plot_pixel(vgaX + 2, vgaY + 13, COLOR_PLAYER);
@@ -1025,32 +982,32 @@ void drawPlayerRunningRight(int vgaX, int vgaY)
  *******************************************************************/
 void drawPlayerRunningLeft(int vgaX, int vgaY)
 {
-    //Draw head
-    for(int i = 0; i < 4; i++)
+    // Draw head
+    for (int i = 0; i < 4; i++)
     {
         plot_pixel(vgaX + 2 + i, vgaY, COLOR_PLAYER);
         plot_pixel(vgaX + 2 + i, vgaY + 7, COLOR_PLAYER);
     }
-    for(int i = 0; i < 6; i++)
+    for (int i = 0; i < 6; i++)
     {
         plot_pixel(vgaX + 1 + i, vgaY + 1, COLOR_PLAYER);
         plot_pixel(vgaX + 1 + i, vgaY + 6, COLOR_PLAYER);
     }
-    for(int j = 0; j < 4; j++)
+    for (int j = 0; j < 4; j++)
     {
-        for(int i = 0; i < 8; i++)
+        for (int i = 0; i < 8; i++)
         {
             plot_pixel(vgaX + i, vgaY + 2 + j, COLOR_PLAYER);
         }
     }
 
-    //Draw body and arms
-    for(int i = 0; i < 4; i++)
+    // Draw body and arms
+    for (int i = 0; i < 4; i++)
     {
         plot_pixel(vgaX + 5 + i, vgaY + 8, COLOR_PLAYER);
     }
-    
-    for(int j = 0; j < 3; j++)
+
+    for (int j = 0; j < 3; j++)
     {
         plot_pixel(vgaX + 9, vgaY + 9 + j, COLOR_PLAYER);
         plot_pixel(vgaX + 5, vgaY + 9 + j, COLOR_PLAYER);
@@ -1064,7 +1021,7 @@ void drawPlayerRunningLeft(int vgaX, int vgaY)
     plot_pixel(vgaX + 5, vgaY + 11, COLOR_PLAYER);
     plot_pixel(vgaX + 6, vgaY + 11, COLOR_PLAYER);
 
-    //Draw legs
+    // Draw legs
     plot_pixel(vgaX + 6, vgaY + 12, COLOR_PLAYER);
 
     plot_pixel(vgaX + 6, vgaY + 13, COLOR_PLAYER);
@@ -1099,34 +1056,34 @@ void drawPlayerRunningLeft(int vgaX, int vgaY)
  *******************************************************************/
 void drawPlayerJumping(int vgaX, int vgaY)
 {
-    //Draw head
-    for(int i = 0; i < 4; i++)
+    // Draw head
+    for (int i = 0; i < 4; i++)
     {
         plot_pixel(vgaX + 3 + i, vgaY, COLOR_PLAYER);
         plot_pixel(vgaX + 3 + i, vgaY + 7, COLOR_PLAYER);
     }
-    for(int i = 0; i < 6; i++)
+    for (int i = 0; i < 6; i++)
     {
         plot_pixel(vgaX + 2 + i, vgaY + 1, COLOR_PLAYER);
         plot_pixel(vgaX + 2 + i, vgaY + 6, COLOR_PLAYER);
     }
-    for(int j = 0; j < 4; j++)
+    for (int j = 0; j < 4; j++)
     {
-        for(int i = 0; i < 8; i++)
+        for (int i = 0; i < 8; i++)
         {
             plot_pixel(vgaX + 1 + i, vgaY + 2 + j, COLOR_PLAYER);
         }
     }
 
-    //Draw body and arms
+    // Draw body and arms
     plot_pixel(vgaX + 4, vgaY + 8, COLOR_PLAYER);
 
-    for(int i = 0; i < 8; i++)
+    for (int i = 0; i < 8; i++)
     {
         plot_pixel(vgaX + 1 + i, vgaY + 9, COLOR_PLAYER);
     }
 
-    for(int j = 0; j < 4; j++)
+    for (int j = 0; j < 4; j++)
     {
         plot_pixel(vgaX + 4, vgaY + 10 + j, COLOR_PLAYER);
     }
@@ -1137,19 +1094,19 @@ void drawPlayerJumping(int vgaX, int vgaY)
     plot_pixel(vgaX + 1, vgaY + 11, COLOR_PLAYER);
     plot_pixel(vgaX + 8, vgaY + 11, COLOR_PLAYER);
 
-    //Draw legs
+    // Draw legs
     plot_pixel(vgaX + 2, vgaY + 14, COLOR_PLAYER);
     plot_pixel(vgaX + 3, vgaY + 14, COLOR_PLAYER);
     plot_pixel(vgaX + 5, vgaY + 14, COLOR_PLAYER);
     plot_pixel(vgaX + 6, vgaY + 14, COLOR_PLAYER);
 
-    for(int j = 0; j < 2; j++)
+    for (int j = 0; j < 2; j++)
     {
         plot_pixel(vgaX + 1, vgaY + 15 + j, COLOR_PLAYER);
         plot_pixel(vgaX + 7, vgaY + 15 + j, COLOR_PLAYER);
     }
 
-    for(int j = 0; j < 2; j++)
+    for (int j = 0; j < 2; j++)
     {
         plot_pixel(vgaX + 2, vgaY + 17 + j, COLOR_PLAYER);
         plot_pixel(vgaX + 6, vgaY + 17 + j, COLOR_PLAYER);
@@ -1166,7 +1123,7 @@ void drawFireball(int baseX, int baseY)
     plot_pixel(baseX, baseY, RED);
     plot_pixel(baseX + 3, baseY, RED);
     plot_pixel(baseX + 7, baseY, RED);
-    
+
     plot_pixel(baseX, baseY + 1, RED);
     plot_pixel(baseX + 3, baseY + 1, RED);
     plot_pixel(baseX + 5, baseY + 1, RED);
@@ -1241,27 +1198,27 @@ void drawFireball(int baseX, int baseY)
  *******************************************************************/
 void drawSpike(int baseX, int baseY)
 {
-    for(int i = 0; i <= 9; i++)
+    for (int i = 0; i <= 9; i++)
     {
         plot_pixel(baseX + 4, baseY + i, BLACK);
         plot_pixel(baseX + 5, baseY + i, BLACK);
     }
-    for(int i = 2; i <= 9; i++)
+    for (int i = 2; i <= 9; i++)
     {
         plot_pixel(baseX + 3, baseY + i, BLACK);
         plot_pixel(baseX + 6, baseY + i, BLACK);
     }
-    for(int i = 4; i <= 9; i++)
+    for (int i = 4; i <= 9; i++)
     {
         plot_pixel(baseX + 2, baseY + i, BLACK);
         plot_pixel(baseX + 7, baseY + i, BLACK);
     }
-    for(int i = 6; i <= 9; i++)
+    for (int i = 6; i <= 9; i++)
     {
         plot_pixel(baseX + 1, baseY + i, BLACK);
         plot_pixel(baseX + 8, baseY + i, BLACK);
     }
-    for(int i = 8; i <= 9; i++)
+    for (int i = 8; i <= 9; i++)
     {
         plot_pixel(baseX, baseY + i, BLACK);
         plot_pixel(baseX + 9, baseY + i, BLACK);
@@ -1294,7 +1251,7 @@ void refreshAnimation()
         break;
     case GAMEPROG_START:
         drawCurrentObjects();
-        drawTestBox(myGame.myPlayer.pos.x, myGame.myPlayer.pos.y);
+        drawPlayerResting(myGame.myPlayer.pos.x, myGame.myPlayer.pos.y);
         break;
     default:
         drawBigTitle();
@@ -1305,18 +1262,62 @@ void refreshAnimation()
 /********************************************************************
  * void updatePlayerStatus();
  *
+ * Checks if the player have touch any object
  * updates the player's horizontal and veritcal speed
  *******************************************************************/
 void updatePlayerStatus()
 {
-    // horizontal
+    // Only update when the game started
+    if (myGame.progress != GAMEPROG_START)
+        return;
+    // Horizontal bound checkings
     int baseSpeed = PLAYER_SPEED_NORMAL;
+
+    // Define more easy to read variable
+    const int playerVgaPosX = myGame.myPlayer.pos.x;
+    const int playerVgaPosXRight = myGame.myPlayer.pos.x + PLAYER_WIDTH - 1;
+
     switch (myGame.myPlayer.state)
     {
     case PLAYERSTATE_LEFT:
+        // Screen resolution bound checking
+        if (playerVgaPosX < (0 + baseSpeed))
+        {
+            myGame.myPlayer.horizontal_speed = 0;
+            break;
+        }
+        // Platform bound checking
+        for (int yPos = myGame.myPlayer.pos.y; yPos < myGame.myPlayer.pos.y + PLAYER_HEIGHT; yPos++)
+        {
+            if (myGame.currentObjects[((int)(playerVgaPosX - baseSpeed) / BOX_LEN)][yPos /BOX_LEN] == GAMEOBJ_PLATFORM_BLOCK ||
+                myGame.currentObjects[((int)(playerVgaPosX - baseSpeed) / BOX_LEN)][yPos /BOX_LEN] == GAMEOBJ_START ||
+                myGame.currentObjects[((int)(playerVgaPosX - baseSpeed) / BOX_LEN)][yPos /BOX_LEN] == GAMEOBJ_END)
+            {
+                myGame.myPlayer.horizontal_speed = 0;
+                goto updatePlayerStatusReturn;
+            }
+        }
         myGame.myPlayer.horizontal_speed = -baseSpeed;
         break;
+
     case PLAYERSTATE_RIGHT:
+        // Screen resolution bound checking
+        if (playerVgaPosXRight > (RESOLUTION_X - baseSpeed))
+        {
+            myGame.myPlayer.horizontal_speed = 0;
+            break;
+        }
+        // Platform bound checking
+        for (int yPos = myGame.myPlayer.pos.y; yPos < myGame.myPlayer.pos.y + PLAYER_HEIGHT; yPos++)
+        {
+            if (myGame.currentObjects[((int)(playerVgaPosXRight + baseSpeed) / BOX_LEN)][yPos /BOX_LEN] == GAMEOBJ_PLATFORM_BLOCK ||
+                myGame.currentObjects[((int)(playerVgaPosXRight + baseSpeed) / BOX_LEN)][yPos /BOX_LEN] == GAMEOBJ_START ||
+                myGame.currentObjects[((int)(playerVgaPosXRight + baseSpeed) / BOX_LEN)][yPos /BOX_LEN] == GAMEOBJ_END)
+            {
+                myGame.myPlayer.horizontal_speed = 0;
+                goto updatePlayerStatusReturn;
+            }
+        }
         myGame.myPlayer.horizontal_speed = baseSpeed;
         break;
     case PLAYERSTATE_STILL:
@@ -1326,8 +1327,42 @@ void updatePlayerStatus()
         myGame.myPlayer.horizontal_speed = 0;
     }
 
-    // Update the player's horizontal speed
+    // Update the player's horizontal position
+    updatePlayerStatusReturn:
     myGame.myPlayer.pos.x += myGame.myPlayer.horizontal_speed;
+}
+
+/********************************************************************
+ * void hitboxCheck();
+ *
+ * check if the player has hit anything
+ *******************************************************************/
+void hitboxCheck()
+{
+    // Define more easy to read variable
+    const int playerVgaPosX = myGame.myPlayer.pos.x;
+    const int playerVgaPosXRight = myGame.myPlayer.pos.x + PLAYER_WIDTH - 1;
+
+    // Fireball and spike bound checking
+    for (int yPos = myGame.myPlayer.pos.y; yPos < myGame.myPlayer.pos.y + PLAYER_HEIGHT; yPos++)
+    {
+        if (myGame.currentObjects[((int)(playerVgaPosX) / BOX_LEN)][yPos /BOX_LEN] == GAMEOBJ_FIREBALL ||
+            myGame.currentObjects[((int)(playerVgaPosX) / BOX_LEN)][yPos /BOX_LEN] == GAMEOBJ_SPIKE)
+        {
+            myGame.progress = GAMEPROG_LOSE;
+            return;;
+        }
+    }
+    // Fireball and spike bound checking
+    for (int yPos = myGame.myPlayer.pos.y; yPos < myGame.myPlayer.pos.y + PLAYER_HEIGHT; yPos++)
+    {
+        if (myGame.currentObjects[((int)(playerVgaPosXRight) / BOX_LEN)][yPos /BOX_LEN] == GAMEOBJ_FIREBALL ||
+            myGame.currentObjects[((int)(playerVgaPosXRight) / BOX_LEN)][ yPos/ BOX_LEN] == GAMEOBJ_SPIKE)
+        {
+            myGame.progress = GAMEPROG_LOSE;
+            return;
+        }
+    }
 }
 
 /********************************************************************
@@ -1371,7 +1406,11 @@ void ps2KeyboardInputHandler(char byte1, char byte2, char byte3)
     if (byte3 == 0xF0)
         return;
     // player movements
-    if (byte2 == 0xF0)
+    // Jump mechanics
+    if (byte3 == 0x1D && myGame.myPlayer.airborne == false)
+        myGame.myPlayer.jump = true;
+        
+    if (byte2 == 0xF0 && byte3!=0x1D)
     {
         myGame.myPlayer.state = PLAYERSTATE_STILL;
         return;
@@ -1512,19 +1551,19 @@ void swap(int *A, int *B)
 }
 
 /********************************************************************
-    * draw[letter](int vgaX, int vgaY, short int textColour)
-    *
-    * the following functions draws out their respective letters
-    *******************************************************************/
+ * draw[letter](int vgaX, int vgaY, short int textColour)
+ *
+ * the following functions draws out their respective letters
+ *******************************************************************/
 void drawA(int vgaX, int vgaY, short int textColour)
 {
-    for(int i = 1; i <= 3; i++)
+    for (int i = 1; i <= 3; i++)
     {
         plot_pixel(vgaX + i, vgaY, textColour);
         plot_pixel(vgaX + i, vgaY + 5, textColour);
     }
 
-    for(int j = 1; j <= 9; j++)
+    for (int j = 1; j <= 9; j++)
     {
         plot_pixel(vgaX, vgaY + j, textColour);
         plot_pixel(vgaX + 4, vgaY + j, textColour);
@@ -1533,16 +1572,16 @@ void drawA(int vgaX, int vgaY, short int textColour)
 
 void drawB(int vgaX, int vgaY, short int textColour)
 {
-    for(int i = 0; i <= 3; i++)
+    for (int i = 0; i <= 3; i++)
     {
         plot_pixel(vgaX + i, vgaY, textColour);
         plot_pixel(vgaX + i, vgaY + 4, textColour);
         plot_pixel(vgaX + i, vgaY + 9, textColour);
     }
 
-    for(int j = 1; j <= 8; j++)
+    for (int j = 1; j <= 8; j++)
     {
-        if(j != 4)
+        if (j != 4)
         {
             plot_pixel(vgaX, vgaY + j, textColour);
             plot_pixel(vgaX + 4, vgaY + j, textColour);
@@ -1552,12 +1591,12 @@ void drawB(int vgaX, int vgaY, short int textColour)
 
 void drawC(int vgaX, int vgaY, short int textColour)
 {
-    for(int i = 0; i <= 4; i++)
+    for (int i = 0; i <= 4; i++)
     {
         plot_pixel(vgaX + i, vgaY, textColour);
         plot_pixel(vgaX + i, vgaY + 9, textColour);
     }
-    for(int j = 0; j <= 9; j++)
+    for (int j = 0; j <= 9; j++)
     {
         plot_pixel(vgaX, vgaY + j, textColour);
     }
@@ -1565,13 +1604,13 @@ void drawC(int vgaX, int vgaY, short int textColour)
 
 void drawD(int vgaX, int vgaY, short int textColour)
 {
-    for(int i = 0; i <= 3; i++)
+    for (int i = 0; i <= 3; i++)
     {
         plot_pixel(vgaX + i, vgaY, textColour);
         plot_pixel(vgaX + i, vgaY + 9, textColour);
     }
 
-    for(int j = 1; j <= 8; j++)
+    for (int j = 1; j <= 8; j++)
     {
         plot_pixel(vgaX, vgaY + j, textColour);
         plot_pixel(vgaX + 4, vgaY + j, textColour);
@@ -1580,16 +1619,16 @@ void drawD(int vgaX, int vgaY, short int textColour)
 
 void drawE(int vgaX, int vgaY, short int textColour)
 {
-    for(int i = 0; i <= 4; i++)
+    for (int i = 0; i <= 4; i++)
     {
         plot_pixel(vgaX + i, vgaY, textColour);
         plot_pixel(vgaX + i, vgaY + 9, textColour);
     }
-    for(int i = 0; i <= 3; i++)
+    for (int i = 0; i <= 3; i++)
     {
         plot_pixel(vgaX + i, vgaY + 4, textColour);
     }
-    for(int j = 0; j <= 9; j++)
+    for (int j = 0; j <= 9; j++)
     {
         plot_pixel(vgaX, vgaY + j, textColour);
     }
@@ -1597,15 +1636,15 @@ void drawE(int vgaX, int vgaY, short int textColour)
 
 void drawF(int vgaX, int vgaY, short int textColour)
 {
-    for(int i = 0; i <= 4; i++)
+    for (int i = 0; i <= 4; i++)
     {
         plot_pixel(vgaX + i, vgaY, textColour);
     }
-    for(int i = 0; i <= 3; i++)
+    for (int i = 0; i <= 3; i++)
     {
         plot_pixel(vgaX + i, vgaY + 4, textColour);
     }
-    for(int j = 0; j <= 9; j++)
+    for (int j = 0; j <= 9; j++)
     {
         plot_pixel(vgaX, vgaY + j, textColour);
     }
@@ -1613,20 +1652,20 @@ void drawF(int vgaX, int vgaY, short int textColour)
 
 void drawG(int vgaX, int vgaY, short int textColour)
 {
-    for(int i = 1; i <= 3; i++)
+    for (int i = 1; i <= 3; i++)
     {
         plot_pixel(vgaX + i, vgaY, textColour);
         plot_pixel(vgaX + i, vgaY + 9, textColour);
     }
-    for(int j = 1; j <= 8; j++)
+    for (int j = 1; j <= 8; j++)
     {
         plot_pixel(vgaX, vgaY + j, textColour);
-        if(j != 3 && j != 4)
+        if (j != 3 && j != 4)
         {
             plot_pixel(vgaX + 4, vgaY + j, textColour);
         }
     }
-    for(int i = 2; i <= 4; i++)
+    for (int i = 2; i <= 4; i++)
     {
         plot_pixel(vgaX + i, vgaY + 5, textColour);
     }
@@ -1634,12 +1673,12 @@ void drawG(int vgaX, int vgaY, short int textColour)
 
 void drawH(int vgaX, int vgaY, short int textColour)
 {
-    for(int j = 0; j <= 9; j++)
+    for (int j = 0; j <= 9; j++)
     {
         plot_pixel(vgaX, vgaY + j, textColour);
         plot_pixel(vgaX + 4, vgaY + j, textColour);
     }
-    for(int i = 1; i <= 3; i++)
+    for (int i = 1; i <= 3; i++)
     {
         plot_pixel(vgaX + i, vgaY + 4, textColour);
     }
@@ -1647,12 +1686,12 @@ void drawH(int vgaX, int vgaY, short int textColour)
 
 void drawI(int vgaX, int vgaY, short int textColour)
 {
-    for(int i = 0; i <= 4; i++)
+    for (int i = 0; i <= 4; i++)
     {
         plot_pixel(vgaX + i, vgaY, textColour);
         plot_pixel(vgaX + i, vgaY + 9, textColour);
     }
-    for(int j = 0; j <= 9; j++)
+    for (int j = 0; j <= 9; j++)
     {
         plot_pixel(vgaX + 2, vgaY + j, textColour);
     }
@@ -1660,11 +1699,11 @@ void drawI(int vgaX, int vgaY, short int textColour)
 
 void drawJ(int vgaX, int vgaY, short int textColour)
 {
-    for(int i = 0; i <= 4; i++)
+    for (int i = 0; i <= 4; i++)
     {
         plot_pixel(vgaX + i, vgaY, textColour);
     }
-    for(int j = 0; j <= 8; j++)
+    for (int j = 0; j <= 8; j++)
     {
         plot_pixel(vgaX + 3, vgaY + j, textColour);
     }
@@ -1676,11 +1715,11 @@ void drawJ(int vgaX, int vgaY, short int textColour)
 
 void drawK(int vgaX, int vgaY, short int textColour)
 {
-    for(int j = 0; j <= 9; j++)
+    for (int j = 0; j <= 9; j++)
     {
         plot_pixel(vgaX, vgaY + j, textColour);
     }
-    for(int i = 1; i <= 4; i++)
+    for (int i = 1; i <= 4; i++)
     {
         plot_pixel(vgaX + i, vgaY + 4 - i, textColour);
         plot_pixel(vgaX + i, vgaY + 5 + i, textColour);
@@ -1691,11 +1730,11 @@ void drawK(int vgaX, int vgaY, short int textColour)
 
 void drawL(int vgaX, int vgaY, short int textColour)
 {
-    for(int j = 0; j <= 9; j++)
+    for (int j = 0; j <= 9; j++)
     {
         plot_pixel(vgaX, vgaY + j, textColour);
     }
-    for(int i = 1; i <= 4; i++)
+    for (int i = 1; i <= 4; i++)
     {
         plot_pixel(vgaX + i, vgaY + 9, textColour);
     }
@@ -1703,12 +1742,12 @@ void drawL(int vgaX, int vgaY, short int textColour)
 
 void drawM(int vgaX, int vgaY, short int textColour)
 {
-    for(int j = 0; j <= 9; j++)
+    for (int j = 0; j <= 9; j++)
     {
         plot_pixel(vgaX, vgaY + j, textColour);
         plot_pixel(vgaX + 4, vgaY + j, textColour);
     }
-    for(int j = 1; j <= 2; j++)
+    for (int j = 1; j <= 2; j++)
     {
         plot_pixel(vgaX + 1, vgaY + j, textColour);
         plot_pixel(vgaX + 2, vgaY + 2 + j, textColour);
@@ -1718,12 +1757,12 @@ void drawM(int vgaX, int vgaY, short int textColour)
 
 void drawN(int vgaX, int vgaY, short int textColour)
 {
-    for(int j = 0; j <= 9; j++)
+    for (int j = 0; j <= 9; j++)
     {
         plot_pixel(vgaX, vgaY + j, textColour);
         plot_pixel(vgaX + 4, vgaY + j, textColour);
     }
-    for(int j = 2; j <= 3; j++)
+    for (int j = 2; j <= 3; j++)
     {
         plot_pixel(vgaX + 1, vgaY + j, textColour);
         plot_pixel(vgaX + 2, vgaY + 2 + j, textColour);
@@ -1733,12 +1772,12 @@ void drawN(int vgaX, int vgaY, short int textColour)
 
 void drawO(int vgaX, int vgaY, short int textColour)
 {
-    for(int j = 1; j <= 8; j++)
+    for (int j = 1; j <= 8; j++)
     {
         plot_pixel(vgaX, vgaY + j, textColour);
         plot_pixel(vgaX + 4, vgaY + j, textColour);
     }
-    for(int i = 1; i <= 3; i++)
+    for (int i = 1; i <= 3; i++)
     {
         plot_pixel(vgaX + i, vgaY, textColour);
         plot_pixel(vgaX + i, vgaY + 9, textColour);
@@ -1747,16 +1786,16 @@ void drawO(int vgaX, int vgaY, short int textColour)
 
 void drawP(int vgaX, int vgaY, short int textColour)
 {
-    for(int j = 0; j <= 9; j++)
+    for (int j = 0; j <= 9; j++)
     {
         plot_pixel(vgaX, vgaY + j, textColour);
     }
-    for(int i = 1; i <= 3; i++)
+    for (int i = 1; i <= 3; i++)
     {
         plot_pixel(vgaX + i, vgaY, textColour);
         plot_pixel(vgaX + i, vgaY + 4, textColour);
     }
-    for(int j = 1; j <= 3; j++)
+    for (int j = 1; j <= 3; j++)
     {
         plot_pixel(vgaX + 4, vgaY + j, textColour);
     }
@@ -1764,19 +1803,18 @@ void drawP(int vgaX, int vgaY, short int textColour)
 
 void drawQ(int vgaX, int vgaY, short int textColour)
 {
-    for(int j = 1; j <= 8; j++)
+    for (int j = 1; j <= 8; j++)
     {
         plot_pixel(vgaX, vgaY + j, textColour);
-        if(j != 8)
+        if (j != 8)
         {
             plot_pixel(vgaX + 4, vgaY + j, textColour);
         }
-        
     }
-    for(int i = 1; i <= 3; i++)
+    for (int i = 1; i <= 3; i++)
     {
         plot_pixel(vgaX + i, vgaY, textColour);
-        if(i != 3)
+        if (i != 3)
         {
             plot_pixel(vgaX + i, vgaY + 9, textColour);
         }
@@ -1789,18 +1827,18 @@ void drawQ(int vgaX, int vgaY, short int textColour)
 
 void drawR(int vgaX, int vgaY, short int textColour)
 {
-    for(int j = 0; j <= 9; j++)
+    for (int j = 0; j <= 9; j++)
     {
         plot_pixel(vgaX, vgaY + j, textColour);
     }
-    for(int i = 1; i <= 3; i++)
+    for (int i = 1; i <= 3; i++)
     {
         plot_pixel(vgaX + i, vgaY, textColour);
         plot_pixel(vgaX + i, vgaY + 5, textColour);
         plot_pixel(vgaX + i, vgaY + 5 + i, textColour);
     }
     plot_pixel(vgaX + 4, vgaY + 9, textColour);
-    for(int j = 1; j <= 4; j++)
+    for (int j = 1; j <= 4; j++)
     {
         plot_pixel(vgaX + 4, vgaY + j, textColour);
     }
@@ -1808,17 +1846,17 @@ void drawR(int vgaX, int vgaY, short int textColour)
 
 void drawS(int vgaX, int vgaY, short int textColour)
 {
-    for(int i = 1; i <= 3; i++)
+    for (int i = 1; i <= 3; i++)
     {
         plot_pixel(vgaX + i, vgaY, textColour);
         plot_pixel(vgaX + i, vgaY + 4, textColour);
         plot_pixel(vgaX + i, vgaY + 9, textColour);
     }
-    for(int j = 1; j <= 3; j++)
+    for (int j = 1; j <= 3; j++)
     {
         plot_pixel(vgaX, vgaY + j, textColour);
     }
-    for(int j = 5; j <= 8; j++)
+    for (int j = 5; j <= 8; j++)
     {
         plot_pixel(vgaX + 4, vgaY + j, textColour);
     }
@@ -1828,11 +1866,11 @@ void drawS(int vgaX, int vgaY, short int textColour)
 
 void drawT(int vgaX, int vgaY, short int textColour)
 {
-    for(int i = 0; i <= 4; i++)
+    for (int i = 0; i <= 4; i++)
     {
         plot_pixel(vgaX + i, vgaY, textColour);
     }
-    for(int j = 0; j <= 9; j++)
+    for (int j = 0; j <= 9; j++)
     {
         plot_pixel(vgaX + 2, vgaY + j, textColour);
     }
@@ -1840,12 +1878,12 @@ void drawT(int vgaX, int vgaY, short int textColour)
 
 void drawU(int vgaX, int vgaY, short int textColour)
 {
-    for(int j = 0; j <= 8; j++)
+    for (int j = 0; j <= 8; j++)
     {
         plot_pixel(vgaX, vgaY + j, textColour);
         plot_pixel(vgaX + 4, vgaY + j, textColour);
     }
-    for(int i = 1; i <= 4; i++)
+    for (int i = 1; i <= 4; i++)
     {
         plot_pixel(vgaX + i, vgaY + 9, textColour);
     }
@@ -1853,12 +1891,12 @@ void drawU(int vgaX, int vgaY, short int textColour)
 
 void drawV(int vgaX, int vgaY, short int textColour)
 {
-    for(int j = 0; j <= 4; j++)
+    for (int j = 0; j <= 4; j++)
     {
         plot_pixel(vgaX, vgaY + j, textColour);
         plot_pixel(vgaX + 4, vgaY + j, textColour);
     }
-    for(int j = 5; j <= 8; j++)
+    for (int j = 5; j <= 8; j++)
     {
         plot_pixel(vgaX + 1, vgaY + j, textColour);
         plot_pixel(vgaX + 3, vgaY + j, textColour);
@@ -1868,16 +1906,16 @@ void drawV(int vgaX, int vgaY, short int textColour)
 
 void drawW(int vgaX, int vgaY, short int textColour)
 {
-    for(int j = 0; j <= 6; j++)
+    for (int j = 0; j <= 6; j++)
     {
         plot_pixel(vgaX, vgaY + j, textColour);
         plot_pixel(vgaX + 4, vgaY + j, textColour);
     }
-    for(int j = 3; j <= 6; j++)
+    for (int j = 3; j <= 6; j++)
     {
         plot_pixel(vgaX + 2, vgaY + j, textColour);
     }
-    for(int j = 7; j <= 9; j++)
+    for (int j = 7; j <= 9; j++)
     {
         plot_pixel(vgaX + 1, vgaY + j, textColour);
         plot_pixel(vgaX + 3, vgaY + j, textColour);
@@ -1886,26 +1924,26 @@ void drawW(int vgaX, int vgaY, short int textColour)
 
 void drawX(int vgaX, int vgaY, short int textColour)
 {
-    for(int j = 0; j <= 1; j++)
+    for (int j = 0; j <= 1; j++)
     {
         plot_pixel(vgaX, vgaY + j, textColour);
         plot_pixel(vgaX + 4, vgaY + j, textColour);
     }
-    for(int j = 2; j <= 3; j++)
+    for (int j = 2; j <= 3; j++)
     {
         plot_pixel(vgaX + 1, vgaY + j, textColour);
         plot_pixel(vgaX + 3, vgaY + j, textColour);
     }
-    for(int j = 4; j <= 5; j++)
+    for (int j = 4; j <= 5; j++)
     {
         plot_pixel(vgaX + 2, vgaY + j, textColour);
     }
-    for(int j = 6; j <= 7; j++)
+    for (int j = 6; j <= 7; j++)
     {
         plot_pixel(vgaX + 1, vgaY + j, textColour);
         plot_pixel(vgaX + 3, vgaY + j, textColour);
     }
-    for(int j = 8; j <= 9; j++)
+    for (int j = 8; j <= 9; j++)
     {
         plot_pixel(vgaX, vgaY + j, textColour);
         plot_pixel(vgaX + 4, vgaY + j, textColour);
@@ -1914,17 +1952,17 @@ void drawX(int vgaX, int vgaY, short int textColour)
 
 void drawY(int vgaX, int vgaY, short int textColour)
 {
-    for(int j = 0; j <= 1; j++)
+    for (int j = 0; j <= 1; j++)
     {
         plot_pixel(vgaX, vgaY + j, textColour);
         plot_pixel(vgaX + 4, vgaY + j, textColour);
     }
-    for(int j = 2; j <= 3; j++)
+    for (int j = 2; j <= 3; j++)
     {
         plot_pixel(vgaX + 1, vgaY + j, textColour);
         plot_pixel(vgaX + 3, vgaY + j, textColour);
     }
-    for(int j = 4; j <= 9; j++)
+    for (int j = 4; j <= 9; j++)
     {
         plot_pixel(vgaX + 2, vgaY + j, textColour);
     }
@@ -1932,7 +1970,7 @@ void drawY(int vgaX, int vgaY, short int textColour)
 
 void drawZ(int vgaX, int vgaY, short int textColour)
 {
-    for(int i = 0; i <= 4; i++)
+    for (int i = 0; i <= 4; i++)
     {
         plot_pixel(vgaX + i, vgaY, textColour);
         plot_pixel(vgaX + i, vgaY + 9, textColour);
@@ -1952,18 +1990,18 @@ void drawZ(int vgaX, int vgaY, short int textColour)
 }
 
 /********************************************************************
-    * draw[Number](int vgaX, int vgaY, short int textColour)
-    *
-    * the following functions draws out their respective numbers
-    *******************************************************************/
+ * draw[Number](int vgaX, int vgaY, short int textColour)
+ *
+ * the following functions draws out their respective numbers
+ *******************************************************************/
 void draw0(int vgaX, int vgaY, short int textColour)
 {
-    for(int j = 1; j <= 8; j++)
+    for (int j = 1; j <= 8; j++)
     {
         plot_pixel(vgaX, vgaY + j, textColour);
         plot_pixel(vgaX + 4, vgaY + j, textColour);
     }
-    for(int i = 1; i <= 3; i++)
+    for (int i = 1; i <= 3; i++)
     {
         plot_pixel(vgaX + i, vgaY, textColour);
         plot_pixel(vgaX + i, vgaY + 9, textColour);
@@ -1972,7 +2010,7 @@ void draw0(int vgaX, int vgaY, short int textColour)
 
 void draw1(int vgaX, int vgaY, short int textColour)
 {
-    for(int j = 0; j <= 9; j++)
+    for (int j = 0; j <= 9; j++)
     {
         plot_pixel(vgaX + 4, vgaY + j, textColour);
     }
@@ -1980,21 +2018,21 @@ void draw1(int vgaX, int vgaY, short int textColour)
 
 void draw2(int vgaX, int vgaY, short int textColour)
 {
-    for(int i = 0; i <= 4; i++)
+    for (int i = 0; i <= 4; i++)
     {
         plot_pixel(vgaX + i, vgaY + 9, textColour);
     }
-    for(int i = 1; i <= 3; i++)
+    for (int i = 1; i <= 3; i++)
     {
         plot_pixel(vgaX + i, vgaY, textColour);
     }
-    for(int j = 1; j <= 4; j++)
+    for (int j = 1; j <= 4; j++)
     {
-         plot_pixel(vgaX + 4, vgaY + j, textColour);
+        plot_pixel(vgaX + 4, vgaY + j, textColour);
     }
     plot_pixel(vgaX, vgaY + 1, textColour);
     plot_pixel(vgaX, vgaY + 2, textColour);
-    for(int i = 0; i <= 3; i++)
+    for (int i = 0; i <= 3; i++)
     {
         plot_pixel(vgaX + i, vgaY + 8 - i, textColour);
     }
@@ -2002,17 +2040,17 @@ void draw2(int vgaX, int vgaY, short int textColour)
 
 void draw3(int vgaX, int vgaY, short int textColour)
 {
-    for(int j = 1; j <= 8; j++)
+    for (int j = 1; j <= 8; j++)
     {
         if (j != 4)
         {
             plot_pixel(vgaX + 4, vgaY + j, textColour);
         }
     }
-    for(int i = 1; i <= 3; i++)
+    for (int i = 1; i <= 3; i++)
     {
         plot_pixel(vgaX + i, vgaY, textColour);
-        if(i != 1)
+        if (i != 1)
         {
             plot_pixel(vgaX + i, vgaY + 4, textColour);
         }
@@ -2024,15 +2062,15 @@ void draw3(int vgaX, int vgaY, short int textColour)
 
 void draw4(int vgaX, int vgaY, short int textColour)
 {
-    for(int j = 0; j <= 9; j++)
+    for (int j = 0; j <= 9; j++)
     {
         plot_pixel(vgaX + 4, vgaY + j, textColour);
     }
-    for(int j = 0; j <= 4; j++)
+    for (int j = 0; j <= 4; j++)
     {
         plot_pixel(vgaX, vgaY + j, textColour);
     }
-    for(int i = 1; i <= 4; i++)
+    for (int i = 1; i <= 4; i++)
     {
         plot_pixel(vgaX + i, vgaY + 5, textColour);
     }
@@ -2040,20 +2078,20 @@ void draw4(int vgaX, int vgaY, short int textColour)
 
 void draw5(int vgaX, int vgaY, short int textColour)
 {
-    for(int i = 1; i <= 3; i++)
+    for (int i = 1; i <= 3; i++)
     {
         plot_pixel(vgaX + i, vgaY + 4, textColour);
         plot_pixel(vgaX + i, vgaY + 9, textColour);
     }
-    for(int i = 0; i <= 4; i++)
+    for (int i = 0; i <= 4; i++)
     {
         plot_pixel(vgaX + i, vgaY, textColour);
     }
-    for(int j = 1; j <= 4; j++)
+    for (int j = 1; j <= 4; j++)
     {
         plot_pixel(vgaX, vgaY + j, textColour);
     }
-    for(int j = 5; j <= 8; j++)
+    for (int j = 5; j <= 8; j++)
     {
         plot_pixel(vgaX + 4, vgaY + j, textColour);
     }
@@ -2062,17 +2100,17 @@ void draw5(int vgaX, int vgaY, short int textColour)
 
 void draw6(int vgaX, int vgaY, short int textColour)
 {
-    for(int j = 1; j <= 8; j++)
+    for (int j = 1; j <= 8; j++)
     {
         plot_pixel(vgaX, vgaY + j, textColour);
     }
-    for(int i = 1; i <= 3; i++)
+    for (int i = 1; i <= 3; i++)
     {
         plot_pixel(vgaX + i, vgaY, textColour);
         plot_pixel(vgaX + i, vgaY + 4, textColour);
         plot_pixel(vgaX + i, vgaY + 9, textColour);
     }
-    for(int j = 5; j <= 8; j++)
+    for (int j = 5; j <= 8; j++)
     {
         plot_pixel(vgaX + 4, vgaY + j, textColour);
     }
@@ -2081,7 +2119,7 @@ void draw6(int vgaX, int vgaY, short int textColour)
 
 void draw7(int vgaX, int vgaY, short int textColour)
 {
-    for(int i = 0; i <= 4; i++)
+    for (int i = 0; i <= 4; i++)
     {
         plot_pixel(vgaX + i, vgaY, textColour);
     }
@@ -2098,7 +2136,7 @@ void draw7(int vgaX, int vgaY, short int textColour)
 
 void draw8(int vgaX, int vgaY, short int textColour)
 {
-    for(int j = 1; j <= 8; j++)
+    for (int j = 1; j <= 8; j++)
     {
         if (j != 4)
         {
@@ -2106,7 +2144,7 @@ void draw8(int vgaX, int vgaY, short int textColour)
             plot_pixel(vgaX + 4, vgaY + j, textColour);
         }
     }
-    for(int i = 1; i <= 3; i++)
+    for (int i = 1; i <= 3; i++)
     {
         plot_pixel(vgaX + i, vgaY, textColour);
         plot_pixel(vgaX + i, vgaY + 4, textColour);
@@ -2116,17 +2154,17 @@ void draw8(int vgaX, int vgaY, short int textColour)
 
 void draw9(int vgaX, int vgaY, short int textColour)
 {
-    for(int j = 1; j <= 8; j++)
+    for (int j = 1; j <= 8; j++)
     {
         plot_pixel(vgaX + 4, vgaY + j, textColour);
     }
-     for(int i = 1; i <= 3; i++)
+    for (int i = 1; i <= 3; i++)
     {
         plot_pixel(vgaX + i, vgaY, textColour);
         plot_pixel(vgaX + i, vgaY + 4, textColour);
         plot_pixel(vgaX + i, vgaY + 9, textColour);
     }
-    for(int j = 1; j <= 3; j++)
+    for (int j = 1; j <= 3; j++)
     {
         plot_pixel(vgaX, vgaY + j, textColour);
     }
