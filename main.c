@@ -222,6 +222,8 @@ void clear_screen();
 /**************************** Level setup routine ***********************************/
 void setupLevels();
 void setupLevels_lv1();
+void setupLevels_lv2();
+void setupLevels_lv3();
 void updateLevel(Levels level);
 
 /**************************** Draw routine ************************************/
@@ -1107,7 +1109,7 @@ void drawWinningScreen()
     drawBox(7 * BOX_LEN, 18 * BOX_LEN, BOX_LEN, BLACK);
     drawBox(9 * BOX_LEN, 18 * BOX_LEN, BOX_LEN, BLACK);
 
-    //I
+    // I
     for (int baseX = 12; baseX <= 16; baseX++)
     {
         drawBox(baseX * BOX_LEN, 12 * BOX_LEN, BOX_LEN, BLACK);
@@ -1118,7 +1120,7 @@ void drawWinningScreen()
         drawBox(14 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
     }
 
-    //N
+    // N
     for (int baseY = 12; baseY <= 18; baseY++)
     {
         drawBox(18 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
@@ -1212,7 +1214,7 @@ void drawLosingScreen()
     {
         drawBox(baseX * BOX_LEN, 12 * BOX_LEN, BOX_LEN, BLACK);
         drawBox(baseX * BOX_LEN, 18 * BOX_LEN, BOX_LEN, BLACK);
-        if(baseX != 26)
+        if (baseX != 26)
             drawBox(baseX * BOX_LEN, 15 * BOX_LEN, BOX_LEN, BLACK);
     }
     for (int baseY = 12; baseY <= 18; baseY++)
@@ -1736,7 +1738,6 @@ updatePlayerStatusHorizontalReturn:
             myGame.myPlayer.airborne = true;
         }
         // roof check
-
         if (myGame.myPlayer.vertical_speed > 0)
         {
             for (int yPos = playerVgaPosY; yPos >= playerVgaPosY - myGame.myPlayer.vertical_speed; yPos--)
@@ -1748,19 +1749,18 @@ updatePlayerStatusHorizontalReturn:
                     myGame.currentObjects[((int)(xPos) / BOX_LEN)][yPos / BOX_LEN] == GAMEOBJ_END)
                 {
                     myGame.myPlayer.vertical_speed = 0;
-                    if (myGame.myPlayer.pos.y < yPos + 1) // update if only hit a lower block
-                        myGame.myPlayer.pos.y = yPos + 1; // update the y position
-                }
-            }
-            if (myGame.myPlayer.vertical_speed == 0) // return if already hit a block
-                goto updatePlayerStatusVerticalReturn;
-            for (int yPos = playerVgaPosY; yPos >= playerVgaPosY - myGame.myPlayer.vertical_speed; yPos--)
-            {
-                if (yPos < 0)
-                {
-                    myGame.myPlayer.vertical_speed = 0;
-                    myGame.myPlayer.pos.y = 0; // update the y posotion
+                    myGame.myPlayer.pos.y = yPos + 1; // update the y position
                     goto updatePlayerStatusVerticalReturn;
+                }
+
+                for (int yPos = playerVgaPosY; yPos >= playerVgaPosY - myGame.myPlayer.vertical_speed; yPos--)
+                {
+                    if (yPos < 0)
+                    {
+                        myGame.myPlayer.vertical_speed = 0;
+                        myGame.myPlayer.pos.y = 0; // update the y posotion
+                        goto updatePlayerStatusVerticalReturn;
+                    }
                 }
             }
         }
@@ -1775,13 +1775,10 @@ updatePlayerStatusHorizontalReturn:
                 {
                     myGame.myPlayer.vertical_speed = 0;
                     myGame.myPlayer.airborne = false;
-                    if (myGame.myPlayer.pos.y > yPos - 1) // update if only hit a higher block
-                        myGame.myPlayer.pos.y = yPos - 1; // update the y position
+                    myGame.myPlayer.pos.y = yPos - 1; // update the y position
+                    goto updatePlayerStatusVerticalReturn;
                 }
             }
-            if (myGame.myPlayer.vertical_speed == 0) // return if already hit a block
-                goto updatePlayerStatusVerticalReturn;
-
             for (int yPos = playerVgaPosY; yPos <= playerVgaPosY - myGame.myPlayer.vertical_speed; yPos++)
             {
                 if (yPos + PLAYER_HEIGHT - 1 >= RESOLUTION_Y)
