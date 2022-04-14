@@ -640,6 +640,8 @@ void clear_screen()
 void setupLevels()
 {
     setupLevels_lv1();
+    setupLevels_lv2();
+    setupLevels_lv3();
 }
 
 /********************************************************************
@@ -649,6 +651,7 @@ void setupLevels()
  *******************************************************************/
 void setupLevels_lv1()
 {
+
     // update the level number
     gameLevels[0].levelNumber = 1;
 
@@ -673,6 +676,206 @@ void setupLevels_lv1()
     gameLevels[0].levelObjects[30][20] = GAMEOBJ_END;
     gameLevels[0].end.x = 30;
     gameLevels[0].end.y = 20;
+}
+
+/********************************************************************
+ * setupLevels_lv2
+ *
+ * setup level 2 object
+ *******************************************************************/
+void setupLevels_lv2()
+{
+    // update the level number
+    gameLevels[1].levelNumber = 2;
+
+    // draw platforms
+    for (int x = 6; x <= 27; x++)
+    {
+        gameLevels[1].levelObjects[x][5] = GAMEOBJ_PLATFORM_BLOCK;
+    }
+    for (int x = 1; x <= 17; x++)
+    {
+        gameLevels[1].levelObjects[x][10] = GAMEOBJ_PLATFORM_BLOCK;
+    }
+    for (int x = 21; x <= 27; x++)
+    {
+        gameLevels[1].levelObjects[x][14] = GAMEOBJ_PLATFORM_BLOCK;
+    }
+    for (int x = 14; x <= 18; x++)
+    {
+        gameLevels[1].levelObjects[x][18] = GAMEOBJ_PLATFORM_BLOCK;
+    }
+    for (int x = 0; x <= 6; x++)
+    {
+        gameLevels[1].levelObjects[x][19] = GAMEOBJ_PLATFORM_BLOCK;
+    }
+    for (int x = 7; x <= 12; x++)
+    {
+        gameLevels[1].levelObjects[x][22] = GAMEOBJ_PLATFORM_BLOCK;
+    }
+    for (int x = 19; x <= 31; x++)
+    {
+        gameLevels[1].levelObjects[x][22] = GAMEOBJ_PLATFORM_BLOCK;
+    }
+
+    // draw fireballs
+    for (int x = 4; x <= 5; x++)
+    {
+        gameLevels[1].levelObjects[x][5] = GAMEOBJ_FIREBALL;
+    }
+    for (int y = 5; y <= 13; y++)
+    {
+        gameLevels[1].levelObjects[28][y] = GAMEOBJ_FIREBALL;
+    }
+    for (int x = 0; x <= 9; x++)
+    {
+        gameLevels[1].levelObjects[x][15] = GAMEOBJ_FIREBALL;
+    }
+    for (int y = 15; y <= 18; y++)
+    {
+        gameLevels[1].levelObjects[10][y] = GAMEOBJ_FIREBALL;
+        gameLevels[1].levelObjects[25][y] = GAMEOBJ_FIREBALL;
+    }
+    for (int y = 0; y <= 22; y++)
+    {
+        gameLevels[1].levelObjects[31][y] = GAMEOBJ_FIREBALL;
+    }
+
+    // draw spikes
+    for (int x = 19; x <= 25; x++)
+    {
+        gameLevels[1].levelObjects[x][21] = GAMEOBJ_SPIKE;
+    }
+    gameLevels[1].levelObjects[30][21] = GAMEOBJ_SPIKE;
+    for (int x = 0; x <= 31; x++)
+    {
+        gameLevels[1].levelObjects[x][23] = GAMEOBJ_SPIKE;
+    }
+
+    // starting position
+    gameLevels[1].levelObjects[2][19] = GAMEOBJ_START;
+    gameLevels[1].start.x = 2;
+    gameLevels[1].start.y = 19;
+
+    // ending position
+    gameLevels[1].levelObjects[28][22] = GAMEOBJ_END;
+    gameLevels[1].end.x = 28;
+    gameLevels[1].end.y = 22;
+}
+
+/********************************************************************
+ * setupLevels_lv3
+ *
+ * setup level 3 object
+ *******************************************************************/
+void setupLevels_lv3()
+{
+    // update the level number
+    gameLevels[2].levelNumber = 3;
+
+    // draw platforms
+    for (int x = 6; x <= 27; x++)
+    {
+        gameLevels[2].levelObjects[x][5] = GAMEOBJ_PLATFORM_BLOCK;
+    }
+    for (int x = 1; x <= 17; x++)
+    {
+        gameLevels[2].levelObjects[x][10] = GAMEOBJ_PLATFORM_BLOCK;
+    }
+    for (int x = 21; x <= 27; x++)
+    {
+        gameLevels[2].levelObjects[x][14] = GAMEOBJ_PLATFORM_BLOCK;
+    }
+    for (int x = 14; x <= 18; x++)
+    {
+        gameLevels[2].levelObjects[x][18] = GAMEOBJ_PLATFORM_BLOCK;
+    }
+    for (int x = 0; x <= 6; x++)
+    {
+        gameLevels[2].levelObjects[x][19] = GAMEOBJ_PLATFORM_BLOCK;
+    }
+    for (int x = 7; x <= 12; x++)
+    {
+        gameLevels[2].levelObjects[x][22] = GAMEOBJ_PLATFORM_BLOCK;
+    }
+    for (int x = 19; x <= 31; x++)
+    {
+        gameLevels[2].levelObjects[x][22] = GAMEOBJ_PLATFORM_BLOCK;
+    }
+
+    // draw fireballs
+    for (int x = 4; x <= 5; x++)
+    {
+        gameLevels[2].levelObjects[x][5] = GAMEOBJ_FIREBALL;
+    }
+    for (int y = 5; y <= 13; y++)
+    {
+        gameLevels[2].levelObjects[28][y] = GAMEOBJ_FIREBALL;
+    }
+    for (int x = 0; x <= 9; x++)
+    {
+        gameLevels[2].levelObjects[x][15] = GAMEOBJ_FIREBALL;
+    }
+    for (int y = 15; y <= 18; y++)
+    {
+        gameLevels[2].levelObjects[10][y] = GAMEOBJ_FIREBALL;
+        gameLevels[2].levelObjects[25][y] = GAMEOBJ_FIREBALL;
+    }
+    for (int y = 0; y <= 22; y++)
+    {
+        gameLevels[2].levelObjects[31][y] = GAMEOBJ_FIREBALL;
+    }
+    for (int x = 0; x <= 7; x++)
+    {
+        gameLevels[2].levelObjects[x][0] = GAMEOBJ_FIREBALL;
+    }
+    for (int y = 11; y <= 14; y++)
+    {
+        gameLevels[2].levelObjects[17][y] = GAMEOBJ_FIREBALL;
+    }
+    for (int y = 16; y <= 21; y++)
+    {
+        gameLevels[2].levelObjects[13][y] = GAMEOBJ_FIREBALL;
+        gameLevels[2].levelObjects[30][y] = GAMEOBJ_FIREBALL;
+    }
+
+    // draw spikes
+    for (int x = 19; x <= 25; x++)
+    {
+        gameLevels[2].levelObjects[x][21] = GAMEOBJ_SPIKE;
+    }
+    for (int x = 0; x <= 31; x++)
+    {
+        gameLevels[2].levelObjects[x][23] = GAMEOBJ_SPIKE;
+    }
+    for (int x = 9; x <= 11; x++)
+    {
+        gameLevels[2].levelObjects[x][4] = GAMEOBJ_SPIKE;
+    }
+    for (int x = 17; x <= 19; x++)
+    {
+        gameLevels[2].levelObjects[x][4] = GAMEOBJ_SPIKE;
+    }
+    for (int x = 25; x <= 26; x++)
+    {
+        gameLevels[2].levelObjects[x][4] = GAMEOBJ_SPIKE;
+    }
+    gameLevels[2].levelObjects[1][9] = GAMEOBJ_SPIKE;
+    for (int x = 15; x <= 17; x++)
+    {
+        gameLevels[2].levelObjects[x][9] = GAMEOBJ_SPIKE;
+    }
+    gameLevels[2].levelObjects[7][21] = GAMEOBJ_SPIKE;
+
+    // starting position
+    gameLevels[2].levelObjects[2][19] = GAMEOBJ_START;
+    gameLevels[2].start.x = 2;
+    gameLevels[2].start.y = 19;
+
+    // ending position
+    gameLevels[2].levelObjects[28][22] = GAMEOBJ_END;
+    gameLevels[2].end.x = 28;
+    gameLevels[2].end.y = 22;
 }
 
 /********************************************************************
@@ -732,8 +935,10 @@ void drawCurrentObjects()
                 drawPlatformBlock(x, y);
                 break;
             case GAMEOBJ_FIREBALL:
+                drawFireball(x * 10, y * 10);
                 break;
             case GAMEOBJ_SPIKE:
+                drawSpike(x * 10, y * 10);
                 break;
             case GAMEOBJ_START:
                 drawStart(x, y);
@@ -851,6 +1056,7 @@ void drawEmpty(int baseX, int baseY)
  *******************************************************************/
 void drawBigTitle()
 {
+
     // number 1
     for (int baseY = 7; baseY < 22; baseY++)
         drawBox(5 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
@@ -878,6 +1084,7 @@ void drawBigTitle()
         drawBox(27 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, MAGENTA);
     for (int baseX = 24; baseX < 28; baseX++)
         drawBox(baseX * BOX_LEN, 14 * BOX_LEN, BOX_LEN, MAGENTA);
+        
 }
 
 /*******************************************************************
@@ -2137,6 +2344,7 @@ int main(void)
 {
     // Setup all the levels before the game
     setupLevels();
+    clear_screen();
     updateLevel(gameLevels[0]);
 
     // Interrupt setup routine
