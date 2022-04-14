@@ -734,6 +734,10 @@ void setupLevels_lv2()
     gameLevels[1].levelNumber = 2;
 
     // draw platforms
+    for (int x = 0; x <= 30; x++)
+    {
+        gameLevels[1].levelObjects[x][0] = GAMEOBJ_PLATFORM_BLOCK;
+    }
     for (int x = 6; x <= 27; x++)
     {
         gameLevels[1].levelObjects[x][5] = GAMEOBJ_PLATFORM_BLOCK;
@@ -819,6 +823,10 @@ void setupLevels_lv3()
     gameLevels[2].levelNumber = 3;
 
     // draw platforms
+    for (int x = 0; x <= 30; x++)
+    {
+        gameLevels[1].levelObjects[x][0] = GAMEOBJ_PLATFORM_BLOCK;
+    }
     for (int x = 6; x <= 27; x++)
     {
         gameLevels[2].levelObjects[x][5] = GAMEOBJ_PLATFORM_BLOCK;
@@ -1091,19 +1099,32 @@ void drawBigTitle()
     }
     // R
     for (int baseY = 14; baseY < 22; baseY++)
-        drawBox(16 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, MAGENTA);
-    for (int baseX = 16; baseX < 21; baseX++)
+        drawBox(13 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, MAGENTA);
+    for (int baseX = 13; baseX < 17; baseX++)
         drawBox(baseX * BOX_LEN, 14 * BOX_LEN, BOX_LEN, MAGENTA);
-    drawBox(20 * BOX_LEN, 15 * BOX_LEN, BOX_LEN, MAGENTA);
-    drawBox(20 * BOX_LEN, 16 * BOX_LEN, BOX_LEN, MAGENTA);
+    drawBox(16 * BOX_LEN, 15 * BOX_LEN, BOX_LEN, MAGENTA);
+    drawBox(16 * BOX_LEN, 16 * BOX_LEN, BOX_LEN, MAGENTA);
 
     // U
     for (int baseY = 14; baseY < 22; baseY++)
-        drawBox(24 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, MAGENTA);
+        drawBox(18 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, MAGENTA);
     for (int baseY = 14; baseY < 22; baseY++)
+        drawBox(21 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, MAGENTA);
+    for (int baseX = 19; baseX < 22; baseX++)
+        drawBox(baseX * BOX_LEN, 21 * BOX_LEN, BOX_LEN, MAGENTA);
+
+    // N
+    for (int baseY = 14; baseY < 22; baseY++)
+    {
+        drawBox(23 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, MAGENTA);
         drawBox(27 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, MAGENTA);
-    for (int baseX = 24; baseX < 28; baseX++)
-        drawBox(baseX * BOX_LEN, 14 * BOX_LEN, BOX_LEN, MAGENTA);
+    }
+    drawBox(24 * BOX_LEN, 15 * BOX_LEN, BOX_LEN, MAGENTA);
+    drawBox(24 * BOX_LEN, 16 * BOX_LEN, BOX_LEN, MAGENTA);
+    drawBox(25 * BOX_LEN, 17 * BOX_LEN, BOX_LEN, MAGENTA);
+    drawBox(25 * BOX_LEN, 18 * BOX_LEN, BOX_LEN, MAGENTA);
+    drawBox(26 * BOX_LEN, 19 * BOX_LEN, BOX_LEN, MAGENTA);
+    drawBox(26 * BOX_LEN, 20 * BOX_LEN, BOX_LEN, MAGENTA);
 }
 
 /********************************************************************
