@@ -710,6 +710,10 @@ void setupLevels_lv2()
     gameLevels[1].levelNumber = 2;
 
     // draw platforms
+    for (int x = 0; x <= 30; x++)
+    {
+        gameLevels[1].levelObjects[x][0] = GAMEOBJ_PLATFORM_BLOCK;
+    }
     for (int x = 6; x <= 27; x++)
     {
         gameLevels[1].levelObjects[x][5] = GAMEOBJ_PLATFORM_BLOCK;
@@ -795,6 +799,10 @@ void setupLevels_lv3()
     gameLevels[2].levelNumber = 3;
 
     // draw platforms
+    for (int x = 0; x <= 30; x++)
+    {
+        gameLevels[1].levelObjects[x][0] = GAMEOBJ_PLATFORM_BLOCK;
+    }
     for (int x = 6; x <= 27; x++)
     {
         gameLevels[2].levelObjects[x][5] = GAMEOBJ_PLATFORM_BLOCK;
