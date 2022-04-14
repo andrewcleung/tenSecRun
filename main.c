@@ -242,9 +242,42 @@ void drawBigTitle();
 void drawTestBox(int vgaX, int vgaY);
 
 /* Player */
-void drawPlayerResting();
-void drawPlayerRunningRight();
-void drawPlayer(int x_box[NUM_JOINTS], int y_box[NUM_JOINTS]);
+void drawPlayerResting(int baseX, int baseY);
+void drawPlayerRunningRight(int baseX, int baseY);
+void drawPlayerRunningLeft(int baseX, int baseY);
+void drawPlayerJumping(int baseX, int baseY);
+
+/* Obstacles */
+void drawFireball(int baseX, int baseY);
+void drawSpike(int baseX, int baseY);
+
+/* Letters */
+void drawA(int baseX, int baseY);
+void drawB(int baseX, int baseY);
+void drawC(int baseX, int baseY);
+void drawD(int baseX, int baseY);
+void drawE(int baseX, int baseY);
+void drawF(int baseX, int baseY);
+void drawG(int baseX, int baseY);
+void drawH(int baseX, int baseY);
+void drawI(int baseX, int baseY);
+void drawJ(int baseX, int baseY);
+void drawK(int baseX, int baseY);
+void drawL(int baseX, int baseY);
+void drawM(int baseX, int baseY);
+void drawN(int baseX, int baseY);
+void drawO(int baseX, int baseY);
+void drawP(int baseX, int baseY);
+void drawQ(int baseX, int baseY);
+void drawR(int baseX, int baseY);
+void drawS(int baseX, int baseY);
+void drawT(int baseX, int baseY);
+void drawU(int baseX, int baseY);
+void drawV(int baseX, int baseY);
+void drawW(int baseX, int baseY);
+void drawX(int baseX, int baseY);
+void drawY(int baseX, int baseY);
+void drawZ(int baseX, int baseY);
 
 /* Shapes */
 void drawLine(int x0, int y0, int x1, int y1, short int line_color);
@@ -704,6 +737,14 @@ void drawCurrentObjects()
             }
         }
     }
+    /* Debugging purposes
+    drawPlayerResting(50, 50);
+	drawPlayerRunningRight(100, 50);
+	drawPlayerRunningLeft(150, 50);
+	drawPlayerJumping(200, 50);
+    drawFireball(250, 50);
+    drawSpike(300, 50);
+    */
 }
 
 /********************************************************************
@@ -789,126 +830,367 @@ void drawBigTitle()
         drawBox(baseX * BOX_LEN, 14 * BOX_LEN, BOX_LEN, MAGENTA);
 }
 
-void drawPlayerResting()
+/*******************************************************************
+ * drawPlayerResting(int baseX, int baseY)
+ *
+ * draws player in its resting state
+ *******************************************************************/
+void drawPlayerResting(int baseX, int baseY)
 {
-    int x_box[NUM_JOINTS];
-    int y_box[NUM_JOINTS];
-    /*draw human, from 100 x 100 */
-    // Head
-    x_box[0] = TEMP;
-    y_box[0] = TEMP;
+    //Draw head
+    for(int i = 0; i < 4; i++)
+    {
+        plot_pixel(baseX + 4 + i, baseY, COLOR_PLAYER);
+        plot_pixel(baseX + 4 + i, baseY + 7, COLOR_PLAYER);
+    }
+    for(int i = 0; i < 6; i++)
+    {
+        plot_pixel(baseX + 3 + i, baseY + 1, COLOR_PLAYER);
+        plot_pixel(baseX + 3 + i, baseY + 6, COLOR_PLAYER);
+    }
+    for(int j = 0; j < 4; j++)
+    {
+        for(int i = 0; i < 8; i++)
+        {
+            plot_pixel(baseX + 2 + i, baseY + 2 + j, COLOR_PLAYER);
+        }
+    }
+    
+    //Draw body and arms
+    plot_pixel(baseX + 3, baseY + 8, COLOR_PLAYER);
+    plot_pixel(baseX + 4, baseY + 8, COLOR_PLAYER);
 
-    // Neck
-    x_box[1] = x_box[0];
-    y_box[1] = y_box[0] + HEAD_RADIUS;
-    // Left arm
-    x_box[2] = x_box[0] - JOINT_LENGTH_45;
-    y_box[2] = y_box[1] + JOINT_LENGTH_45;
-    // Left hand
-    x_box[3] = x_box[2] - JOINT_LENGTH_30;
-    y_box[3] = y_box[2] + JOINT_LENGTH_60;
-    // Right arm
-    x_box[4] = x_box[0] + JOINT_LENGTH_30;
-    y_box[4] = y_box[1] + JOINT_LENGTH_60;
-    // Right hand
-    x_box[5] = x_box[4] + JOINT_LENGTH_45;
-    y_box[5] = y_box[4] + JOINT_LENGTH_45;
-    // Balls
-    x_box[6] = x_box[1];
-    y_box[6] = y_box[1] + TORSO_LENGTH;
-    // left leg
-    x_box[7] = x_box[6] - JOINT_LENGTH_30;
-    y_box[7] = y_box[6] + JOINT_LENGTH_60;
-    // left foot
-    x_box[8] = x_box[7] - JOINT_LENGTH_45;
-    y_box[8] = y_box[7] + JOINT_LENGTH_45;
-    // right leg
-    x_box[9] = x_box[6] + JOINT_LENGTH_45;
-    y_box[9] = y_box[6] + JOINT_LENGTH_45;
-    // right foot
-    x_box[10] = x_box[9] + JOINT_LENGTH_30;
-    y_box[10] = y_box[9] + JOINT_LENGTH_60;
 
-    drawPlayer(x_box, y_box);
+    plot_pixel(baseX + 2, baseY + 9, COLOR_PLAYER);
+    plot_pixel(baseX + 4, baseY + 9, COLOR_PLAYER);
+    plot_pixel(baseX + 5, baseY + 9, COLOR_PLAYER);
+
+    for(int i = 0; i < 2; i++)
+    {
+        plot_pixel(baseX + 1, baseY + 10 + i, COLOR_PLAYER);
+        plot_pixel(baseX + 4, baseY + 10 + i, COLOR_PLAYER);
+        plot_pixel(baseX + 5, baseY + 10 + i, COLOR_PLAYER);
+    }
+    
+    plot_pixel(baseX + 1, baseY + 12, COLOR_PLAYER);
+    plot_pixel(baseX + 4, baseY + 12, COLOR_PLAYER);
+    plot_pixel(baseX + 6, baseY + 12, COLOR_PLAYER);
+
+    //Draw legs
+    plot_pixel(baseX + 2, baseY + 13, COLOR_PLAYER);
+    plot_pixel(baseX + 4, baseY + 13, COLOR_PLAYER);
+
+    plot_pixel(baseX + 4, baseY + 14, COLOR_PLAYER);
+    plot_pixel(baseX + 5, baseY + 14, COLOR_PLAYER);
+
+    plot_pixel(baseX + 4, baseY + 15, COLOR_PLAYER);
+    plot_pixel(baseX + 6, baseY + 15, COLOR_PLAYER);
+
+    for(int i = 0; i < 4; i++)
+    {
+        plot_pixel(baseX + 3 - i, baseY + 16 + i, COLOR_PLAYER);
+        plot_pixel(baseX + 7, baseY + 16 + i, COLOR_PLAYER);
+    }
 }
 
-void drawPlayerRunningRight()
+/********************************************************************
+ * drawPlayerRunningRight(int baseX, int baseY)
+ *
+ * draws player in its running state in the right direction
+ *******************************************************************/
+void drawPlayerRunningRight(int baseX, int baseY)
 {
-    int x_box[NUM_JOINTS];
-    int y_box[NUM_JOINTS];
-    /*draw human, from 100 x 100 */
-    // Head
-    x_box[0] = TEMP + 32;
-    y_box[0] = TEMP;
+    //Draw head
+    for(int i = 0; i < 4; i++)
+    {
+        plot_pixel(baseX + 4 + i, baseY, COLOR_PLAYER);
+        plot_pixel(baseX + 4 + i, baseY + 7, COLOR_PLAYER);
+    }
+    for(int i = 0; i < 6; i++)
+    {
+        plot_pixel(baseX + 3 + i, baseY + 1, COLOR_PLAYER);
+        plot_pixel(baseX + 3 + i, baseY + 6, COLOR_PLAYER);
+    }
+    for(int j = 0; j < 4; j++)
+    {
+        for(int i = 0; i < 8; i++)
+        {
+            plot_pixel(baseX + 2 + i, baseY + 2 + j, COLOR_PLAYER);
+        }
+    }
 
-    // Neck
-    x_box[1] = x_box[0] - 2;
-    y_box[1] = y_box[0] + HEAD_RADIUS;
-    // Left arm
-    x_box[2] = x_box[0] - JOINT_LENGTH_60;
-    y_box[2] = y_box[1] - JOINT_LENGTH_30;
-    // Left hand
-    x_box[3] = x_box[2] - JOINT_LENGTH_45;
-    y_box[3] = y_box[2] + JOINT_LENGTH_45;
-    // Right arm
-    x_box[4] = x_box[0] + JOINT_LENGTH_45;
-    y_box[4] = y_box[1] + JOINT_LENGTH_45;
-    // Right hand
-    x_box[5] = x_box[4] + JOINT_LENGTH_60;
-    y_box[5] = y_box[4] - JOINT_LENGTH_30;
-    // Balls
-    x_box[6] = x_box[1] - TORSO_LENGTH_30;
-    y_box[6] = y_box[1] + TORSO_LENGTH_60;
-    // left leg
-    x_box[7] = x_box[6] - JOINT_LENGTH_45;
-    y_box[7] = y_box[6] + JOINT_LENGTH_45;
-    // left foot
-    x_box[8] = x_box[7] - JOINT_LENGTH_45;
-    y_box[8] = y_box[7] + JOINT_LENGTH_45;
-    // right leg
-    x_box[9] = x_box[6] + JOINT_LENGTH_45;
-    y_box[9] = y_box[6] + JOINT_LENGTH_45;
-    // right foot
-    x_box[10] = x_box[9] - JOINT_LENGTH_45;
-    y_box[10] = y_box[9] + JOINT_LENGTH_45;
+    //Draw body and arms
+    for(int i = 0; i < 4; i++)
+    {
+        plot_pixel(baseX + 1 + i, baseY + 8, COLOR_PLAYER);
+    }
+    
+    for(int j = 0; j < 3; j++)
+    {
+        plot_pixel(baseX, baseY + 9 + j, COLOR_PLAYER);
+        plot_pixel(baseX + 4, baseY + 9 + j, COLOR_PLAYER);
+    }
 
-    drawPlayer(x_box, y_box);
+    plot_pixel(baseX + 5, baseY + 10, COLOR_PLAYER);
+
+    plot_pixel(baseX + 3, baseY + 11, COLOR_PLAYER);
+    plot_pixel(baseX + 4, baseY + 11, COLOR_PLAYER);
+    plot_pixel(baseX + 6, baseY + 11, COLOR_PLAYER);
+    plot_pixel(baseX + 7, baseY + 11, COLOR_PLAYER);
+    plot_pixel(baseX + 8, baseY + 11, COLOR_PLAYER);
+    
+
+    //Draw legs
+    plot_pixel(baseX + 3, baseY + 12, COLOR_PLAYER);
+
+    plot_pixel(baseX + 2, baseY + 13, COLOR_PLAYER);
+    plot_pixel(baseX + 3, baseY + 13, COLOR_PLAYER);
+
+    plot_pixel(baseX + 2, baseY + 14, COLOR_PLAYER);
+    plot_pixel(baseX + 4, baseY + 14, COLOR_PLAYER);
+    plot_pixel(baseX + 5, baseY + 14, COLOR_PLAYER);
+
+    plot_pixel(baseX + 1, baseY + 15, COLOR_PLAYER);
+    plot_pixel(baseX + 2, baseY + 15, COLOR_PLAYER);
+    plot_pixel(baseX + 5, baseY + 15, COLOR_PLAYER);
+
+    plot_pixel(baseX + 1, baseY + 16, COLOR_PLAYER);
+    plot_pixel(baseX + 4, baseY + 16, COLOR_PLAYER);
+    plot_pixel(baseX + 5, baseY + 16, COLOR_PLAYER);
+
+    plot_pixel(baseX + 0, baseY + 17, COLOR_PLAYER);
+    plot_pixel(baseX + 1, baseY + 17, COLOR_PLAYER);
+    plot_pixel(baseX + 4, baseY + 17, COLOR_PLAYER);
+
+    plot_pixel(baseX + 0, baseY + 18, COLOR_PLAYER);
+    plot_pixel(baseX + 4, baseY + 18, COLOR_PLAYER);
+
+    plot_pixel(baseX + 0, baseY + 19, COLOR_PLAYER);
 }
 
-/*
- * draw Player
- */
-void drawPlayer(int x_box[NUM_JOINTS], int y_box[NUM_JOINTS])
+/********************************************************************
+ * drawPlayerRunningLeft(int baseX, int baseY)
+ *
+ * draws player in its running state in the left direction
+ *******************************************************************/
+void drawPlayerRunningLeft(int baseX, int baseY)
 {
-    // draw head
-    drawCircle(x_box[0], x_box[0], HEAD_RADIUS, COLOR_PLAYER);
-    // draw neck to left arm
-    drawLine(x_box[1], y_box[1], x_box[2], y_box[2],
-             COLOR_PLAYER);
-    // draw left arm to left hand
-    drawLine(x_box[2], y_box[2], x_box[3], y_box[3],
-             COLOR_PLAYER);
-    // draw neck to right arm
-    drawLine(x_box[1], y_box[1], x_box[4], y_box[4],
-             COLOR_PLAYER);
-    // draw right arm to right hand
-    drawLine(x_box[4], y_box[4], x_box[5], y_box[5],
-             COLOR_PLAYER);
-    // draw neck to balls
-    drawLine(x_box[1], y_box[1], x_box[6], y_box[6],
-             COLOR_PLAYER);
-    // draw balls to left leg
-    drawLine(x_box[6], y_box[6], x_box[7], y_box[7],
-             COLOR_PLAYER);
-    // draw left leg to left foot
-    drawLine(x_box[7], y_box[7], x_box[8], y_box[8],
-             COLOR_PLAYER);
-    // draw balls to right leg
-    drawLine(x_box[6], y_box[6], x_box[9], y_box[9],
-             COLOR_PLAYER);
-    // draw right leg to right foot
-    drawLine(x_box[9], y_box[9], x_box[10], y_box[10],
-             COLOR_PLAYER);
+    //Draw head
+    for(int i = 0; i < 4; i++)
+    {
+        plot_pixel(baseX + 2 + i, baseY, COLOR_PLAYER);
+        plot_pixel(baseX + 2 + i, baseY + 7, COLOR_PLAYER);
+    }
+    for(int i = 0; i < 6; i++)
+    {
+        plot_pixel(baseX + 1 + i, baseY + 1, COLOR_PLAYER);
+        plot_pixel(baseX + 1 + i, baseY + 6, COLOR_PLAYER);
+    }
+    for(int j = 0; j < 4; j++)
+    {
+        for(int i = 0; i < 8; i++)
+        {
+            plot_pixel(baseX + i, baseY + 2 + j, COLOR_PLAYER);
+        }
+    }
+
+    //Draw body and arms
+    for(int i = 0; i < 4; i++)
+    {
+        plot_pixel(baseX + 5 + i, baseY + 8, COLOR_PLAYER);
+    }
+    
+    for(int j = 0; j < 3; j++)
+    {
+        plot_pixel(baseX + 9, baseY + 9 + j, COLOR_PLAYER);
+        plot_pixel(baseX + 5, baseY + 9 + j, COLOR_PLAYER);
+    }
+
+    plot_pixel(baseX + 4, baseY + 10, COLOR_PLAYER);
+
+    plot_pixel(baseX + 1, baseY + 11, COLOR_PLAYER);
+    plot_pixel(baseX + 2, baseY + 11, COLOR_PLAYER);
+    plot_pixel(baseX + 3, baseY + 11, COLOR_PLAYER);
+    plot_pixel(baseX + 5, baseY + 11, COLOR_PLAYER);
+    plot_pixel(baseX + 6, baseY + 11, COLOR_PLAYER);
+
+    //Draw legs
+    plot_pixel(baseX + 6, baseY + 12, COLOR_PLAYER);
+
+    plot_pixel(baseX + 6, baseY + 13, COLOR_PLAYER);
+    plot_pixel(baseX + 7, baseY + 13, COLOR_PLAYER);
+
+    plot_pixel(baseX + 4, baseY + 14, COLOR_PLAYER);
+    plot_pixel(baseX + 5, baseY + 14, COLOR_PLAYER);
+    plot_pixel(baseX + 7, baseY + 14, COLOR_PLAYER);
+
+    plot_pixel(baseX + 4, baseY + 15, COLOR_PLAYER);
+    plot_pixel(baseX + 7, baseY + 15, COLOR_PLAYER);
+    plot_pixel(baseX + 8, baseY + 15, COLOR_PLAYER);
+
+    plot_pixel(baseX + 4, baseY + 16, COLOR_PLAYER);
+    plot_pixel(baseX + 5, baseY + 16, COLOR_PLAYER);
+    plot_pixel(baseX + 8, baseY + 16, COLOR_PLAYER);
+
+    plot_pixel(baseX + 5, baseY + 17, COLOR_PLAYER);
+    plot_pixel(baseX + 8, baseY + 17, COLOR_PLAYER);
+    plot_pixel(baseX + 9, baseY + 17, COLOR_PLAYER);
+
+    plot_pixel(baseX + 5, baseY + 18, COLOR_PLAYER);
+    plot_pixel(baseX + 9, baseY + 18, COLOR_PLAYER);
+
+    plot_pixel(baseX + 9, baseY + 19, COLOR_PLAYER);
+}
+
+/********************************************************************
+ * drawPlayerJumping(int baseX, int baseY)
+ *
+ * draws player in its jumping state
+ *******************************************************************/
+void drawPlayerJumping(int baseX, int baseY)
+{
+    //Draw head
+    for(int i = 0; i < 4; i++)
+    {
+        plot_pixel(baseX + 3 + i, baseY, COLOR_PLAYER);
+        plot_pixel(baseX + 3 + i, baseY + 7, COLOR_PLAYER);
+    }
+    for(int i = 0; i < 6; i++)
+    {
+        plot_pixel(baseX + 2 + i, baseY + 1, COLOR_PLAYER);
+        plot_pixel(baseX + 2 + i, baseY + 6, COLOR_PLAYER);
+    }
+    for(int j = 0; j < 4; j++)
+    {
+        for(int i = 0; i < 8; i++)
+        {
+            plot_pixel(baseX + 1 + i, baseY + 2 + j, COLOR_PLAYER);
+        }
+    }
+
+    //Draw body and arms
+    plot_pixel(baseX + 4, baseY + 8, COLOR_PLAYER);
+
+    for(int i = 0; i < 8; i++)
+    {
+        plot_pixel(baseX + 1 + i, baseY + 9, COLOR_PLAYER);
+    }
+
+    for(int j = 0; j < 4; j++)
+    {
+        plot_pixel(baseX + 4, baseY + 10 + j, COLOR_PLAYER);
+    }
+
+    plot_pixel(baseX, baseY + 10, COLOR_PLAYER);
+    plot_pixel(baseX + 9, baseY + 10, COLOR_PLAYER);
+
+    plot_pixel(baseX + 1, baseY + 11, COLOR_PLAYER);
+    plot_pixel(baseX + 8, baseY + 11, COLOR_PLAYER);
+
+    //Draw legs
+    plot_pixel(baseX + 2, baseY + 14, COLOR_PLAYER);
+    plot_pixel(baseX + 3, baseY + 14, COLOR_PLAYER);
+    plot_pixel(baseX + 5, baseY + 14, COLOR_PLAYER);
+    plot_pixel(baseX + 6, baseY + 14, COLOR_PLAYER);
+
+    for(int j = 0; j < 2; j++)
+    {
+        plot_pixel(baseX + 1, baseY + 15 + j, COLOR_PLAYER);
+        plot_pixel(baseX + 7, baseY + 15 + j, COLOR_PLAYER);
+    }
+
+    for(int j = 0; j < 2; j++)
+    {
+        plot_pixel(baseX + 2, baseY + 17 + j, COLOR_PLAYER);
+        plot_pixel(baseX + 6, baseY + 17 + j, COLOR_PLAYER);
+    }
+}
+
+/********************************************************************
+ * drawFireball(int baseX, int baseY)
+ *
+ * draws fireball
+ *******************************************************************/
+void drawFireball(int baseX, int baseY)
+{
+    plot_pixel(baseX + 1, baseY, RED);
+    plot_pixel(baseX + 5, baseY, RED);
+
+    plot_pixel(baseX + 2, baseY + 1, RED);
+    plot_pixel(baseX + 4, baseY + 1, RED);
+    plot_pixel(baseX + 5, baseY + 1, RED);
+
+    plot_pixel(baseX + 1, baseY + 2, RED);
+    plot_pixel(baseX + 3, baseY + 2, RED);
+    plot_pixel(baseX + 4, baseY + 2, RED);
+    plot_pixel(baseX + 5, baseY + 2, ORANGE);
+    plot_pixel(baseX + 6, baseY + 2, RED);
+
+    plot_pixel(baseX, baseY + 3, RED);
+    plot_pixel(baseX + 1, baseY + 3, RED);
+    plot_pixel(baseX + 2, baseY + 3, RED);
+    plot_pixel(baseX + 3, baseY + 3, ORANGE);
+    plot_pixel(baseX + 4, baseY + 3, ORANGE);
+    plot_pixel(baseX + 5, baseY + 3, ORANGE);
+    plot_pixel(baseX + 6, baseY + 3, ORANGE);
+    plot_pixel(baseX + 7, baseY + 3, RED);
+
+    plot_pixel(baseX, baseY + 4, RED);
+    plot_pixel(baseX + 1, baseY + 4, ORANGE);
+    plot_pixel(baseX + 2, baseY + 4, ORANGE);
+    plot_pixel(baseX + 3, baseY + 4, YELLOW);
+    plot_pixel(baseX + 4, baseY + 4, YELLOW);
+    plot_pixel(baseX + 5, baseY + 4, YELLOW);
+    plot_pixel(baseX + 6, baseY + 4, ORANGE);
+    plot_pixel(baseX + 7, baseY + 4, RED);
+
+    plot_pixel(baseX, baseY + 5, RED);
+    plot_pixel(baseX + 1, baseY + 5, ORANGE);
+    plot_pixel(baseX + 2, baseY + 5, YELLOW);
+    plot_pixel(baseX + 3, baseY + 5, YELLOW);
+    plot_pixel(baseX + 4, baseY + 5, WHITE);
+    plot_pixel(baseX + 5, baseY + 5, YELLOW);
+    plot_pixel(baseX + 6, baseY + 5, ORANGE);
+    plot_pixel(baseX + 7, baseY + 5, RED);
+
+    plot_pixel(baseX + 1, baseY + 6, RED);
+    plot_pixel(baseX + 2, baseY + 6, YELLOW);
+    plot_pixel(baseX + 3, baseY + 6, YELLOW);
+    plot_pixel(baseX + 4, baseY + 6, WHITE);
+    plot_pixel(baseX + 5, baseY + 6, WHITE);
+    plot_pixel(baseX + 6, baseY + 6, RED);
+
+    plot_pixel(baseX + 2, baseY + 7, RED);
+    plot_pixel(baseX + 5, baseY + 7, RED);
+}
+
+/********************************************************************
+ * drawSpike(int baseX, int baseY)
+ *
+ * draws spike object
+ *******************************************************************/
+void drawSpike(int baseX, int baseY)
+{
+    for(int i = 0; i < 8; i++)
+    {
+        plot_pixel(baseX + 3, baseY + i, BLACK);
+        plot_pixel(baseX + 4, baseY + i, BLACK);
+    }
+    for(int i = 2; i < 8; i++)
+    {
+        plot_pixel(baseX + 2, baseY + i, BLACK);
+        plot_pixel(baseX + 5, baseY + i, BLACK);
+    }
+    for(int i = 4; i < 8; i++)
+    {
+        plot_pixel(baseX + 1, baseY + i, BLACK);
+        plot_pixel(baseX + 6, baseY + i, BLACK);
+    }
+    for(int i = 6; i < 8; i++)
+    {
+        plot_pixel(baseX, baseY + i, BLACK);
+        plot_pixel(baseX + 7, baseY + i, BLACK);
+    }
 }
 
 /********************************************************************
