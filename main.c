@@ -236,6 +236,12 @@ void drawEmpty(int baseX, int baseY);                // draw the empty space
 /* Title screen */
 void drawBigTitle();
 
+/* Winning screen */
+void drawWinningScreen();
+
+/* Game losing screen */
+void drawLosingScreen();
+
 /* Testing objects */
 void drawTestBox(int vgaX, int vgaY);
 
@@ -639,6 +645,8 @@ void clear_screen()
 void setupLevels()
 {
     setupLevels_lv1();
+    setupLevels_lv2();
+    setupLevels_lv3();
 }
 
 /********************************************************************
@@ -648,6 +656,7 @@ void setupLevels()
  *******************************************************************/
 void setupLevels_lv1()
 {
+
     // update the level number
     gameLevels[0].levelNumber = 1;
 
@@ -678,6 +687,206 @@ void setupLevels_lv1()
     gameLevels[0].levelObjects[30][20] = GAMEOBJ_END;
     gameLevels[0].end.x = 30;
     gameLevels[0].end.y = 20;
+}
+
+/********************************************************************
+ * setupLevels_lv2
+ *
+ * setup level 2 object
+ *******************************************************************/
+void setupLevels_lv2()
+{
+    // update the level number
+    gameLevels[1].levelNumber = 2;
+
+    // draw platforms
+    for (int x = 6; x <= 27; x++)
+    {
+        gameLevels[1].levelObjects[x][5] = GAMEOBJ_PLATFORM_BLOCK;
+    }
+    for (int x = 1; x <= 17; x++)
+    {
+        gameLevels[1].levelObjects[x][10] = GAMEOBJ_PLATFORM_BLOCK;
+    }
+    for (int x = 21; x <= 27; x++)
+    {
+        gameLevels[1].levelObjects[x][14] = GAMEOBJ_PLATFORM_BLOCK;
+    }
+    for (int x = 14; x <= 18; x++)
+    {
+        gameLevels[1].levelObjects[x][18] = GAMEOBJ_PLATFORM_BLOCK;
+    }
+    for (int x = 0; x <= 6; x++)
+    {
+        gameLevels[1].levelObjects[x][19] = GAMEOBJ_PLATFORM_BLOCK;
+    }
+    for (int x = 7; x <= 12; x++)
+    {
+        gameLevels[1].levelObjects[x][22] = GAMEOBJ_PLATFORM_BLOCK;
+    }
+    for (int x = 19; x <= 31; x++)
+    {
+        gameLevels[1].levelObjects[x][22] = GAMEOBJ_PLATFORM_BLOCK;
+    }
+
+    // draw fireballs
+    for (int x = 4; x <= 5; x++)
+    {
+        gameLevels[1].levelObjects[x][5] = GAMEOBJ_FIREBALL;
+    }
+    for (int y = 5; y <= 13; y++)
+    {
+        gameLevels[1].levelObjects[28][y] = GAMEOBJ_FIREBALL;
+    }
+    for (int x = 0; x <= 9; x++)
+    {
+        gameLevels[1].levelObjects[x][15] = GAMEOBJ_FIREBALL;
+    }
+    for (int y = 15; y <= 18; y++)
+    {
+        gameLevels[1].levelObjects[10][y] = GAMEOBJ_FIREBALL;
+        gameLevels[1].levelObjects[25][y] = GAMEOBJ_FIREBALL;
+    }
+    for (int y = 0; y <= 22; y++)
+    {
+        gameLevels[1].levelObjects[31][y] = GAMEOBJ_FIREBALL;
+    }
+
+    // draw spikes
+    for (int x = 19; x <= 25; x++)
+    {
+        gameLevels[1].levelObjects[x][21] = GAMEOBJ_SPIKE;
+    }
+    gameLevels[1].levelObjects[30][21] = GAMEOBJ_SPIKE;
+    for (int x = 0; x <= 31; x++)
+    {
+        gameLevels[1].levelObjects[x][23] = GAMEOBJ_SPIKE;
+    }
+
+    // starting position
+    gameLevels[1].levelObjects[2][19] = GAMEOBJ_START;
+    gameLevels[1].start.x = 2;
+    gameLevels[1].start.y = 19;
+
+    // ending position
+    gameLevels[1].levelObjects[28][22] = GAMEOBJ_END;
+    gameLevels[1].end.x = 28;
+    gameLevels[1].end.y = 22;
+}
+
+/********************************************************************
+ * setupLevels_lv3
+ *
+ * setup level 3 object
+ *******************************************************************/
+void setupLevels_lv3()
+{
+    // update the level number
+    gameLevels[2].levelNumber = 3;
+
+    // draw platforms
+    for (int x = 6; x <= 27; x++)
+    {
+        gameLevels[2].levelObjects[x][5] = GAMEOBJ_PLATFORM_BLOCK;
+    }
+    for (int x = 1; x <= 17; x++)
+    {
+        gameLevels[2].levelObjects[x][10] = GAMEOBJ_PLATFORM_BLOCK;
+    }
+    for (int x = 21; x <= 27; x++)
+    {
+        gameLevels[2].levelObjects[x][14] = GAMEOBJ_PLATFORM_BLOCK;
+    }
+    for (int x = 14; x <= 18; x++)
+    {
+        gameLevels[2].levelObjects[x][18] = GAMEOBJ_PLATFORM_BLOCK;
+    }
+    for (int x = 0; x <= 6; x++)
+    {
+        gameLevels[2].levelObjects[x][19] = GAMEOBJ_PLATFORM_BLOCK;
+    }
+    for (int x = 7; x <= 12; x++)
+    {
+        gameLevels[2].levelObjects[x][22] = GAMEOBJ_PLATFORM_BLOCK;
+    }
+    for (int x = 19; x <= 31; x++)
+    {
+        gameLevels[2].levelObjects[x][22] = GAMEOBJ_PLATFORM_BLOCK;
+    }
+
+    // draw fireballs
+    for (int x = 4; x <= 5; x++)
+    {
+        gameLevels[2].levelObjects[x][5] = GAMEOBJ_FIREBALL;
+    }
+    for (int y = 5; y <= 13; y++)
+    {
+        gameLevels[2].levelObjects[28][y] = GAMEOBJ_FIREBALL;
+    }
+    for (int x = 0; x <= 9; x++)
+    {
+        gameLevels[2].levelObjects[x][15] = GAMEOBJ_FIREBALL;
+    }
+    for (int y = 15; y <= 18; y++)
+    {
+        gameLevels[2].levelObjects[10][y] = GAMEOBJ_FIREBALL;
+        gameLevels[2].levelObjects[25][y] = GAMEOBJ_FIREBALL;
+    }
+    for (int y = 0; y <= 22; y++)
+    {
+        gameLevels[2].levelObjects[31][y] = GAMEOBJ_FIREBALL;
+    }
+    for (int x = 0; x <= 7; x++)
+    {
+        gameLevels[2].levelObjects[x][0] = GAMEOBJ_FIREBALL;
+    }
+    for (int y = 11; y <= 14; y++)
+    {
+        gameLevels[2].levelObjects[17][y] = GAMEOBJ_FIREBALL;
+    }
+    for (int y = 16; y <= 21; y++)
+    {
+        gameLevels[2].levelObjects[13][y] = GAMEOBJ_FIREBALL;
+        gameLevels[2].levelObjects[30][y] = GAMEOBJ_FIREBALL;
+    }
+
+    // draw spikes
+    for (int x = 19; x <= 25; x++)
+    {
+        gameLevels[2].levelObjects[x][21] = GAMEOBJ_SPIKE;
+    }
+    for (int x = 0; x <= 31; x++)
+    {
+        gameLevels[2].levelObjects[x][23] = GAMEOBJ_SPIKE;
+    }
+    for (int x = 9; x <= 11; x++)
+    {
+        gameLevels[2].levelObjects[x][4] = GAMEOBJ_SPIKE;
+    }
+    for (int x = 17; x <= 19; x++)
+    {
+        gameLevels[2].levelObjects[x][4] = GAMEOBJ_SPIKE;
+    }
+    for (int x = 25; x <= 26; x++)
+    {
+        gameLevels[2].levelObjects[x][4] = GAMEOBJ_SPIKE;
+    }
+    gameLevels[2].levelObjects[1][9] = GAMEOBJ_SPIKE;
+    for (int x = 15; x <= 17; x++)
+    {
+        gameLevels[2].levelObjects[x][9] = GAMEOBJ_SPIKE;
+    }
+    gameLevels[2].levelObjects[7][21] = GAMEOBJ_SPIKE;
+
+    // starting position
+    gameLevels[2].levelObjects[2][19] = GAMEOBJ_START;
+    gameLevels[2].start.x = 2;
+    gameLevels[2].start.y = 19;
+
+    // ending position
+    gameLevels[2].levelObjects[28][22] = GAMEOBJ_END;
+    gameLevels[2].end.x = 28;
+    gameLevels[2].end.y = 22;
 }
 
 /********************************************************************
@@ -742,8 +951,10 @@ void drawCurrentObjects()
                 drawPlatformBlock(x, y);
                 break;
             case GAMEOBJ_FIREBALL:
+                drawFireball(x * 10, y * 10);
                 break;
             case GAMEOBJ_SPIKE:
+                drawSpike(x * 10, y * 10);
                 break;
             case GAMEOBJ_START:
                 drawStart(x, y);
@@ -815,6 +1026,7 @@ void drawEmpty(int baseX, int baseY)
  *******************************************************************/
 void drawBigTitle()
 {
+
     // number 1
     for (int baseY = 7; baseY < 22; baseY++)
         drawBox(5 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
@@ -842,6 +1054,171 @@ void drawBigTitle()
         drawBox(27 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, MAGENTA);
     for (int baseX = 24; baseX < 28; baseX++)
         drawBox(baseX * BOX_LEN, 14 * BOX_LEN, BOX_LEN, MAGENTA);
+}
+
+/********************************************************************
+ * drawWinningScreen()
+ *
+ * draw the win screen when player wins
+ *******************************************************************/
+void drawWinningScreen()
+{
+    // Y
+    for (int baseY = 5; baseY <= 9; baseY++)
+        drawBox(8 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(6 * BOX_LEN, 3 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(10 * BOX_LEN, 3 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(7 * BOX_LEN, 4 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(9 * BOX_LEN, 4 * BOX_LEN, BOX_LEN, BLACK);
+
+    // O
+    for (int baseX = 13; baseX <= 15; baseX++)
+    {
+        drawBox(baseX * BOX_LEN, 3 * BOX_LEN, BOX_LEN, BLACK);
+        drawBox(baseX * BOX_LEN, 9 * BOX_LEN, BOX_LEN, BLACK);
+    }
+    for (int baseY = 4; baseY <= 8; baseY++)
+    {
+        drawBox(12 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+        drawBox(16 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+    }
+
+    // U
+    for (int baseY = 3; baseY <= 8; baseY++)
+    {
+        drawBox(18 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+        drawBox(22 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+    }
+    for (int baseX = 19; baseX <= 21; baseX++)
+    {
+        drawBox(baseX * BOX_LEN, 9 * BOX_LEN, BOX_LEN, BLACK);
+    }
+
+    // W
+    for (int baseY = 12; baseY <= 17; baseY++)
+    {
+        drawBox(6 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+        drawBox(10 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+    }
+    for (int baseY = 14; baseY <= 17; baseY++)
+    {
+        drawBox(8 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+    }
+    drawBox(7 * BOX_LEN, 18 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(9 * BOX_LEN, 18 * BOX_LEN, BOX_LEN, BLACK);
+
+    //I
+    for (int baseX = 12; baseX <= 16; baseX++)
+    {
+        drawBox(baseX * BOX_LEN, 12 * BOX_LEN, BOX_LEN, BLACK);
+        drawBox(baseX * BOX_LEN, 18 * BOX_LEN, BOX_LEN, BLACK);
+    }
+    for (int baseY = 13; baseY <= 17; baseY++)
+    {
+        drawBox(14 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+    }
+
+    //N
+    for (int baseY = 12; baseY <= 18; baseY++)
+    {
+        drawBox(18 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+        drawBox(22 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+    }
+    drawBox(19 * BOX_LEN, 13 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(19 * BOX_LEN, 14 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(20 * BOX_LEN, 14 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(20 * BOX_LEN, 15 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(20 * BOX_LEN, 16 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(21 * BOX_LEN, 16 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(21 * BOX_LEN, 17 * BOX_LEN, BOX_LEN, BLACK);
+}
+
+/********************************************************************
+ * drawGameOver()
+ *
+ * draw the win screen when player loses
+ *******************************************************************/
+void drawLosingScreen()
+{
+    // Y
+    for (int baseY = 5; baseY <= 9; baseY++)
+        drawBox(8 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(6 * BOX_LEN, 3 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(10 * BOX_LEN, 3 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(7 * BOX_LEN, 4 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(9 * BOX_LEN, 4 * BOX_LEN, BOX_LEN, BLACK);
+
+    // O
+    for (int baseX = 13; baseX <= 15; baseX++)
+    {
+        drawBox(baseX * BOX_LEN, 3 * BOX_LEN, BOX_LEN, BLACK);
+        drawBox(baseX * BOX_LEN, 9 * BOX_LEN, BOX_LEN, BLACK);
+    }
+    for (int baseY = 4; baseY <= 8; baseY++)
+    {
+        drawBox(12 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+        drawBox(16 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+    }
+
+    // U
+    for (int baseY = 3; baseY <= 8; baseY++)
+    {
+        drawBox(18 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+        drawBox(22 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+    }
+    for (int baseX = 19; baseX <= 21; baseX++)
+    {
+        drawBox(baseX * BOX_LEN, 9 * BOX_LEN, BOX_LEN, BLACK);
+    }
+
+    // L
+    for (int baseY = 12; baseY <= 18; baseY++)
+    {
+        drawBox(4 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+    }
+    for (int baseX = 4; baseX <= 8; baseX++)
+    {
+        drawBox(baseX * BOX_LEN, 18 * BOX_LEN, BOX_LEN, BLACK);
+    }
+
+    // O
+    for (int baseX = 11; baseX <= 13; baseX++)
+    {
+        drawBox(baseX * BOX_LEN, 12 * BOX_LEN, BOX_LEN, BLACK);
+        drawBox(baseX * BOX_LEN, 18 * BOX_LEN, BOX_LEN, BLACK);
+    }
+    for (int baseY = 13; baseY <= 17; baseY++)
+    {
+        drawBox(10 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+        drawBox(14 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+    }
+
+    // S
+    for (int baseX = 17; baseX <= 19; baseX++)
+    {
+        drawBox(baseX * BOX_LEN, 12 * BOX_LEN, BOX_LEN, BLACK);
+        drawBox(baseX * BOX_LEN, 15 * BOX_LEN, BOX_LEN, BLACK);
+        drawBox(baseX * BOX_LEN, 18 * BOX_LEN, BOX_LEN, BLACK);
+    }
+    drawBox(16 * BOX_LEN, 13 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(20 * BOX_LEN, 13 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(16 * BOX_LEN, 14 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(20 * BOX_LEN, 16 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(20 * BOX_LEN, 17 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(16 * BOX_LEN, 17 * BOX_LEN, BOX_LEN, BLACK);
+
+    // E
+    for (int baseX = 22; baseX <= 26; baseX++)
+    {
+        drawBox(baseX * BOX_LEN, 12 * BOX_LEN, BOX_LEN, BLACK);
+        drawBox(baseX * BOX_LEN, 18 * BOX_LEN, BOX_LEN, BLACK);
+        if(baseX != 26)
+            drawBox(baseX * BOX_LEN, 15 * BOX_LEN, BOX_LEN, BLACK);
+    }
+    for (int baseY = 12; baseY <= 18; baseY++)
+    {
+        drawBox(22 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+    }
 }
 
 /*******************************************************************
@@ -2265,6 +2642,7 @@ int main(void)
 {
     // Setup all the levels before the game
     setupLevels();
+    clear_screen();
     updateLevel(gameLevels[0]);
 
     // Interrupt setup routine
