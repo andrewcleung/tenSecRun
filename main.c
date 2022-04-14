@@ -235,6 +235,12 @@ void drawEmpty(int baseX, int baseY);                // draw the empty space
 /* Title screen */
 void drawBigTitle();
 
+/* Winning screen */
+void drawWinningScreen();
+
+/* Game losing screen */
+void drawLosingScreen();
+
 /* Testing objects */
 void drawTestBox(int vgaX, int vgaY);
 
@@ -1043,7 +1049,171 @@ void drawBigTitle()
         drawBox(27 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, MAGENTA);
     for (int baseX = 24; baseX < 28; baseX++)
         drawBox(baseX * BOX_LEN, 14 * BOX_LEN, BOX_LEN, MAGENTA);
-        
+}
+
+/********************************************************************
+ * drawWinningScreen()
+ *
+ * draw the win screen when player wins
+ *******************************************************************/
+void drawWinningScreen()
+{
+    // Y
+    for (int baseY = 5; baseY <= 9; baseY++)
+        drawBox(8 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(6 * BOX_LEN, 3 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(10 * BOX_LEN, 3 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(7 * BOX_LEN, 4 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(9 * BOX_LEN, 4 * BOX_LEN, BOX_LEN, BLACK);
+
+    // O
+    for (int baseX = 13; baseX <= 15; baseX++)
+    {
+        drawBox(baseX * BOX_LEN, 3 * BOX_LEN, BOX_LEN, BLACK);
+        drawBox(baseX * BOX_LEN, 9 * BOX_LEN, BOX_LEN, BLACK);
+    }
+    for (int baseY = 4; baseY <= 8; baseY++)
+    {
+        drawBox(12 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+        drawBox(16 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+    }
+
+    // U
+    for (int baseY = 3; baseY <= 8; baseY++)
+    {
+        drawBox(18 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+        drawBox(22 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+    }
+    for (int baseX = 19; baseX <= 21; baseX++)
+    {
+        drawBox(baseX * BOX_LEN, 9 * BOX_LEN, BOX_LEN, BLACK);
+    }
+
+    // W
+    for (int baseY = 12; baseY <= 17; baseY++)
+    {
+        drawBox(6 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+        drawBox(10 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+    }
+    for (int baseY = 14; baseY <= 17; baseY++)
+    {
+        drawBox(8 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+    }
+    drawBox(7 * BOX_LEN, 18 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(9 * BOX_LEN, 18 * BOX_LEN, BOX_LEN, BLACK);
+
+    //I
+    for (int baseX = 12; baseX <= 16; baseX++)
+    {
+        drawBox(baseX * BOX_LEN, 12 * BOX_LEN, BOX_LEN, BLACK);
+        drawBox(baseX * BOX_LEN, 18 * BOX_LEN, BOX_LEN, BLACK);
+    }
+    for (int baseY = 13; baseY <= 17; baseY++)
+    {
+        drawBox(14 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+    }
+
+    //N
+    for (int baseY = 12; baseY <= 18; baseY++)
+    {
+        drawBox(18 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+        drawBox(22 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+    }
+    drawBox(19 * BOX_LEN, 13 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(19 * BOX_LEN, 14 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(20 * BOX_LEN, 14 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(20 * BOX_LEN, 15 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(20 * BOX_LEN, 16 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(21 * BOX_LEN, 16 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(21 * BOX_LEN, 17 * BOX_LEN, BOX_LEN, BLACK);
+}
+
+/********************************************************************
+ * drawGameOver()
+ *
+ * draw the win screen when player loses
+ *******************************************************************/
+void drawLosingScreen()
+{
+    // Y
+    for (int baseY = 5; baseY <= 9; baseY++)
+        drawBox(8 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(6 * BOX_LEN, 3 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(10 * BOX_LEN, 3 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(7 * BOX_LEN, 4 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(9 * BOX_LEN, 4 * BOX_LEN, BOX_LEN, BLACK);
+
+    // O
+    for (int baseX = 13; baseX <= 15; baseX++)
+    {
+        drawBox(baseX * BOX_LEN, 3 * BOX_LEN, BOX_LEN, BLACK);
+        drawBox(baseX * BOX_LEN, 9 * BOX_LEN, BOX_LEN, BLACK);
+    }
+    for (int baseY = 4; baseY <= 8; baseY++)
+    {
+        drawBox(12 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+        drawBox(16 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+    }
+
+    // U
+    for (int baseY = 3; baseY <= 8; baseY++)
+    {
+        drawBox(18 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+        drawBox(22 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+    }
+    for (int baseX = 19; baseX <= 21; baseX++)
+    {
+        drawBox(baseX * BOX_LEN, 9 * BOX_LEN, BOX_LEN, BLACK);
+    }
+
+    // L
+    for (int baseY = 12; baseY <= 18; baseY++)
+    {
+        drawBox(4 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+    }
+    for (int baseX = 4; baseX <= 8; baseX++)
+    {
+        drawBox(baseX * BOX_LEN, 18 * BOX_LEN, BOX_LEN, BLACK);
+    }
+
+    // O
+    for (int baseX = 11; baseX <= 13; baseX++)
+    {
+        drawBox(baseX * BOX_LEN, 12 * BOX_LEN, BOX_LEN, BLACK);
+        drawBox(baseX * BOX_LEN, 18 * BOX_LEN, BOX_LEN, BLACK);
+    }
+    for (int baseY = 13; baseY <= 17; baseY++)
+    {
+        drawBox(10 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+        drawBox(14 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+    }
+
+    // S
+    for (int baseX = 17; baseX <= 19; baseX++)
+    {
+        drawBox(baseX * BOX_LEN, 12 * BOX_LEN, BOX_LEN, BLACK);
+        drawBox(baseX * BOX_LEN, 15 * BOX_LEN, BOX_LEN, BLACK);
+        drawBox(baseX * BOX_LEN, 18 * BOX_LEN, BOX_LEN, BLACK);
+    }
+    drawBox(16 * BOX_LEN, 13 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(20 * BOX_LEN, 13 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(16 * BOX_LEN, 14 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(20 * BOX_LEN, 16 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(20 * BOX_LEN, 17 * BOX_LEN, BOX_LEN, BLACK);
+    drawBox(16 * BOX_LEN, 17 * BOX_LEN, BOX_LEN, BLACK);
+
+    // E
+    for (int baseX = 22; baseX <= 26; baseX++)
+    {
+        drawBox(baseX * BOX_LEN, 12 * BOX_LEN, BOX_LEN, BLACK);
+        drawBox(baseX * BOX_LEN, 18 * BOX_LEN, BOX_LEN, BLACK);
+        if(baseX != 26)
+            drawBox(baseX * BOX_LEN, 15 * BOX_LEN, BOX_LEN, BLACK);
+    }
+    for (int baseY = 12; baseY <= 18; baseY++)
+    {
+        drawBox(22 * BOX_LEN, baseY * BOX_LEN, BOX_LEN, BLACK);
+    }
 }
 
 /*******************************************************************
