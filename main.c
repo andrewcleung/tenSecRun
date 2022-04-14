@@ -109,7 +109,8 @@
 
 /* Physics */
 #define PLAYER_SPEED_NORMAL 5
-#define GRAVITY -1
+#define GRAVITY -10
+#define PLAYER_INITIAL_UP_VELOCITY 40
 
 /* level attirbutes */
 #define NUMBER_OF_LEVELS 2
@@ -657,6 +658,10 @@ void setupLevels_lv1()
     }
 
     gameLevels[0].levelObjects[10][19] = GAMEOBJ_PLATFORM_BLOCK;
+
+    gameLevels[0].levelObjects[10][10] = GAMEOBJ_PLATFORM_BLOCK;
+    gameLevels[0].levelObjects[9][10] = GAMEOBJ_PLATFORM_BLOCK;
+    gameLevels[0].levelObjects[8][10] = GAMEOBJ_PLATFORM_BLOCK;
 
     // create gaps
     for (int x = 20; x < 23; x++)
@@ -1276,6 +1281,8 @@ void updatePlayerStatus()
     // Define more easy to read variable
     const int playerVgaPosX = myGame.myPlayer.pos.x;
     const int playerVgaPosXRight = myGame.myPlayer.pos.x + PLAYER_WIDTH - 1;
+    const int playerVgaPosY = myGame.myPlayer.pos.y;
+    const int playerVgaPosYBottom = myGame.myPlayer.pos.y + PLAYER_HEIGHT - 1;
 
     switch (myGame.myPlayer.state)
     {
@@ -1289,12 +1296,12 @@ void updatePlayerStatus()
         // Platform bound checking
         for (int yPos = myGame.myPlayer.pos.y; yPos < myGame.myPlayer.pos.y + PLAYER_HEIGHT; yPos++)
         {
-            if (myGame.currentObjects[((int)(playerVgaPosX - baseSpeed) / BOX_LEN)][yPos /BOX_LEN] == GAMEOBJ_PLATFORM_BLOCK ||
-                myGame.currentObjects[((int)(playerVgaPosX - baseSpeed) / BOX_LEN)][yPos /BOX_LEN] == GAMEOBJ_START ||
-                myGame.currentObjects[((int)(playerVgaPosX - baseSpeed) / BOX_LEN)][yPos /BOX_LEN] == GAMEOBJ_END)
+            if (myGame.currentObjects[((int)(playerVgaPosX - baseSpeed) / BOX_LEN)][yPos / BOX_LEN] == GAMEOBJ_PLATFORM_BLOCK ||
+                myGame.currentObjects[((int)(playerVgaPosX - baseSpeed) / BOX_LEN)][yPos / BOX_LEN] == GAMEOBJ_START ||
+                myGame.currentObjects[((int)(playerVgaPosX - baseSpeed) / BOX_LEN)][yPos / BOX_LEN] == GAMEOBJ_END)
             {
                 myGame.myPlayer.horizontal_speed = 0;
-                goto updatePlayerStatusReturn;
+                goto updatePlayerStatusHorizontalReturn;
             }
         }
         myGame.myPlayer.horizontal_speed = -baseSpeed;
@@ -1302,7 +1309,7 @@ void updatePlayerStatus()
 
     case PLAYERSTATE_RIGHT:
         // Screen resolution bound checking
-        if (playerVgaPosXRight > (RESOLUTION_X - baseSpeed))
+        if (playerVgaPosXRight >= (RESOLUTION_X - baseSpeed))
         {
             myGame.myPlayer.horizontal_speed = 0;
             break;
@@ -1310,12 +1317,12 @@ void updatePlayerStatus()
         // Platform bound checking
         for (int yPos = myGame.myPlayer.pos.y; yPos < myGame.myPlayer.pos.y + PLAYER_HEIGHT; yPos++)
         {
-            if (myGame.currentObjects[((int)(playerVgaPosXRight + baseSpeed) / BOX_LEN)][yPos /BOX_LEN] == GAMEOBJ_PLATFORM_BLOCK ||
-                myGame.currentObjects[((int)(playerVgaPosXRight + baseSpeed) / BOX_LEN)][yPos /BOX_LEN] == GAMEOBJ_START ||
-                myGame.currentObjects[((int)(playerVgaPosXRight + baseSpeed) / BOX_LEN)][yPos /BOX_LEN] == GAMEOBJ_END)
+            if (myGame.currentObjects[((int)(playerVgaPosXRight + baseSpeed) / BOX_LEN)][yPos / BOX_LEN] == GAMEOBJ_PLATFORM_BLOCK ||
+                myGame.currentObjects[((int)(playerVgaPosXRight + baseSpeed) / BOX_LEN)][yPos / BOX_LEN] == GAMEOBJ_START ||
+                myGame.currentObjects[((int)(playerVgaPosXRight + baseSpeed) / BOX_LEN)][yPos / BOX_LEN] == GAMEOBJ_END)
             {
                 myGame.myPlayer.horizontal_speed = 0;
-                goto updatePlayerStatusReturn;
+                goto updatePlayerStatusHorizontalReturn;
             }
         }
         myGame.myPlayer.horizontal_speed = baseSpeed;
@@ -1327,9 +1334,91 @@ void updatePlayerStatus()
         myGame.myPlayer.horizontal_speed = 0;
     }
 
-    // Update the player's horizontal position
-    updatePlayerStatusReturn:
+// Update the player's horizontal position
+updatePlayerStatusHorizontalReturn:
     myGame.myPlayer.pos.x += myGame.myPlayer.horizontal_speed;
+
+    if (myGame.myPlayer.airborne)
+    {
+        myGame.myPlayer.vertical_speed += GRAVITY;
+    }
+    // JumpMechanics
+    if (myGame.myPlayer.jump)
+    {
+        myGame.myPlayer.jump = false;
+        myGame.myPlayer.airborne = true;
+        myGame.myPlayer.vertical_speed = PLAYER_INITIAL_UP_VELOCITY;
+    }
+    // bound checking
+    // landing check
+    for (int xPos = playerVgaPosX; xPos <= playerVgaPosXRight; xPos++)
+    {
+        // empty ground check
+        if (myGame.currentObjects[((int)(xPos) / BOX_LEN)][playerVgaPosYBottom / BOX_LEN] == GAMEOBJ_EMPTY)
+        {
+            myGame.myPlayer.airborne = true;
+        }
+        // roof check
+
+        if (myGame.myPlayer.vertical_speed > 0)
+        {
+            for (int yPos = playerVgaPosY; yPos >= playerVgaPosY - myGame.myPlayer.vertical_speed; yPos--)
+            {
+                // check of upper block first
+                // roof check
+                if (myGame.currentObjects[((int)(xPos) / BOX_LEN)][yPos / BOX_LEN] == GAMEOBJ_PLATFORM_BLOCK ||
+                    myGame.currentObjects[((int)(xPos) / BOX_LEN)][yPos / BOX_LEN] == GAMEOBJ_START ||
+                    myGame.currentObjects[((int)(xPos) / BOX_LEN)][yPos / BOX_LEN] == GAMEOBJ_END)
+                {
+                    myGame.myPlayer.vertical_speed = 0;
+                    if (myGame.myPlayer.pos.y < yPos + 1) // update if only hit a lower block
+                        myGame.myPlayer.pos.y = yPos + 1; // update the y position
+                }
+            }
+            if (myGame.myPlayer.vertical_speed == 0) // return if already hit a block
+                goto updatePlayerStatusVerticalReturn;
+            for (int yPos = playerVgaPosY; yPos >= playerVgaPosY - myGame.myPlayer.vertical_speed; yPos--)
+            {
+                if (yPos < 0)
+                {
+                    myGame.myPlayer.vertical_speed = 0;
+                    myGame.myPlayer.pos.y = 0; // update the y posotion
+                    goto updatePlayerStatusVerticalReturn;
+                }
+            }
+        }
+        if (myGame.myPlayer.vertical_speed < 0)
+        {
+            for (int yPos = playerVgaPosY; yPos <= playerVgaPosY - myGame.myPlayer.vertical_speed; yPos++)
+            {
+                // ground check
+                if (myGame.currentObjects[((int)(xPos) / BOX_LEN)][(yPos + PLAYER_HEIGHT - 1) / BOX_LEN] == GAMEOBJ_PLATFORM_BLOCK ||
+                    myGame.currentObjects[((int)(xPos) / BOX_LEN)][(yPos + PLAYER_HEIGHT - 1) / BOX_LEN] == GAMEOBJ_START ||
+                    myGame.currentObjects[((int)(xPos) / BOX_LEN)][(yPos + PLAYER_HEIGHT - 1) / BOX_LEN] == GAMEOBJ_END)
+                {
+                    myGame.myPlayer.vertical_speed = 0;
+                    myGame.myPlayer.airborne = false;
+                    if (myGame.myPlayer.pos.y > yPos - 1) // update if only hit a higher block
+                        myGame.myPlayer.pos.y = yPos - 1; // update the y position
+                }
+            }
+            if (myGame.myPlayer.vertical_speed == 0) // return if already hit a block
+                goto updatePlayerStatusVerticalReturn;
+
+            for (int yPos = playerVgaPosY; yPos <= playerVgaPosY - myGame.myPlayer.vertical_speed; yPos++)
+            {
+                if (yPos + PLAYER_HEIGHT - 1 >= RESOLUTION_Y)
+                {
+                    myGame.myPlayer.vertical_speed = 0;
+                    myGame.myPlayer.pos.y = RESOLUTION_Y - 1 - PLAYER_HEIGHT;
+                    // myGame.progress = GAMEPROG_LOSE;
+                    goto updatePlayerStatusVerticalReturn;
+                }
+            }
+        }
+    }
+updatePlayerStatusVerticalReturn:
+    myGame.myPlayer.pos.y -= myGame.myPlayer.vertical_speed;
 }
 
 /********************************************************************
@@ -1346,18 +1435,19 @@ void hitboxCheck()
     // Fireball and spike bound checking
     for (int yPos = myGame.myPlayer.pos.y; yPos < myGame.myPlayer.pos.y + PLAYER_HEIGHT; yPos++)
     {
-        if (myGame.currentObjects[((int)(playerVgaPosX) / BOX_LEN)][yPos /BOX_LEN] == GAMEOBJ_FIREBALL ||
-            myGame.currentObjects[((int)(playerVgaPosX) / BOX_LEN)][yPos /BOX_LEN] == GAMEOBJ_SPIKE)
+        if (myGame.currentObjects[((int)(playerVgaPosX) / BOX_LEN)][yPos / BOX_LEN] == GAMEOBJ_FIREBALL ||
+            myGame.currentObjects[((int)(playerVgaPosX) / BOX_LEN)][yPos / BOX_LEN] == GAMEOBJ_SPIKE)
         {
             myGame.progress = GAMEPROG_LOSE;
-            return;;
+            return;
+            ;
         }
     }
     // Fireball and spike bound checking
     for (int yPos = myGame.myPlayer.pos.y; yPos < myGame.myPlayer.pos.y + PLAYER_HEIGHT; yPos++)
     {
-        if (myGame.currentObjects[((int)(playerVgaPosXRight) / BOX_LEN)][yPos /BOX_LEN] == GAMEOBJ_FIREBALL ||
-            myGame.currentObjects[((int)(playerVgaPosXRight) / BOX_LEN)][ yPos/ BOX_LEN] == GAMEOBJ_SPIKE)
+        if (myGame.currentObjects[((int)(playerVgaPosXRight) / BOX_LEN)][yPos / BOX_LEN] == GAMEOBJ_FIREBALL ||
+            myGame.currentObjects[((int)(playerVgaPosXRight) / BOX_LEN)][yPos / BOX_LEN] == GAMEOBJ_SPIKE)
         {
             myGame.progress = GAMEPROG_LOSE;
             return;
@@ -1409,8 +1499,8 @@ void ps2KeyboardInputHandler(char byte1, char byte2, char byte3)
     // Jump mechanics
     if (byte3 == 0x1D && myGame.myPlayer.airborne == false)
         myGame.myPlayer.jump = true;
-        
-    if (byte2 == 0xF0 && byte3!=0x1D)
+
+    if (byte2 == 0xF0 && byte3 != 0x1D) // make sure the the button released is not the jump button
     {
         myGame.myPlayer.state = PLAYERSTATE_STILL;
         return;
