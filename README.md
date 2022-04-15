@@ -1,5 +1,5 @@
 # 10 Second Run
-We (Andrew and Kenro) have re-created a video game called “10 Second Run”. It is an 2D platform obstacle course game, where the player runs and jumps while dodging obstacles, to reach the finish line. The catch however, is that there is a 10 second timer for each level - if the player cannot finish the level within 10 seconds, they lose the game.
+We (Andrew and Kenro) have re-created a video game called “10 Second Run” using C code on the DE1-SoC computer. It is an 2D platform obstacle course game, where the player runs and jumps while dodging obstacles, to reach the finish line. The catch however, is that there is a 10 second timer for each level - if the player cannot finish the level within 10 seconds, they lose the game.
 
 
 ## How to load the game on cpulator
